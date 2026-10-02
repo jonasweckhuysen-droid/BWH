@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#b5121b">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <title>BWH 2.0 - Home</title>
+  <script src="register-sw.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="mini-mark">BWH</span>
+      <div><strong>BWH 2.0</strong><small>Brandweer Herentals</small></div>
+    </div>
+    <button id="logoutBtn" class="logout-btn">Afmelden</button>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <p class="eyebrow">BRANDWEER HERENTALS</p>
+      <h1>Welkom, <span id="userName">brandweerman</span> 👋</h1>
+      <p>Dit is je persoonlijke startpagina. De inhoud en rechten worden later gekoppeld aan je gebruikersprofiel.</p>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="dashboard-card"><span>🚒</span><h3>Interventies</h3><p>Later beschikbaar</p></article>
+      <article class="dashboard-card"><span>📋</span><h3>Planning</h3><p>Later beschikbaar</p></article>
+      <article class="dashboard-card"><span>📦</span><h3>Magazijn</h3><p>Later beschikbaar</p></article>
+      <article class="dashboard-card"><span>⚙️</span><h3>Instellingen</h3><p>Later beschikbaar</p></article>
+    </section>
+  </main>
+
+  <script type="module" src="js/home.js"></script>
+</body>
+</html>
