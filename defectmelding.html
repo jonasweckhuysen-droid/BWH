@@ -141,7 +141,7 @@
     /* CONFIGURATIE VOOR GOOGLE SHEETS LINK (ENKEL ZICHTBAAR VOOR ADMINS) */
     .excel-config-box {
       background: #252525;
-      border: 1px solid #444;
+      border: 1px solid #ff9800;
       border-radius: 8px;
       padding: 12px;
       margin-bottom: 15px;
@@ -428,7 +428,6 @@
 
     const currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
 
-    // Controleer of de ingelogde gebruiker een Admin is
     if (currentUser) {
       checkAdminRole(currentUser);
     }
@@ -454,6 +453,8 @@
 
   <!-- LOGICA VOOR OPHALEN & VERWERKEN VAN HET SPREADSHEET -->
   <script>
+    const DEFAULT_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit';
+
     // Navigation fallback helper
     window.safeNavigate = function(targetUrl) {
       try {
@@ -467,11 +468,13 @@
 
     let rawExcelData = [];
 
-    // Opgeslagen link ophalen uit localStorage
-    const savedExcelUrl = localStorage.getItem('bw_excel_defecten_url') || 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit';
-    if (savedExcelUrl) {
-      document.getElementById('excelUrlInput').value = savedExcelUrl;
+    // Opgeslagen link ophalen uit localStorage (of gebruik de geldige standaardlink)
+    let savedExcelUrl = localStorage.getItem('bw_excel_defecten_url');
+    if (!savedExcelUrl || !savedExcelUrl.trim()) {
+      savedExcelUrl = DEFAULT_SHEETS_URL;
+      localStorage.setItem('bw_excel_defecten_url', savedExcelUrl);
     }
+    document.getElementById('excelUrlInput').value = savedExcelUrl;
 
     function showNotification(title, message, icon = '🚒') {
       return new Promise((resolve) => {
@@ -492,17 +495,17 @@
       });
     }
 
-    // Zet een Google Sheets of OneDrive delen-link om naar een directe CSV/download URL
+    // Zet een Google Sheets of OneDrive delen-link om naar een directe CSV/export URL
     function convertToDirectDownloadLink(url) {
       let cleanUrl = url.trim();
       if (!cleanUrl) return '';
 
-      // Google Sheets link omzetten
+      // Google Sheets link omzetten naar een directe CSV export URL
       if (cleanUrl.includes('docs.google.com/spreadsheets')) {
         const matches = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
         if (matches && matches[1]) {
           const sheetId = matches[1];
-          return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+          return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
         }
       }
 
@@ -515,7 +518,7 @@
       return cleanUrl;
     }
 
-    // SLIMME EN GEAVANCEERDE DATUM FORMATTERING
+    // SLIMME DATUM FORMATTERING
     function formatDatumValue(rawVal) {
       if (rawVal === undefined || rawVal === null || String(rawVal).trim() === '') {
         return '';
@@ -538,7 +541,7 @@
         }
       }
 
-      // 2. Probeer te parses via Standaard JavaScript Date object
+      // 2. Probeer te parsen via Standaard JavaScript Date object
       const parsedDate = new Date(strVal);
       if (!isNaN(parsedDate.getTime()) && parsedDate.getFullYear() > 2000) {
         const dag = String(parsedDate.getDate()).padStart(2, '0');
@@ -547,14 +550,12 @@
         const uur = String(parsedDate.getHours()).padStart(2, '0');
         const min = String(parsedDate.getMinutes()).padStart(2, '0');
         
-        // Als er geen specifiek uur/minuut opgeslagen was (00:00), toon enkel datum
         if (uur === '00' && min === '00') {
           return `${dag}/${maand}/${jaar}`;
         }
         return `${dag}/${maand}/${jaar} ${uur}:${min}`;
       }
 
-      // 3. Fallback: geef de originele opgemaakte tekst terug als het al een string is
       return strVal;
     }
 
@@ -563,7 +564,6 @@
       const keys = Object.keys(row);
       if (keys.length === 0) return '';
 
-      // 1. Zoek op exacte match
       for (let kw of keywords) {
         const exactKey = keys.find(k => k.trim().toLowerCase() === kw.toLowerCase());
         if (exactKey && row[exactKey] !== undefined && String(row[exactKey]).trim() !== '') {
@@ -571,7 +571,6 @@
         }
       }
 
-      // 2. Zoek op gedeeltelijke match (de vraag bevat het trefwoord)
       for (let kw of keywords) {
         const partialKey = keys.find(k => {
           const lowerK = k.toLowerCase();
@@ -588,13 +587,12 @@
       return '';
     }
 
-    // GOOGLE SHEETS / EXCEL INLADEN VIA SHEETJS
+    // INLADEN VAN GOOGLE SHEETS / EXCEL
     async function loadExcelFromOneDrive() {
-      const urlInput = document.getElementById('excelUrlInput').value.trim();
+      let urlInput = document.getElementById('excelUrlInput').value.trim();
       if (!urlInput) {
-        document.getElementById('defectTableBody').innerHTML = 
-          '<tr><td colspan="4" style="text-align:center; color:#ff9800;">⚠️ Nog geen Google Sheets of Excel link ingesteld door de beheerder.</td></tr>';
-        return;
+        urlInput = DEFAULT_SHEETS_URL;
+        document.getElementById('excelUrlInput').value = DEFAULT_SHEETS_URL;
       }
 
       const downloadUrl = convertToDirectDownloadLink(urlInput);
@@ -608,11 +606,9 @@
         const data = await response.arrayBuffer();
         const workbook = XLSX.read(data, { type: 'array' });
 
-        // Pak het eerste werkblad
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
 
-        // Zet om naar JSON objecten
         rawExcelData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
         if (rawExcelData.length === 0) {
@@ -625,7 +621,7 @@
       } catch (err) {
         console.error("Fout bij inladen data:", err);
         document.getElementById('defectTableBody').innerHTML = 
-          '<tr><td colspan="4" style="text-align:center; color:#ff4d4d;">❌ Kon het bestand niet openen. Controleer of de Google Sheets deellink op "Iedereen met de link kan bekijken" staat.</td></tr>';
+          '<tr><td colspan="4" style="text-align:center; color:#ff4d4d; padding:20px;">❌ Kon het bestand niet openen.<br><br><span style="font-size:12px; color:#ccc;">Zorg ervoor dat de Google Sheet op <strong>"Iedereen met de link" (Lezer)</strong> staat ingesteld.</span></td></tr>';
       }
     }
 
@@ -636,7 +632,6 @@
 
       const searchVal = document.getElementById('searchInput').value.toLowerCase();
 
-      // Filteren op zoekterm
       const filtered = rawExcelData.filter(row => {
         if (!searchVal) return true;
         return Object.values(row).some(val => 
@@ -649,7 +644,6 @@
         return;
       }
 
-      // Weergeven (Nieuwste rijen eerst)
       [...filtered].reverse().forEach((row) => {
         const keys = Object.keys(row);
 
@@ -657,5 +651,10 @@
         let melderVal = getValueFromRow(row, ['naam', 'name', 'melder', 'aanvrager', 'e-mailadres', 'email', 'wie']);
         if (!melderVal && keys.length > 3) melderVal = row[keys[4]] || row[keys[3]] || 'Anoniem';
 
-        // 2. Datum ophalen & Foutloos formatteren
-        let rawDatum = getValueFromRow(row, ['datum', 'wanneer', 'tijdstempel',
+        // 2. Datum ophalen & Formatteren
+        let rawDatum = getValueFromRow(row, ['datum', 'wanneer', 'tijdstempel', 'timestamp', 'voltooide tijd', 'completion time', 'begintijd', 'start time', 'tijd']);
+        if (!rawDatum && keys.length > 2) rawDatum = row[keys[2]] || row[keys[1]] || '';
+        
+        const geformatteerdeDatum = formatDatumValue(rawDatum) || 'Onbekend';
+
+        // 3. Locatie / Materiaal / Kazerne ophalen
