@@ -2,58 +2,387 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#b5121b">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#0b0d10">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="BWH 2.0">
+
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/style.css">
-  <title>BWH 2.0 - Aanmelden</title>
+
+  <title>BWH 2.0 | Brandweer Herentals</title>
+
   <script src="register-sw.js"></script>
 </head>
+
 <body class="login-page">
-  <main class="login-shell">
+
+  <!-- Achtergronddecoratie -->
+  <div class="background">
+    <div class="background-glow background-glow-1"></div>
+    <div class="background-glow background-glow-2"></div>
+    <div class="background-grid"></div>
+  </div>
+
+
+  <main class="login-container">
+
+    <!-- ==========================================
+         LOGIN CARD
+         ========================================== -->
+
     <section class="login-card">
-      <div class="brand">
-        <div class="brand-mark">BWH</div>
-        <div>
-          <h1>BWH 2.0</h1>
-          <p>Brandweer Herentals</p>
+
+      <!-- Rode bovenbalk -->
+      <div class="card-accent"></div>
+
+
+      <!-- ========================================
+           BRANDING
+           ======================================== -->
+
+      <div class="brand-section">
+
+        <div class="fire-badge">
+
+          <div class="badge-ring"></div>
+
+          <div class="badge-inner">
+
+            <div class="badge-flame">
+              <svg
+                viewBox="0 0 64 80"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M34.4 2C36.7 18.2 24 20.5 28.5 34.2
+                     C30.3 39.6 35.8 40.1 38.4 34.5
+                     C44.7 43.8 43.8 53.8 36.8 59.5
+                     C30.5 64.7 20.4 62.9 17.2 55
+                     C13.7 46.3 18.1 39.8 23.4 34.2
+                     C18.5 36.4 14.4 39.8 12.2 44.7
+                     C6.6 57.2 14.7 72.5 29.1 76
+                     C43.8 79.6 57.8 69.8 59.1 54.9
+                     C60.3 40.9 52.5 27.1 43.5 18.3
+                     C40.1 15 37.1 9.8 34.4 2Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+
+          </div>
+
         </div>
+
+
+        <div class="brand-text">
+
+          <div class="brand-title">
+            BWH <span>2.0</span>
+          </div>
+
+          <div class="brand-subtitle">
+            BRANDWEER HERENTALS
+          </div>
+
+        </div>
+
       </div>
 
-      <div class="fire-icon">🔥</div>
-      <h2>Welkom</h2>
-      <p class="intro">Meld je aan om toegang te krijgen tot BWH 2.0.</p>
 
-      <form id="loginForm" autocomplete="on">
-        <label for="name">Naam</label>
-        <input id="name" name="name" type="text" placeholder="Geef je naam in"
-               autocomplete="name" autocapitalize="words" required maxlength="80">
+      <!-- ========================================
+           TITEL
+           ======================================== -->
 
-        <label class="remember">
-          <input id="remember" type="checkbox">
-          <span>Mijn naam onthouden</span>
+      <div class="welcome-section">
+
+        <div class="section-label">
+          <span class="section-line"></span>
+          VEILIGE TOEGANG
+          <span class="section-line"></span>
+        </div>
+
+        <h1>
+          Welkom terug
+        </h1>
+
+        <p>
+          Meld je aan om toegang te krijgen tot
+          <strong>BWH 2.0</strong>.
+        </p>
+
+      </div>
+
+
+      <!-- ========================================
+           LOGIN FORMULIER
+           ======================================== -->
+
+      <form
+        id="loginForm"
+        class="login-form"
+        autocomplete="on"
+      >
+
+        <!-- Naam -->
+
+        <div class="input-group">
+
+          <label for="name">
+            <span class="label-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 12a4.5 4.5 0 1 0 0-9
+                     4.5 4.5 0 0 0 0 9Zm0 2
+                     c-4.42 0-8 2.24-8 5v2h16v-2
+                     c0-2.76-3.58-5-8-5Z"
+                />
+              </svg>
+            </span>
+
+            Naam
+          </label>
+
+
+          <div class="input-wrapper">
+
+            <span class="input-icon">
+
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 12a4.5 4.5 0 1 0 0-9
+                     4.5 4.5 0 0 0 0 9Zm0 2
+                     c-4.42 0-8 2.24-8 5v2h16v-2
+                     c0-2.76-3.58-5-8-5Z"
+                />
+              </svg>
+
+            </span>
+
+
+            <input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Voornaam en achternaam"
+              autocomplete="name"
+              autocapitalize="words"
+              required
+              maxlength="80"
+            />
+
+            <span class="input-status">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M20 6 9 17l-5-5"
+                />
+              </svg>
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- Onthouden -->
+
+        <label
+          class="remember-option"
+          for="remember"
+        >
+
+          <span class="custom-checkbox">
+
+            <input
+              id="remember"
+              type="checkbox"
+            >
+
+            <span class="checkbox-mark">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m5 12 4 4L19 6" />
+              </svg>
+            </span>
+
+          </span>
+
+
+          <span class="remember-text">
+
+            <strong>Mijn naam onthouden</strong>
+
+            <small>
+              Op dit toestel
+            </small>
+
+          </span>
+
         </label>
 
-        <button type="submit" class="primary-btn">
-          Aanmelden <span>→</span>
+
+        <!-- Aanmeldknop -->
+
+        <button
+          type="submit"
+          class="login-button"
+        >
+
+          <span class="button-icon">
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M15 3h4a2 2 0 0 1 2 2v14
+                   a2 2 0 0 1-2 2h-4
+                   M10 17l5-5-5-5
+                   M15 12H3"
+              />
+            </svg>
+
+          </span>
+
+
+          <span class="button-text">
+            Aanmelden
+          </span>
+
+
+          <span class="button-arrow">
+
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+
+          </span>
+
         </button>
 
-        <p id="message" class="message" role="alert"></p>
+
+        <!-- Foutmelding -->
+
+        <p
+          id="message"
+          class="message"
+          role="alert"
+        ></p>
+
       </form>
 
-      <div class="install-box" id="installBox" hidden>
-        <strong>📱 Installeer BWH 2.0</strong>
-        <span>Gebruik de knop hieronder om de app op je toestel te installeren.</span>
-        <button id="installBtn" class="secondary-btn">App installeren</button>
+
+      <!-- ========================================
+           APP INSTALLATIE
+           ======================================== -->
+
+      <div
+        class="install-box"
+        id="installBox"
+        hidden
+      >
+
+        <div class="install-icon">
+
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect
+              x="5"
+              y="2"
+              width="14"
+              height="20"
+              rx="2"
+            />
+
+            <path d="M10 18h4" />
+          </svg>
+
+        </div>
+
+
+        <div class="install-content">
+
+          <strong>
+            Installeer BWH 2.0
+          </strong>
+
+          <span>
+            Installeer de app op je smartphone voor
+            snelle toegang.
+          </span>
+
+        </div>
+
+
+        <button
+          id="installBtn"
+          type="button"
+          class="install-button"
+        >
+          Installeren
+        </button>
+
       </div>
+
+
+      <!-- ========================================
+           FOOTER IN CARD
+           ======================================== -->
+
+      <div class="security-note">
+
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3 4 6v5c0 5.25 3.4 9.1 8 10
+               4.6-.9 8-4.75 8-10V6l-8-3Z"
+          />
+
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+
+        <span>
+          Beveiligde omgeving · BWH 2.0
+        </span>
+
+      </div>
+
     </section>
 
-    <footer>© BWH 2.0 · Brandweer Herentals</footer>
+
+    <!-- ==========================================
+         FOOTER
+         ========================================== -->
+
+    <footer class="page-footer">
+
+      <div class="footer-line"></div>
+
+      <div class="footer-content">
+
+        <span>
+          © 2026 BWH 2.0
+        </span>
+
+        <span class="footer-dot"></span>
+
+        <span>
+          Brandweer Herentals
+        </span>
+
+      </div>
+
+    </footer>
+
   </main>
 
+
+  <!-- ==========================================
+       JAVASCRIPT
+       ========================================== -->
+
   <script type="module" src="js/index.js"></script>
+
 </body>
 </html>
