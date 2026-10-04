@@ -1,60 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 
-/* =========================================================
-   ROOT
-   ========================================================= */
+/* ==========================================================
+   BASIS
+   ========================================================== */
 
 :root {
 
-  --red: #c8101e;
-  --red-light: #ee2635;
-  --red-dark: #850914;
+  --red: #d71920;
+  --red-dark: #ad0e15;
+  --red-light: #f02a32;
 
-  --red-glow: rgba(200, 16, 30, .32);
-  --red-soft: rgba(200, 16, 30, .12);
+  --orange: #ff7a18;
+  --yellow: #ffc928;
+  --blue: #2f9bff;
+  --green: #38c98a;
 
-  --black: #07090c;
-  --background: #0b0e12;
-
-  --card: #15191f;
-  --card-light: #1b2027;
+  --dark: #101319;
+  --dark-2: #171b22;
+  --dark-3: #20252d;
 
   --white: #ffffff;
-  --text: #f4f5f7;
-
-  --muted: #8d96a3;
-  --muted-light: #b5bcc5;
-
-  --border: rgba(255,255,255,.08);
-
-  --shadow:
-    0 35px 80px rgba(0,0,0,.55),
-    0 10px 30px rgba(0,0,0,.35);
+  --text: #20242a;
+  --muted: #747c87;
+  --light: #f4f5f7;
 
 }
 
 
-/* =========================================================
-   RESET
-   ========================================================= */
-
 * {
   box-sizing: border-box;
+}
+
+
+html {
   margin: 0;
   padding: 0;
 }
 
 
-html {
-  min-height: 100%;
-}
-
-
 body {
 
-  min-height: 100vh;
-  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
 
   font-family:
     Inter,
@@ -63,32 +51,12 @@ body {
     "Segoe UI",
     sans-serif;
 
-  color: var(--text);
-
-  background: var(--background);
-
 }
 
 
-button,
-input {
-  font: inherit;
-}
-
-
-button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-
-svg {
-  display: block;
-}
-
-
-/* =========================================================
-   LOGIN PAGINA
-   ========================================================= */
+/* ==========================================================
+   PAGINA
+   ========================================================== */
 
 .login-page {
 
@@ -97,327 +65,234 @@ svg {
   min-height: 100vh;
   min-height: 100dvh;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding:
-    40px
-    20px;
-
-  overflow-x: hidden;
-
   background:
 
-    radial-gradient(
-      circle at 50% -20%,
-      rgba(200,16,30,.18),
-      transparent 45%
-    ),
-
-    radial-gradient(
-      circle at 0% 100%,
-      rgba(200,16,30,.09),
-      transparent 35%
-    ),
-
     linear-gradient(
-      145deg,
-      #07090c 0%,
-      #0c1015 50%,
-      #090b0f 100%
+      155deg,
+      #f5f6f8 0%,
+      #ffffff 45%,
+      #eef0f3 100%
     );
+
+  color: var(--text);
+
+  overflow-x: hidden;
 
 }
 
 
-/* =========================================================
+/* ==========================================================
    ACHTERGROND
-   ========================================================= */
+   ========================================================== */
 
-.background {
+.bg-decoration {
 
   position: fixed;
 
   inset: 0;
 
+  overflow: hidden;
+
   pointer-events: none;
 
-  overflow: hidden;
+  z-index: 0;
 
 }
 
 
-.background-glow {
+.blob {
 
   position: absolute;
 
   border-radius: 50%;
 
-  filter: blur(90px);
-
-  opacity: .45;
+  filter: blur(2px);
 
 }
 
 
-.background-glow-1 {
+.blob-red {
 
-  width: 400px;
-  height: 400px;
+  width: 330px;
+  height: 330px;
 
-  top: -220px;
-  left: 50%;
+  top: -190px;
+  right: -100px;
 
-  transform: translateX(-50%);
-
-  background: rgba(200,16,30,.18);
-
-}
-
-
-.background-glow-2 {
-
-  width: 350px;
-  height: 350px;
-
-  bottom: -230px;
-  right: -150px;
-
-  background: rgba(200,16,30,.10);
+  background:
+    radial-gradient(
+      circle,
+      rgba(215,25,32,.18),
+      rgba(215,25,32,0)
+    );
 
 }
 
 
-.background-grid {
+.blob-orange {
+
+  width: 230px;
+  height: 230px;
+
+  bottom: 20%;
+
+  left: -150px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,122,24,.10),
+      rgba(255,122,24,0)
+    );
+
+}
+
+
+.blob-yellow {
+
+  width: 170px;
+  height: 170px;
+
+  top: 32%;
+
+  right: -100px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,201,40,.08),
+      rgba(255,201,40,0)
+    );
+
+}
+
+
+.watermark {
 
   position: absolute;
 
-  inset: 0;
+  color: rgba(215,25,32,.045);
 
-  opacity: .035;
+  font-size: 150px;
 
-  background-image:
-
-    linear-gradient(
-      rgba(255,255,255,.5) 1px,
-      transparent 1px
-    ),
-
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,.5) 1px,
-      transparent 1px
-    );
-
-  background-size: 45px 45px;
-
-  mask-image:
-    linear-gradient(
-      to bottom,
-      black,
-      transparent 85%
-    );
+  font-weight: 900;
 
 }
 
 
-/* =========================================================
-   CONTAINER
-   ========================================================= */
+.watermark-1 {
 
-.login-container {
+  top: 8%;
+  left: -40px;
+
+}
+
+
+.watermark-2 {
+
+  top: 54%;
+  right: -60px;
+
+}
+
+
+.watermark-3 {
+
+  bottom: -50px;
+  left: 25%;
+
+}
+
+
+/* ==========================================================
+   APP CONTAINER
+   ========================================================== */
+
+.app-container {
 
   position: relative;
 
-  z-index: 5;
+  z-index: 2;
 
   width: 100%;
 
-  max-width: 470px;
+  max-width: 520px;
+
+  margin: 0 auto;
+
+  padding:
+
+    max(20px, env(safe-area-inset-top))
+    18px
+    max(25px, env(safe-area-inset-bottom));
 
 }
 
 
-/* =========================================================
-   LOGIN CARD
-   ========================================================= */
+/* ==========================================================
+   HEADER
+   ========================================================== */
 
-.login-card {
-
-  position: relative;
-
-  overflow: hidden;
-
-  width: 100%;
-
-  padding: 36px;
-
-  border:
-
-    1px solid
-    rgba(255,255,255,.09);
-
-  border-radius: 28px;
-
-  background:
-
-    linear-gradient(
-      145deg,
-      rgba(28,33,40,.97),
-      rgba(16,20,25,.98)
-    );
-
-  box-shadow: var(--shadow);
-
-  backdrop-filter: blur(20px);
-
-}
-
-
-/* =========================================================
-   RODE BOVENRAND
-   ========================================================= */
-
-.card-accent {
-
-  position: absolute;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 4px;
-
-  background:
-
-    linear-gradient(
-      90deg,
-      var(--red-dark),
-      var(--red-light),
-      var(--red-dark)
-    );
-
-  box-shadow:
-
-    0 0 20px
-    rgba(238,38,53,.45);
-
-}
-
-
-/* =========================================================
-   BRANDING
-   ========================================================= */
-
-.brand-section {
+.app-header {
 
   display: flex;
 
   align-items: center;
 
-  gap: 17px;
+  justify-content: space-between;
+
+  padding: 8px 2px 18px;
 
 }
 
 
-/* =========================================================
-   BRAND BADGE
-   ========================================================= */
+.brand {
 
-.fire-badge {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+}
+
+
+.brand-badge {
 
   position: relative;
 
-  flex: 0 0 auto;
-
-  width: 76px;
-  height: 76px;
+  width: 52px;
+  height: 52px;
 
   display: grid;
 
   place-items: center;
-
-}
-
-
-.badge-ring {
-
-  position: absolute;
-
-  inset: 0;
-
-  border-radius: 50%;
-
-  border:
-
-    2px solid
-    rgba(238,38,53,.75);
-
-  box-shadow:
-
-    0 0 0 5px
-    rgba(200,16,30,.07),
-
-    0 0 30px
-    rgba(200,16,30,.18);
-
-}
-
-
-.badge-ring::before {
-
-  content: "";
-
-  position: absolute;
-
-  inset: 7px;
-
-  border-radius: 50%;
-
-  border:
-
-    1px solid
-    rgba(255,255,255,.08);
-
-}
-
-
-.badge-inner {
-
-  width: 58px;
-  height: 58px;
-
-  display: grid;
-
-  place-items: center;
-
-  border-radius: 50%;
 
   color: white;
+
+  border-radius: 17px;
 
   background:
 
     linear-gradient(
       145deg,
-      var(--red-light),
-      var(--red-dark)
+      #ed3038,
+      #b70d15
     );
 
   box-shadow:
 
-    inset 0 1px 0
-    rgba(255,255,255,.25),
+    0 7px 18px
+    rgba(215,25,32,.27);
 
-    0 8px 22px
-    rgba(200,16,30,.32);
+  transform: rotate(-3deg);
 
 }
 
 
 .badge-flame {
 
-  width: 28px;
+  width: 24px;
 
   color: white;
 
@@ -429,353 +304,573 @@ svg {
   width: 100%;
   height: auto;
 
-  filter:
+}
 
-    drop-shadow(
-      0 2px 3px
-      rgba(0,0,0,.25)
+
+.badge-shine {
+
+  position: absolute;
+
+  top: 7px;
+  left: 9px;
+
+  width: 13px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,255,255,.35);
+
+  transform: rotate(-20deg);
+
+}
+
+
+.brand-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+.brand-name {
+
+  color: #191d23;
+
+  font-size: 22px;
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  letter-spacing: -.8px;
+
+}
+
+
+.brand-name span {
+
+  color: var(--red);
+
+}
+
+
+.brand-location {
+
+  margin-top: 5px;
+
+  color: #858c96;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.6px;
+
+}
+
+
+.header-status {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 6px 9px;
+
+  border-radius: 20px;
+
+  background: white;
+
+  box-shadow:
+    0 3px 10px
+    rgba(0,0,0,.06);
+
+  color: #747c85;
+
+  font-size: 7px;
+
+  font-weight: 800;
+
+  letter-spacing: .7px;
+
+}
+
+
+.status-dot {
+
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--green);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(56,201,138,.13);
+
+}
+
+
+/* ==========================================================
+   HERO
+   ========================================================== */
+
+.hero {
+
+  position: relative;
+
+  min-height: 205px;
+
+  overflow: hidden;
+
+  padding: 26px 24px;
+
+  border-radius: 27px;
+
+  color: white;
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #c90f18 0%,
+      #e51b25 47%,
+      #b60c15 100%
+    );
+
+  box-shadow:
+
+    0 15px 35px
+    rgba(215,25,32,.25);
+
+}
+
+
+/* diagonale brandweerstrepen */
+
+.hero::after {
+
+  content: "";
+
+  position: absolute;
+
+  right: -80px;
+  top: -90px;
+
+  width: 280px;
+  height: 350px;
+
+  transform: rotate(24deg);
+
+  background:
+
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.08) 0,
+      rgba(255,255,255,.08) 18px,
+      transparent 18px,
+      transparent 40px
     );
 
 }
 
 
-/* =========================================================
-   BRAND TEKST
-   ========================================================= */
-
-.brand-title {
-
-  font-size: 25px;
-
-  font-weight: 900;
-
-  letter-spacing: -.8px;
-
-  line-height: 1;
-
-}
-
-
-.brand-title span {
-
-  color: var(--red-light);
-
-}
-
-
-.brand-subtitle {
-
-  margin-top: 7px;
-
-  color: var(--muted);
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  letter-spacing: 2px;
-
-}
-
-
-/* =========================================================
-   WELCOME
-   ========================================================= */
-
-.welcome-section {
-
-  margin-top: 38px;
-
-}
-
-
-.section-label {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  color: var(--red-light);
-
-  font-size: 9px;
-
-  font-weight: 800;
-
-  letter-spacing: 1.7px;
-
-}
-
-
-.section-line {
-
-  width: 20px;
-
-  height: 1px;
-
-  background:
-
-    rgba(238,38,53,.6);
-
-}
-
-
-.welcome-section h1 {
-
-  margin-top: 13px;
-
-  font-size: 34px;
-
-  font-weight: 800;
-
-  letter-spacing: -1.2px;
-
-}
-
-
-.welcome-section p {
-
-  margin-top: 8px;
-
-  color: var(--muted);
-
-  font-size: 14px;
-
-  line-height: 1.6;
-
-}
-
-
-.welcome-section strong {
-
-  color: var(--muted-light);
-
-  font-weight: 600;
-
-}
-
-
-/* =========================================================
-   FORM
-   ========================================================= */
-
-.login-form {
-
-  margin-top: 30px;
-
-}
-
-
-/* =========================================================
-   INPUT LABEL
-   ========================================================= */
-
-.input-group > label {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  margin-bottom: 9px;
-
-  color: #d8dce1;
-
-  font-size: 12px;
-
-  font-weight: 700;
-
-}
-
-
-.label-icon {
-
-  display: inline-flex;
-
-  color: var(--red-light);
-
-}
-
-
-.label-icon svg {
-
-  width: 15px;
-  height: 15px;
-
-  fill: currentColor;
-
-}
-
-
-/* =========================================================
-   INPUT
-   ========================================================= */
-
-.input-wrapper {
+.hero-content {
 
   position: relative;
 
+  z-index: 3;
+
+  width: 58%;
+
 }
 
 
-.input-wrapper input {
+.hero-small-title {
 
-  width: 100%;
+  display: inline-block;
 
-  height: 56px;
+  padding: 6px 9px;
 
-  padding:
+  border-radius: 8px;
 
-    0 48px
-    0 48px;
+  color: #fff4c8;
 
-  color: var(--white);
+  background:
+    rgba(0,0,0,.14);
 
-  font-size: 14px;
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: .6px;
+
+}
+
+
+.hero h1 {
+
+  margin: 13px 0 7px;
+
+  font-size: 32px;
+
+  line-height: .98;
+
+  font-weight: 900;
+
+  letter-spacing: -1.4px;
+
+}
+
+
+.hero h1 span {
+
+  color: #ffd34d;
+
+}
+
+
+.hero p {
+
+  margin: 0;
+
+  max-width: 190px;
+
+  color: rgba(255,255,255,.82);
+
+  font-size: 10px;
+
+  line-height: 1.5;
+
+}
+
+
+/* ==========================================================
+   HERO DECORATIE
+   ========================================================== */
+
+.hero-decoration {
+
+  position: absolute;
+
+  border-radius: 50%;
+
+}
+
+
+.hero-circle-1 {
+
+  width: 190px;
+  height: 190px;
+
+  right: -80px;
+  top: -75px;
 
   border:
+    25px solid
+    rgba(255,255,255,.07);
 
-    1px solid
-    rgba(255,255,255,.09);
+}
 
-  border-radius: 14px;
 
-  outline: none;
+.hero-circle-2 {
+
+  width: 120px;
+  height: 120px;
+
+  right: 30px;
+  bottom: -75px;
+
+  border:
+    17px solid
+    rgba(255,211,77,.12);
+
+}
+
+
+/* ==========================================================
+   BRANDWEERWAGEN
+   ========================================================== */
+
+.firetruck {
+
+  position: absolute;
+
+  z-index: 5;
+
+  right: 10px;
+  bottom: 17px;
+
+  width: 180px;
+  height: 100px;
+
+}
+
+
+/* blauwe lichten */
+
+.truck-lights {
+
+  position: absolute;
+
+  top: 0;
+
+  left: 51px;
+
+  display: flex;
+
+  gap: 5px;
+
+}
+
+
+.truck-lights span {
+
+  width: 17px;
+  height: 7px;
+
+  border-radius: 5px;
+
+}
+
+
+.light-blue {
+
+  background: #46baff;
+
+  box-shadow:
+    0 0 10px
+    rgba(70,186,255,.8);
+
+}
+
+
+/* wagen */
+
+.truck-body {
+
+  position: absolute;
+
+  bottom: 15px;
+
+  left: 7px;
+
+  width: 166px;
+  height: 63px;
+
+}
+
+
+/* cabine */
+
+.truck-cabin {
+
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 72px;
+  height: 55px;
+
+  border-radius:
+    12px 7px 4px 5px;
 
   background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #d9dde1
+    );
 
-    rgba(7,10,14,.75);
-
-  transition:
-
-    border-color .2s ease,
-    box-shadow .2s ease,
-    background .2s ease;
-
-}
-
-
-.input-wrapper input::placeholder {
-
-  color: #69727d;
+  box-shadow:
+    inset 0 -6px 0
+    rgba(0,0,0,.08);
 
 }
 
 
-.input-wrapper input:hover {
+.truck-window {
 
-  border-color:
-    rgba(255,255,255,.15);
+  position: absolute;
 
-}
+  top: 8px;
+  left: 9px;
 
+  width: 51px;
+  height: 22px;
 
-.input-wrapper input:focus {
-
-  border-color:
-    rgba(238,38,53,.8);
+  border-radius: 5px;
 
   background:
-    rgba(8,11,15,.95);
+    linear-gradient(
+      145deg,
+      #314452,
+      #14232d
+    );
+
+}
+
+
+.truck-door {
+
+  position: absolute;
+
+  left: 8px;
+  bottom: 5px;
+
+  width: 55px;
+  height: 18px;
+
+  border-top:
+    2px solid
+    rgba(0,0,0,.08);
+
+}
+
+
+/* achterkant */
+
+.truck-box {
+
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+
+  width: 105px;
+  height: 63px;
+
+  border-radius:
+    4px 8px 5px 4px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f7f8f9,
+      #cfd4d8
+    );
+
+  box-shadow:
+    inset 0 -7px 0
+    rgba(0,0,0,.07);
+
+}
+
+
+.truck-stripe {
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  top: 29px;
+
+  height: 9px;
+
+  background:
+    var(--red);
+
+}
+
+
+.truck-symbol {
+
+  position: absolute;
+
+  right: 20px;
+  top: 8px;
+
+  width: 27px;
+  height: 27px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 8px;
+
+  color: white;
+
+  background: var(--red);
+
+  font-size: 15px;
+
+}
+
+
+.truck-wheel {
+
+  position: absolute;
+
+  bottom: 2px;
+
+  width: 30px;
+  height: 30px;
+
+  border:
+    5px solid
+    #24282e;
+
+  border-radius: 50%;
+
+  background:
+    #687079;
+
+  box-shadow:
+    inset 0 0 0 4px
+    #333840;
+
+}
+
+
+.wheel-left {
+  left: 21px;
+}
+
+
+.wheel-right {
+  right: 21px;
+}
+
+
+/* ==========================================================
+   LOGIN CARD
+   ========================================================== */
+
+.login-card {
+
+  position: relative;
+
+  margin-top: 16px;
+
+  padding: 22px 20px 18px;
+
+  border-radius: 25px;
+
+  background: white;
 
   box-shadow:
 
-    0 0 0 3px
-    rgba(200,16,30,.10),
-
-    0 8px 25px
-    rgba(0,0,0,.18);
+    0 10px 30px
+    rgba(29,34,40,.10);
 
 }
 
 
-/* =========================================================
-   INPUT ICON
-   ========================================================= */
+/* ==========================================================
+   LOGIN TITLE
+   ========================================================== */
 
-.input-icon {
-
-  position: absolute;
-
-  top: 50%;
-  left: 17px;
-
-  transform:
-    translateY(-50%);
-
-  display: flex;
-
-  color: #727b86;
-
-  pointer-events: none;
-
-}
-
-
-.input-icon svg {
-
-  width: 18px;
-  height: 18px;
-
-  fill: currentColor;
-
-}
-
-
-/* =========================================================
-   INPUT CHECK
-   ========================================================= */
-
-.input-status {
-
-  position: absolute;
-
-  top: 50%;
-  right: 17px;
-
-  transform:
-    translateY(-50%);
-
-  display: flex;
-
-  opacity: 0;
-
-  color: #42d392;
-
-  transition: opacity .2s;
-
-}
-
-
-.input-status svg {
-
-  width: 18px;
-  height: 18px;
-
-  fill: none;
-
-  stroke: currentColor;
-
-  stroke-width: 2;
-
-}
-
-
-.input-wrapper input:valid
-~ .input-status {
-
-  opacity: .75;
-
-}
-
-
-/* =========================================================
-   REMEMBER CHECKBOX
-   ========================================================= */
-
-.remember-option {
+.login-title {
 
   display: flex;
 
@@ -783,16 +878,284 @@ svg {
 
   gap: 11px;
 
-  margin-top: 17px;
-
-  cursor: pointer;
-
-  user-select: none;
+  margin-bottom: 20px;
 
 }
 
 
-.custom-checkbox {
+.title-icon {
+
+  width: 43px;
+  height: 43px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: 0 0 43px;
+
+  border-radius: 13px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ff5960,
+      #d71920
+    );
+
+  box-shadow:
+    0 6px 13px
+    rgba(215,25,32,.18);
+
+}
+
+
+.title-icon svg {
+
+  width: 21px;
+  height: 21px;
+
+  fill: currentColor;
+
+}
+
+
+.login-title h2 {
+
+  margin: 0;
+
+  color: #1c2026;
+
+  font-size: 19px;
+
+  font-weight: 800;
+
+  letter-spacing: -.5px;
+
+}
+
+
+.login-title p {
+
+  margin: 3px 0 0;
+
+  color: #9299a2;
+
+  font-size: 9px;
+
+  font-weight: 500;
+
+}
+
+
+/* ==========================================================
+   INPUT
+   ========================================================== */
+
+.field label {
+
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #424850;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+}
+
+
+.name-input {
+
+  position: relative;
+
+}
+
+
+.name-input input {
+
+  width: 100%;
+
+  height: 54px;
+
+  padding:
+    0 43px
+    0 48px;
+
+  outline: none;
+
+  border:
+    2px solid
+    #edf0f3;
+
+  border-radius: 14px;
+
+  color: #22262c;
+
+  background: #f8f9fa;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  transition:
+    .2s ease;
+
+}
+
+
+.name-input input::placeholder {
+
+  color: #aeb4bb;
+
+}
+
+
+.name-input input:focus {
+
+  border-color: var(--red);
+
+  background: white;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(215,25,32,.08);
+
+}
+
+
+/* ==========================================================
+   INPUT ICON
+   ========================================================== */
+
+.input-icon {
+
+  position: absolute;
+
+  left: 15px;
+
+  top: 50%;
+
+  transform:
+    translateY(-50%);
+
+  width: 22px;
+  height: 22px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 7px;
+
+}
+
+
+.input-icon svg {
+
+  width: 17px;
+  height: 17px;
+
+  fill: currentColor;
+
+}
+
+
+.icon-red {
+
+  color: var(--red);
+
+  background:
+    rgba(215,25,32,.09);
+
+}
+
+
+/* ==========================================================
+   INPUT CHECK
+   ========================================================== */
+
+.input-check {
+
+  position: absolute;
+
+  right: 14px;
+
+  top: 50%;
+
+  transform:
+    translateY(-50%);
+
+  width: 21px;
+  height: 21px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: white;
+
+  background: var(--green);
+
+  opacity: 0;
+
+  transition: .2s;
+
+}
+
+
+.name-input input:valid
+~ .input-check {
+
+  opacity: 1;
+
+}
+
+
+.input-check svg {
+
+  width: 12px;
+  height: 12px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 3;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+
+}
+
+
+/* ==========================================================
+   REMEMBER
+   ========================================================== */
+
+.remember {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 14px;
+
+  cursor: pointer;
+
+}
+
+
+.check-box {
 
   position: relative;
 
@@ -804,18 +1167,16 @@ svg {
 }
 
 
-.custom-checkbox input {
+.check-box input {
 
   position: absolute;
 
   opacity: 0;
 
-  pointer-events: none;
-
 }
 
 
-.checkbox-mark {
+.check-visual {
 
   position: absolute;
 
@@ -826,29 +1187,26 @@ svg {
   place-items: center;
 
   border:
-
-    1px solid
-    #4a525d;
+    2px solid
+    #dfe3e7;
 
   border-radius: 6px;
 
-  background: #0b0e12;
-
-  transition: all .2s ease;
+  background: #fafbfc;
 
 }
 
 
-.checkbox-mark svg {
+.check-visual svg {
 
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
 
   fill: none;
 
   stroke: white;
 
-  stroke-width: 2.5;
+  stroke-width: 3;
 
   stroke-linecap: round;
 
@@ -856,39 +1214,28 @@ svg {
 
   opacity: 0;
 
-  transform: scale(.5);
-
-  transition: all .18s ease;
-
 }
 
 
-.custom-checkbox input:checked
-+ .checkbox-mark {
+.check-box input:checked
++ .check-visual {
 
-  border-color: var(--red-light);
+  border-color: var(--red);
 
   background: var(--red);
 
-  box-shadow:
-
-    0 4px 12px
-    rgba(200,16,30,.25);
-
 }
 
 
-.custom-checkbox input:checked
-+ .checkbox-mark svg {
+.check-box input:checked
++ .check-visual svg {
 
   opacity: 1;
 
-  transform: scale(1);
-
 }
 
 
-.remember-text {
+.remember-content {
 
   display: flex;
 
@@ -899,29 +1246,29 @@ svg {
 }
 
 
-.remember-text strong {
+.remember-content strong {
 
-  color: #cdd2d8;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-}
-
-
-.remember-text small {
-
-  color: #68717c;
+  color: #424850;
 
   font-size: 10px;
 
+  font-weight: 700;
+
 }
 
 
-/* =========================================================
+.remember-content small {
+
+  color: #a0a6ad;
+
+  font-size: 8px;
+
+}
+
+
+/* ==========================================================
    LOGIN BUTTON
-   ========================================================= */
+   ========================================================== */
 
 .login-button {
 
@@ -929,7 +1276,7 @@ svg {
 
   width: 100%;
 
-  height: 58px;
+  height: 57px;
 
   display: flex;
 
@@ -937,15 +1284,13 @@ svg {
 
   justify-content: center;
 
-  margin-top: 24px;
-
-  padding: 0 18px;
-
-  color: white;
+  margin-top: 20px;
 
   border: none;
 
   border-radius: 15px;
+
+  color: white;
 
   cursor: pointer;
 
@@ -955,77 +1300,56 @@ svg {
 
     linear-gradient(
       135deg,
-      #e52a39 0%,
-      #c8101e 50%,
-      #9e0c17 100%
+      #e92730,
+      #c81019
     );
 
   box-shadow:
 
-    0 10px 25px
-    rgba(200,16,30,.28),
+    0 9px 18px
+    rgba(215,25,32,.22);
 
-    inset 0 1px 0
-    rgba(255,255,255,.20);
+  font-size: 12px;
+
+  font-weight: 900;
+
+  letter-spacing: .7px;
 
   transition:
-
     transform .15s ease,
-    box-shadow .15s ease,
-    filter .15s ease;
+    box-shadow .15s ease;
 
 }
 
 
-.login-button::before {
+.login-button::after {
 
   content: "";
 
   position: absolute;
 
-  top: 0;
-  left: -100%;
+  top: -50%;
 
-  width: 70%;
-  height: 100%;
+  left: -40%;
 
-  transform: skewX(-20deg);
+  width: 35%;
+
+  height: 200%;
+
+  transform: rotate(25deg);
 
   background:
+    rgba(255,255,255,.16);
 
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255,255,255,.15),
-      transparent
-    );
-
-  transition: left .55s ease;
+  transition:
+    left .5s ease;
 
 }
 
 
-.login-button:hover {
+.login-button:hover::after {
 
-  transform:
-    translateY(-2px);
-
-  box-shadow:
-
-    0 14px 32px
-    rgba(200,16,30,.38),
-
-    inset 0 1px 0
-    rgba(255,255,255,.22);
-
-  filter: brightness(1.06);
-
-}
-
-
-.login-button:hover::before {
-
-  left: 130%;
+  left: 120%;
 
 }
 
@@ -1033,34 +1357,254 @@ svg {
 .login-button:active {
 
   transform:
-    translateY(0);
+    scale(.985);
 
   box-shadow:
-
-    0 6px 15px
-    rgba(200,16,30,.25);
+    0 5px 12px
+    rgba(215,25,32,.2);
 
 }
 
 
-/* =========================================================
-   BUTTON ICON
-   ========================================================= */
-
-.button-icon {
+.login-button-icon {
 
   position: absolute;
 
-  left: 18px;
+  left: 16px;
 
-  display: flex;
+  width: 28px;
+  height: 28px;
 
-  opacity: .9;
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 9px;
+
+  background:
+    rgba(255,255,255,.13);
 
 }
 
 
-.button-icon svg {
+.login-button-icon svg {
+
+  width: 16px;
+  height: 16px;
+
+  fill: none;
+
+  stroke: white;
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+
+}
+
+
+.login-arrow {
+
+  position: absolute;
+
+  right: 17px;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+}
+
+
+/* ==========================================================
+   MESSAGE
+   ========================================================== */
+
+.message {
+
+  min-height: 14px;
+
+  margin: 8px 0 0;
+
+  color: var(--red);
+
+  text-align: center;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+}
+
+
+/* ==========================================================
+   FEATURES
+   ========================================================== */
+
+.features {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 9px;
+
+  margin-top: 17px;
+
+}
+
+
+.feature {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  min-height: 46px;
+
+  padding: 6px;
+
+  border-radius: 12px;
+
+  background: #f7f8fa;
+
+}
+
+
+.feature-icon {
+
+  width: 28px;
+  height: 28px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: 0 0 28px;
+
+  border-radius: 9px;
+
+}
+
+
+.feature-icon svg {
+
+  width: 15px;
+  height: 15px;
+
+  fill: none;
+
+  stroke: currentColor;
+
+  stroke-width: 1.8;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
+
+}
+
+
+.feature span {
+
+  color: #666e78;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+}
+
+
+.feature-red {
+
+  color: var(--red);
+
+  background:
+    rgba(215,25,32,.10);
+
+}
+
+
+.feature-blue {
+
+  color: var(--blue);
+
+  background:
+    rgba(47,155,255,.11);
+
+}
+
+
+.feature-yellow {
+
+  color: #e5a800;
+
+  background:
+    rgba(255,201,40,.18);
+
+}
+
+
+/* ==========================================================
+   INSTALLATIE
+   ========================================================== */
+
+.install-box {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 14px;
+
+  padding: 11px;
+
+  border-radius: 13px;
+
+  background:
+    #20252d;
+
+  color: white;
+
+}
+
+
+.install-app-icon {
+
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex: 0 0 36px;
+
+  border-radius: 10px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f02a32,
+      #c8101e
+    );
+
+}
+
+
+.install-app-icon svg {
 
   width: 19px;
   height: 19px;
@@ -1078,460 +1622,365 @@ svg {
 }
 
 
-.button-text {
+.install-text {
 
-  font-size: 14px;
+  min-width: 0;
+
+  flex: 1;
+
+}
+
+
+.install-text strong {
+
+  display: block;
+
+  font-size: 9px;
 
   font-weight: 800;
 
-  letter-spacing: .1px;
+}
+
+
+.install-text span {
+
+  display: block;
+
+  margin-top: 2px;
+
+  color: #929aa5;
+
+  font-size: 7px;
 
 }
 
 
-.button-arrow {
+.install-box button {
 
-  position: absolute;
+  flex: 0 0 auto;
 
-  right: 18px;
+  padding: 8px 9px;
 
-  display: flex;
+  border: none;
 
-  transition:
-    transform .2s ease;
+  border-radius: 8px;
 
-}
+  color: white;
 
+  background: var(--red);
 
-.button-arrow svg {
+  font-size: 7px;
 
-  width: 19px;
-  height: 19px;
+  font-weight: 900;
 
-  fill: none;
-
-  stroke: currentColor;
-
-  stroke-width: 2;
-
-  stroke-linecap: round;
-
-  stroke-linejoin: round;
+  cursor: pointer;
 
 }
 
 
-.login-button:hover
-.button-arrow {
+/* ==========================================================
+   FOOTER
+   ========================================================== */
 
-  transform:
-    translateX(4px);
-
-}
-
-
-/* =========================================================
-   MESSAGE
-   ========================================================= */
-
-.message {
-
-  min-height: 18px;
-
-  margin-top: 12px;
-
-  color: #ff727c;
-
-  text-align: center;
-
-  font-size: 11px;
-
-  line-height: 1.4;
-
-}
-
-
-/* =========================================================
-   INSTALL BOX
-   ========================================================= */
-
-.install-box {
+footer {
 
   display: flex;
 
   align-items: center;
 
-  gap: 14px;
+  gap: 9px;
 
-  margin-top: 25px;
+  margin-top: 16px;
 
-  padding: 15px;
-
-  border:
-
-    1px solid
-    rgba(255,255,255,.08);
-
-  border-radius: 15px;
-
-  background:
-
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.045),
-      rgba(255,255,255,.018)
-    );
+  padding:
+    0 4px
+    5px;
 
 }
 
 
-.install-icon {
+.footer-logo {
 
-  width: 42px;
-  height: 42px;
+  width: 29px;
+  height: 29px;
 
   display: grid;
 
   place-items: center;
 
-  flex: 0 0 42px;
-
-  border-radius: 11px;
-
-  color: var(--red-light);
-
-  background:
-    rgba(200,16,30,.10);
-
-}
-
-
-.install-icon svg {
-
-  width: 21px;
-  height: 21px;
-
-  fill: none;
-
-  stroke: currentColor;
-
-  stroke-width: 1.7;
-
-  stroke-linecap: round;
-
-  stroke-linejoin: round;
-
-}
-
-
-.install-content {
-
-  flex: 1;
-
-  min-width: 0;
-
-}
-
-
-.install-content strong {
-
-  display: block;
-
-  color: #e1e4e8;
-
-  font-size: 11px;
-
-}
-
-
-.install-content span {
-
-  display: block;
-
-  margin-top: 3px;
-
-  color: #737c87;
-
-  font-size: 9px;
-
-  line-height: 1.4;
-
-}
-
-
-.install-button {
-
-  flex: 0 0 auto;
-
-  padding: 9px 12px;
-
-  color: white;
-
-  border:
-
-    1px solid
-    rgba(255,255,255,.10);
+  flex: 0 0 29px;
 
   border-radius: 9px;
 
-  background: #252b33;
+  color: white;
 
-  font-size: 10px;
+  background: var(--red);
+
+  font-size: 7px;
+
+  font-weight: 900;
+
+}
+
+
+.footer-text {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+
+}
+
+
+.footer-text strong {
+
+  color: #545b64;
+
+  font-size: 8px;
+
+}
+
+
+.footer-text span {
+
+  color: #a0a6ad;
+
+  font-size: 7px;
+
+}
+
+
+.footer-year {
+
+  margin-left: auto;
+
+  color: #a0a6ad;
+
+  font-size: 7px;
 
   font-weight: 700;
 
-  cursor: pointer;
+}
 
-  transition: all .2s ease;
+
+/* ==========================================================
+   ZEER KLEINE SMARTPHONES
+   ========================================================== */
+
+@media (max-height: 700px) {
+
+  .app-container {
+
+    padding-top:
+      max(10px, env(safe-area-inset-top));
+
+  }
+
+
+  .app-header {
+
+    padding-bottom: 11px;
+
+  }
+
+
+  .hero {
+
+    min-height: 178px;
+
+    padding: 21px;
+
+  }
+
+
+  .hero h1 {
+
+    font-size: 28px;
+
+  }
+
+
+  .firetruck {
+
+    transform:
+      scale(.84);
+
+    transform-origin:
+      bottom right;
+
+  }
+
+
+  .login-card {
+
+    margin-top: 12px;
+
+    padding-top: 18px;
+
+  }
+
+
+  .login-title {
+
+    margin-bottom: 15px;
+
+  }
+
+
+  .features {
+
+    margin-top: 12px;
+
+  }
+
+
+  footer {
+
+    margin-top: 10px;
+
+  }
 
 }
 
 
-.install-button:hover {
+/* ==========================================================
+   NORMALE TELEFOON
+   ========================================================== */
 
-  border-color:
-    rgba(238,38,53,.4);
+@media (max-width: 390px) {
 
-  background:
-    rgba(200,16,30,.15);
+  .app-container {
 
-}
+    padding-left: 13px;
+    padding-right: 13px;
 
-
-/* =========================================================
-   SECURITY NOTE
-   ========================================================= */
-
-.security-note {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
-
-  margin-top: 26px;
-
-  color: #626b76;
-
-  font-size: 9px;
-
-}
+  }
 
 
-.security-note svg {
+  .hero {
 
-  width: 14px;
-  height: 14px;
+    padding-left: 20px;
+    padding-right: 15px;
 
-  fill: none;
-
-  stroke: #6e7782;
-
-  stroke-width: 1.6;
-
-  stroke-linecap: round;
-
-  stroke-linejoin: round;
-
-}
+  }
 
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
+  .hero-content {
 
-.page-footer {
+    width: 60%;
 
-  padding-top: 22px;
+  }
+
+
+  .firetruck {
+
+    right: -5px;
+
+    transform:
+      scale(.88);
+
+    transform-origin:
+      bottom right;
+
+  }
+
+
+  .login-card {
+
+    padding-left: 17px;
+    padding-right: 17px;
+
+  }
 
 }
 
 
-.footer-line {
+/* ==========================================================
+   HEEL KLEIN
+   ========================================================== */
 
-  width: 100%;
+@media (max-width: 350px) {
 
-  height: 1px;
+  .brand-location {
 
-  background:
+    letter-spacing: 1px;
 
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255,255,255,.07),
-      transparent
-    );
+  }
+
+
+  .header-status {
+
+    display: none;
+
+  }
+
+
+  .hero {
+
+    min-height: 175px;
+
+  }
+
+
+  .hero h1 {
+
+    font-size: 26px;
+
+  }
+
+
+  .firetruck {
+
+    right: -24px;
+
+    transform:
+      scale(.78);
+
+  }
+
+
+  .features {
+
+    gap: 5px;
+
+  }
+
+
+  .feature span {
+
+    font-size: 7px;
+
+  }
 
 }
 
 
-.footer-content {
+/* ==========================================================
+   LANDSCAPE OP TELEFOON
+   ========================================================== */
 
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 9px;
-
-  margin-top: 12px;
-
-  color: #515964;
-
-  font-size: 9px;
-
-  letter-spacing: .2px;
-
-}
-
-
-.footer-dot {
-
-  width: 3px;
-  height: 3px;
-
-  border-radius: 50%;
-
-  background: #4e555e;
-
-}
-
-
-/* =========================================================
-   RESPONSIVE - TABLET
-   ========================================================= */
-
-@media (max-width: 600px) {
+@media (
+  max-height: 520px
+) and (
+  orientation: landscape
+) {
 
   .login-page {
 
     align-items: flex-start;
 
-    padding:
+  }
 
-      max(25px, env(safe-area-inset-top))
-      15px
-      max(25px, env(safe-area-inset-bottom));
+
+  .app-container {
+
+    max-width: 700px;
 
   }
 
 
-  .login-container {
+  .hero {
 
-    margin-top: 3vh;
-
-  }
-
-
-  .login-card {
-
-    padding: 29px 23px;
-
-    border-radius: 24px;
-
-  }
-
-
-  .welcome-section {
-
-    margin-top: 32px;
-
-  }
-
-
-  .welcome-section h1 {
-
-    font-size: 30px;
-
-  }
-
-}
-
-
-/* =========================================================
-   RESPONSIVE - KLEINE TELEFOONS
-   ========================================================= */
-
-@media (max-width: 380px) {
-
-  .login-card {
-
-    padding:
-
-      26px
-      19px;
-
-  }
-
-
-  .fire-badge {
-
-    width: 68px;
-    height: 68px;
-
-  }
-
-
-  .badge-inner {
-
-    width: 52px;
-    height: 52px;
-
-  }
-
-
-  .brand-title {
-
-    font-size: 22px;
-
-  }
-
-
-  .welcome-section h1 {
-
-    font-size: 27px;
-
-  }
-
-
-  .install-box {
-
-    align-items: flex-start;
-
-  }
-
-
-  .install-button {
-
-    align-self: center;
-
-  }
-
-}
-
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-
-    scroll-behavior: auto !important;
-
-    transition-duration: .01ms !important;
-
-    animation-duration: .01ms !important;
-
-    animation-iteration-count: 1 !important;
-
-  }
-
-  }
+    min-height: 16
