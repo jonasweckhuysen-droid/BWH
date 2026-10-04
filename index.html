@@ -209,5 +209,86 @@
       });
     }
   </script>
+  <!-- PWA Installatie Banner voor Android / Desktop -->
+<div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
+  <div style="font-weight: bold; font-size: 16px; margin-bottom: 6px;">📲 Installeer de Brandweer App</div>
+  <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">Voeg deze app toe aan je startscherm voor snelle toegang.</div>
+  <div style="display: flex; gap: 10px; justify-content: center;">
+    <button id="btnInstallPwa" style="background: white; color: #d32f2f; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;">Installeer Nu</button>
+    <button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="background: transparent; color: white; border: 1px solid white; padding: 8px 14px; border-radius: 6px; cursor: pointer;">Laten wezen</button>
+  </div>
+</div>
+
+<!-- iOS PWA Instructie Banner -->
+<div id="iosInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #222; border: 2px solid #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
+  <div style="font-weight: bold; font-size: 15px; color: #ff4d4d; margin-bottom: 6px;">📲 App installeren op iPhone / iPad</div>
+  <div style="font-size: 13px; color: #ccc;">
+    Tik onderaan op de <strong>Delen-knop</strong> <span style="font-size:16px;">⎋</span> en kies <strong>"Zet op startscherm"</strong>.
+  </div>
+  <button onclick="document.getElementById('iosInstallBanner').style.display='none'" style="margin-top: 10px; background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Sluiten</button>
+</div>
+  <script>
+  let deferredPrompt;
+
+  // 1. Service Worker Registratie met Automatische Verversing
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        console.log('Service Worker geregistreerd:', reg.scope);
+
+        // Controleer op updates zodra de pagina geladen wordt
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Er is een nieuwe versie! Herlaad de pagina automatisch.
+              console.log('Nieuwe versie gedetecteerd, pagina wordt vernieuwd...');
+              window.location.reload();
+            }
+          });
+        });
+      }).catch(err => console.error('Service Worker fout:', err));
+    });
+
+    // Detecteer wanneer een nieuwe service worker de controle overneemt
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+  }
+
+  // 2. PWA Installatieprompt Opvangen (Android & Chrome/Edge)
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Toon onze opvallende installatiebalk
+    document.getElementById('pwaInstallBanner').style.display = 'block';
+  });
+
+  document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Gebruiker respons op installatie: ${outcome}`);
+      deferredPrompt = null;
+      document.getElementById('pwaInstallBanner').style.display = 'none';
+    }
+  });
+
+  // 3. iOS Detectie (Safari op iPhone/iPad)
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+  const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+  if (isIos() && !isInStandaloneMode()) {
+    // Toon de iOS instructiebalk als hij nog niet geïnstalleerd is als app
+    document.getElementById('iosInstallBanner').style.display = 'block';
+  }
+</script>
 </body>
 </html>
