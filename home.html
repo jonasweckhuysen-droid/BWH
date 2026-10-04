@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brandweer App - Home</title>
-  
+  <title>Brandweer App - Admin Beheer</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#d32f2f">
-  <link rel="apple-touch-icon" href="icon-192.png">
 
   <style>
     * {
@@ -18,329 +16,470 @@
     }
 
     body {
-      background-color: #121212;
+      background: #121212;
       color: #ffffff;
-      min-height: 100vh;
-      padding-bottom: 40px;
-    }
-
-    /* HEADER STYLES */
-    header {
-      background: linear-gradient(135deg, #1f1f1f 0%, #2b0a0a 100%);
-      border-bottom: 3px solid #d32f2f;
       padding: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      min-height: 100vh;
     }
 
-    .header-container {
-      max-width: 1200px;
+    .container {
+      max-width: 1050px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
     }
 
-    .top-bar {
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #d32f2f;
+      margin-bottom: 30px;
     }
 
-    .welcome-text h1 {
-      font-size: 24px;
-      color: #ffffff;
-    }
-
-    .welcome-text h1 span {
+    h1 {
       color: #ff4d4d;
-    }
-
-    .user-info-badge {
-      font-size: 13px;
-      color: #bbb;
-      margin-top: 4px;
-    }
-
-    .user-info-badge span {
-      background: #333;
-      padding: 2px 8px;
-      border-radius: 4px;
-      color: #fff;
-      margin-right: 5px;
-    }
-
-    .header-actions {
+      font-size: 24px;
       display: flex;
-      gap: 10px;
       align-items: center;
+      gap: 10px;
     }
 
-    .btn-action {
-      background: #2a2a2a;
+    .btn-nav {
+      background: #333;
       color: #fff;
-      border: 1px solid #444;
-      padding: 8px 14px;
+      border: 1px solid #555;
+      padding: 8px 16px;
       border-radius: 6px;
       text-decoration: none;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.3s;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .btn-nav:hover {
+      background: #444;
+    }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 25px;
+      border: 1px solid #333;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #ff4d4d;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 6px;
     }
 
-    .btn-action:hover {
-      background: #333;
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    input, select {
+      padding: 10px 12px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
       border-color: #ff4d4d;
     }
 
-    .btn-admin {
-      background: #b71c1c;
-      border-color: #d32f2f;
-      display: none; /* Standaard verborgen, enkel zichtbaar voor admins */
-    }
-
-    .btn-admin:hover {
+    .btn-submit {
+      margin-top: 15px;
+      grid-column: 1 / -1;
+      padding: 12px;
       background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
     }
 
-    /* INFO BAR (Datum, Tijd, Dienstploeg) */
-    .info-bar {
+    .btn-submit:hover {
+      background: #ff4d4d;
+    }
+
+    /* FILTER SECTIE */
+    .filter-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 12px 16px;
-      border-radius: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+      background: #181818;
+      padding: 15px;
+      border-radius: 6px;
       border: 1px solid #333;
     }
 
-    .info-box {
-      display: flex;
-      flex-direction: column;
+    /* TABEL STYLES */
+    .table-container {
+      overflow-x: auto;
     }
 
-    .info-box .label {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #aaa;
-      letter-spacing: 0.5px;
-    }
-
-    .info-box .value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #ff4d4d;
-      margin-top: 2px;
-    }
-
-    /* MAIN DASHBOARD GRID */
-    main {
-      max-width: 1200px;
-      margin: 30px auto 0;
-      padding: 0 20px;
-    }
-
-    .section-title {
-      font-size: 18px;
-      color: #aaa;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border-left: 4px solid #d32f2f;
-      padding-left: 10px;
-    }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    .app-card {
-      background: #1e1e1e;
-      border: 1px solid #2d2d2d;
-      border-radius: 12px;
-      padding: 22px 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      color: #ffffff;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .app-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
+    table {
       width: 100%;
-      height: 3px;
-      background: #d32f2f;
-      opacity: 0;
-      transition: opacity 0.3s;
+      border-collapse: collapse;
+      text-align: left;
     }
 
-    .app-card:hover {
-      transform: translateY(-5px);
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+
+    th {
       background: #252525;
-      border-color: #ff4d4d;
-      box-shadow: 0 8px 20px rgba(211, 47, 47, 0.25);
+      color: #ff4d4d;
     }
 
-    .app-card:hover::before {
-      opacity: 1;
+    tr:hover {
+      background: #2a2a2a;
     }
 
-    .app-icon {
-      font-size: 38px;
-      margin-bottom: 12px;
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #444;
+      margin-right: 4px;
+      margin-bottom: 4px;
     }
 
-    .app-title {
-      font-size: 16px;
-      font-weight: 600;
-      text-align: center;
+    .tag-admin {
+      background: #b71c1c;
+      color: #fff;
     }
 
-    /* Responsiviteit */
-    @media (max-width: 600px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .grid-container {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 12px;
-      }
-      .app-card {
-        padding: 16px 10px;
-      }
-      .app-icon {
-        font-size: 30px;
-      }
-      .app-title {
-        font-size: 14px;
-      }
+    .action-btns {
+      display: flex;
+      gap: 6px;
     }
+
+    .btn-edit {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-edit:hover {
+      background: #2196f3;
+    }
+
+    .btn-delete {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-delete:hover {
+      background: #ff4d4d;
+    }
+
+    /* MODAL VOOR BEWERKEN */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-card {
+      background: #1e1e1e;
+      border: 2px solid #ff4d4d;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 600px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+    }
+
+    .modal-header h3 {
+      color: #ff4d4d;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .btn-close-modal:hover { color: #fff; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-container">
-      <div class="top-bar">
-        <div class="welcome-text">
-          <h1>Welkom, <span id="displayUser">Laden...</span></h1>
-          <div class="user-info-badge" id="userInfoBadge">
-            <!-- Dynamisch via JS (Graad / Ploeg) -->
+  <div class="container">
+    <header>
+      <h1>🚒 Admin Dashboard</h1>
+      <a href="home.html" class="btn-nav">← Terug naar Home</a>
+    </header>
+
+    <!-- FORMULIER NIEUW LID -->
+    <div class="card">
+      <h2>Nieuw Lid Toevoegen</h2>
+      <form id="addMemberForm">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="voornaam">Voornaam</label>
+            <input type="text" id="voornaam" placeholder="Jan" required>
           </div>
-        </div>
 
-        <div class="header-actions">
-          <a href="admin.html" id="adminBtn" class="btn-action btn-admin">⚙️ Admin Beheer</a>
-          <button id="logoutBtn" class="btn-action">🚪 Uitloggen</button>
+          <div class="form-group">
+            <label for="achternaam">Achternaam</label>
+            <input type="text" id="achternaam" placeholder="Janssens" required>
+          </div>
+
+          <div class="form-group">
+            <label for="graad">Graad</label>
+            <select id="graad" required>
+              <option value="">Kies graad...</option>
+              <option value="Ambulancier niet-brandweerman">Ambulancier niet-brandweerman</option>
+              <option value="Brandweerman">Brandweerman / -vrouw</option>
+              <option value="Korporaal">Korporaal</option>
+              <option value="Sergeant">Sergeant</option>
+              <option value="Adjudant">Adjudant</option>
+              <option value="Luitenant">Luitenant</option>
+              <option value="Kapitein">Kapitein</option>
+              <option value="Majoor">Majoor</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ploeg">Ploeg / Dienst</label>
+            <select id="ploeg" required>
+              <option value="">Kies ploeg / dienst...</option>
+              <option value="A-Ploeg">A-Ploeg</option>
+              <option value="B-Ploeg">B-Ploeg</option>
+              <option value="C-Ploeg">C-Ploeg</option>
+              <option value="Dagdienst">Dagdienst</option>
+              <option value="Vrijwilliger">Vrijwilliger</option>
+              <option value="Officier">Officier</option>
+              <option value="Ambulancier">Ambulancier</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="rol">Systeem Rol (Rechten)</label>
+            <select id="rol" required>
+              <option value="gebruiker">Standaard Gebruiker</option>
+              <option value="admin">Administrator (Beheerder)</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="specialisaties">Specialisaties (gescheiden door komma's)</label>
+            <input type="text" id="specialisaties" placeholder="bijv. Duiker, Binnenaanval, Chauffeur C, Gazenpakdrager">
+          </div>
+
+          <button type="submit" class="btn-submit">+ Lid Opslaan in Database</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- TABEL MET LEDEN & FILTERS -->
+    <div class="card">
+      <h2>Leden in Database</h2>
+
+      <!-- Kolom Filters -->
+      <div class="filter-container">
+        <div class="form-group">
+          <label>Zoek Naam</label>
+          <input type="text" id="filterNaam" placeholder="Typ een naam...">
+        </div>
+        <div class="form-group">
+          <label>Filter Graad</label>
+          <select id="filterGraad">
+            <option value="">Alle Gradend</option>
+            <option value="Ambulancier niet-brandweerman">Ambulancier niet-brandweerman</option>
+            <option value="Brandweerman">Brandweerman / -vrouw</option>
+            <option value="Korporaal">Korporaal</option>
+            <option value="Sergeant">Sergeant</option>
+            <option value="Adjudant">Adjudant</option>
+            <option value="Luitenant">Luitenant</option>
+            <option value="Kapitein">Kapitein</option>
+            <option value="Majoor">Majoor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Filter Ploeg/Dienst</label>
+          <select id="filterPloeg">
+            <option value="">Alle Ploegen</option>
+            <option value="A-Ploeg">A-Ploeg</option>
+            <option value="B-Ploeg">B-Ploeg</option>
+            <option value="C-Ploeg">C-Ploeg</option>
+            <option value="Dagdienst">Dagdienst</option>
+            <option value="Vrijwilliger">Vrijwilliger</option>
+            <option value="Officier">Officier</option>
+            <option value="Ambulancier">Ambulancier</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Filter Rol</label>
+          <select id="filterRol">
+            <option value="">Alle Rollen</option>
+            <option value="gebruiker">Gebruiker</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
       </div>
 
-      <!-- Live Info Bar -->
-      <div class="info-bar">
-        <div class="info-box">
-          <span class="label">Datum</span>
-          <span class="value" id="currentDate">--</span>
-        </div>
-        <div class="info-box">
-          <span class="label">Tijd</span>
-          <span class="value" id="currentTime">--:--:--</span>
-        </div>
-        <div class="info-box">
-          <span class="label">Ploeg van de week</span>
-          <span class="value" id="dutyTeam">--</span>
-        </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Graad</th>
+              <th>Ploeg / Dienst</th>
+              <th>Rol</th>
+              <th>Specialisaties</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody id="membersTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: #888;">Laden van gegevens...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </header>
+  </div>
 
-  <!-- DASHBOARD MET DROPPING / APPS -->
-  <main>
-    <div class="section-title">Applicaties & Modules</div>
-
-    <div class="grid-container">
-      <a href="abiweb.html" class="app-card">
-        <div class="app-icon">💻</div>
-        <div class="app-title">Abiweb</div>
-      </a>
-
-      <a href="ambulance.html" class="app-card">
-        <div class="app-icon">🚑</div>
-        <div class="app-title">Ambulance</div>
-      </a>
-
-      <a href="chauffeur.html" class="app-card">
-        <div class="app-icon">🚛</div>
-        <div class="app-title">Chauffeur</div>
-      </a>
-
-      <a href="defectmelding.html" class="app-card">
-        <div class="app-icon">⚠️</div>
-        <div class="app-title">Defectmelding</div>
-      </a>
-
-      <a href="duikers.html" class="app-card">
-        <div class="app-icon">🤿</div>
-        <div class="app-title">Duikers</div>
-      </a>
-
-      <a href="magazijn.html" class="app-card">
-        <div class="app-icon">📦</div>
-        <div class="app-title">Magazijn</div>
-      </a>
-
-      <a href="permanentie.html" class="app-card">
-        <div class="app-icon">📋</div>
-        <div class="app-title">Permanentie</div>
-      </a>
-
-      <a href="sportzaal.html" class="app-card">
-        <div class="app-icon">🏋️‍♂️</div>
-        <div class="app-title">Sportzaal</div>
-      </a>
-
-      <a href="verdi.html" class="app-card">
-        <div class="app-icon">🚨</div>
-        <div class="app-title">Verdi</div>
-      </a>
-
-      <a href="vlam.html" class="app-card">
-        <div class="app-icon">🔥</div>
-        <div class="app-title">Vlam</div>
-      </a>
-
-      <a href="voertuigreservatie.html" class="app-card">
-        <div class="app-icon">🔑</div>
-        <div class="app-title">Voertuigreservatie</div>
-      </a>
-
-      <a href="wegenwerken.html" class="app-card">
-        <div class="app-icon">🚧</div>
-        <div class="app-title">Wegenwerken</div>
-      </a>
+  <!-- MODAL SCHERM VOOR LID BEWERKEN -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✏️ Lid Gegevens Bewerken</h3>
+        <button class="btn-close-modal" id="closeModalBtn">&times;</button>
+      </div>
+      <form id="editMemberForm">
+        <input type="hidden" id="editDocId">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="editVoornaam">Voornaam</label>
+            <input type="text" id="editVoornaam" required>
+          </div>
+          <div class="form-group">
+            <label for="editAchternaam">Achternaam</label>
+            <input type="text" id="editAchternaam" required>
+          </div>
+          <div class="form-group">
+            <label for="editGraad">Graad</label>
+            <select id="editGraad" required>
+              <option value="Ambulancier niet-brandweerman">Ambulancier niet-brandweerman</option>
+              <option value="Brandweerman">Brandweerman / -vrouw</option>
+              <option value="Korporaal">Korporaal</option>
+              <option value="Sergeant">Sergeant</option>
+              <option value="Adjudant">Adjudant</option>
+              <option value="Luitenant">Luitenant</option>
+              <option value="Kapitein">Kapitein</option>
+              <option value="Majoor">Majoor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editPloeg">Ploeg / Dienst</label>
+            <select id="editPloeg" required>
+              <option value="A-Ploeg">A-Ploeg</option>
+              <option value="B-Ploeg">B-Ploeg</option>
+              <option value="C-Ploeg">C-Ploeg</option>
+              <option value="Dagdienst">Dagdienst</option>
+              <option value="Vrijwilliger">Vrijwilliger</option>
+              <option value="Officier">Officier</option>
+              <option value="Ambulancier">Ambulancier</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editRol">Systeem Rol</label>
+            <select id="editRol" required>
+              <option value="gebruiker">Standaard Gebruiker</option>
+              <option value="admin">Administrator (Beheerder)</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label for="editSpecialisaties">Specialisaties (gescheiden door komma's)</label>
+            <input type="text" id="editSpecialisaties">
+          </div>
+          <button type="submit" class="btn-submit"> Wijzigingen Opslaan</button>
+        </div>
+      </form>
     </div>
-  </main>
+  </div>
 
-  <!-- FIREBASE & SCRIPT LOGICA -->
+  <!-- FIREBASE INTEGRATIE & LOGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      deleteDoc, 
+      updateDoc,
+      doc, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Config
     const firebaseConfig = {
@@ -355,175 +494,209 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const membersCollection = collection(db, "leden");
 
-    // 1. INGLOGIN / GEBRUIKER CONTROLEREN
-    const username = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
+    let allMembers = []; // Cache voor alle geladen leden voor snelle filtering & sortering
 
-    if (!username) {
-      window.location.href = 'index.html';
-    } else {
-      document.getElementById('displayUser').textContent = username;
-      fetchUserData(username);
-    }
+    // 1. Nieuw Lid Toevoegen
+    const addForm = document.getElementById('addMemberForm');
+    addForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    // Gebruikersgegevens ophalen uit Firestore
-    async function fetchUserData(name) {
-      try {
-        const q = query(collection(db, "leden"), where("volledigeNaam", "==", name.toLowerCase()));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            
-            // Toon Rechten / Badges in header
-            const badgeContainer = document.getElementById('userInfoBadge');
-            badgeContainer.innerHTML = `
-              ${data.graad ? `<span>${data.graad}</span>` : ''}
-              ${data.ploeg ? `<span>Ploeg: ${data.ploeg}</span>` : ''}
-            `;
-
-            // Als admin, toon de beheerknop
-            if (data.rol === 'admin') {
-              document.getElementById('adminBtn').style.display = 'inline-flex';
-            }
-          });
-        }
-      } catch (err) {
-        console.error("Fout bij ophalen gebruikersrechten:", err);
-      }
-    }
-
-    // Uitloggen
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      localStorage.removeItem('bw_username');
-      sessionStorage.removeItem('bw_username');
-      window.location.href = 'index.html';
-    });
-
-    // 2. LIVE KLOK EN DATUM
-    function updateClock() {
-      const now = new Date();
+      const voornaam = document.getElementById('voornaam').value.trim();
+      const achternaam = document.getElementById('achternaam').value.trim();
+      const graad = document.getElementById('graad').value;
+      const ploeg = document.getElementById('ploeg').value;
+      const rol = document.getElementById('rol').value;
       
-      // Datum formatteren (bijv. Vrijdag 24 mei 2024)
-      const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
-      document.getElementById('currentDate').textContent = now.toLocaleDateString('nl-BE', options);
+      const rawSpecs = document.getElementById('specialisaties').value;
+      const specialisaties = rawSpecs
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
 
-      // Tijd formatteren (HH:MM:SS)
-      document.getElementById('currentTime').textContent = now.toLocaleTimeString('nl-BE');
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-   // 3. AUTOMATISCHE BEREKENING "PLOEG VAN DE WEEK"
-// Wisselt elke VRIJDAG om 12:00 uur 's middags.
-// Volgorde: A1 -> B1 -> C1 -> A2 -> B2 -> C2
-function calculateDutyTeam() {
-  const teams = ["A1", "B1", "C1", "A2", "B2", "C2"];
-  
-  // Referentiepunt: Vrijdag 2 Oktober 2026 om 12:00:00 (Belgische tijd UTC+2 = 10:00 UTC)
-  // Op dit moment is de actieve ploeg B1 (Index 1)
-  const referenceFriday = new Date(Date.UTC(2026, 9, 2, 10, 0, 0)); // Maand 9 is oktober (0-geïndexeerd)
-  const refTeamIndex = 1; // Index 1 is B1
-
-  const now = new Date();
-
-  // Bereken verschil in milliseconden
-  const diffTime = now - referenceFriday;
-  const msInWeek = 7 * 24 * 60 * 60 * 1000;
-
-  // Aantal verstreken weken sinds het referentiepunt
-  const weeksPassed = Math.floor(diffTime / msInWeek);
-
-  // Bereken de index van deze week (modulo 6 zorgt dat het netjes doordraait)
-  let currentTeamIndex = (refTeamIndex + weeksPassed) % teams.length;
-  if (currentTeamIndex < 0) currentTeamIndex += teams.length;
-
-  document.getElementById('dutyTeam').textContent = teams[currentTeamIndex];
-}
-
-calculateDutyTeam();
-  </script>
-<!-- PWA Installatie Banner voor Android / Desktop -->
-<div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
-  <div style="font-weight: bold; font-size: 16px; margin-bottom: 6px;">📲 Installeer de Brandweer App</div>
-  <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">Voeg deze app toe aan je startscherm voor snelle toegang.</div>
-  <div style="display: flex; gap: 10px; justify-content: center;">
-    <button id="btnInstallPwa" style="background: white; color: #d32f2f; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;">Installeer Nu</button>
-    <button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="background: transparent; color: white; border: 1px solid white; padding: 8px 14px; border-radius: 6px; cursor: pointer;">Laten wezen</button>
-  </div>
-</div>
-
-<!-- iOS PWA Instructie Banner -->
-<div id="iosInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #222; border: 2px solid #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
-  <div style="font-weight: bold; font-size: 15px; color: #ff4d4d; margin-bottom: 6px;">📲 App installeren op iPhone / iPad</div>
-  <div style="font-size: 13px; color: #ccc;">
-    Tik onderaan op de <strong>Delen-knop</strong> <span style="font-size:16px;">⎋</span> en kies <strong>"Zet op startscherm"</strong>.
-  </div>
-  <button onclick="document.getElementById('iosInstallBanner').style.display='none'" style="margin-top: 10px; background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Sluiten</button>
-</div>
-  <script>
-  let deferredPrompt;
-
-  // 1. Service Worker Registratie met Automatische Verversing
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
-        console.log('Service Worker geregistreerd:', reg.scope);
-
-        // Controleer op updates zodra de pagina geladen wordt
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Er is een nieuwe versie! Herlaad de pagina automatisch.
-              console.log('Nieuwe versie gedetecteerd, pagina wordt vernieuwd...');
-              window.location.reload();
-            }
-          });
+      try {
+        await addDoc(membersCollection, {
+          voornaam,
+          achternaam,
+          volledigeNaam: `${voornaam} ${achternaam}`.toLowerCase(),
+          graad,
+          ploeg,
+          rol,
+          specialisaties,
+          created: serverTimestamp()
         });
-      }).catch(err => console.error('Service Worker fout:', err));
-    });
 
-    // Detecteer wanneer een nieuwe service worker de controle overneemt
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
+        alert(`Lid ${voornaam} ${achternaam} succesvol toegevoegd!`);
+        addForm.reset();
+      } catch (error) {
+        console.error("Fout bij opslaan:", error);
+        alert("Er is een fout opgetreden bij het opslaan.");
       }
     });
-  }
 
-  // 2. PWA Installatieprompt Opvangen (Android & Chrome/Edge)
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    // Toon onze opvallende installatiebalk
-    document.getElementById('pwaInstallBanner').style.display = 'block';
-  });
+    // 2. Realtime Leden Ophalen, Sorteren en Renderen
+    onSnapshot(membersCollection, (snapshot) => {
+      allMembers = [];
+      snapshot.forEach((docSnapshot) => {
+        allMembers.push({
+          id: docSnapshot.id,
+          ...docSnapshot.data()
+        });
+      });
 
-  document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Gebruiker respons op installatie: ${outcome}`);
-      deferredPrompt = null;
-      document.getElementById('pwaInstallBanner').style.display = 'none';
+      // Sorteer alfabetisch op voornaam (A-Z)
+      allMembers.sort((a, b) => (a.voornaam || '').localeCompare(b.voornaam || '', 'nl', { sensitivity: 'base' }));
+
+      renderTable();
+    });
+
+    // 3. Tabel Renderen & Filteren
+    function renderTable() {
+      const tbody = document.getElementById('membersTableBody');
+      tbody.innerHTML = '';
+
+      const nameFilter = document.getElementById('filterNaam').value.toLowerCase();
+      const graadFilter = document.getElementById('filterGraad').value;
+      const ploegFilter = document.getElementById('filterPloeg').value;
+      const rolFilter = document.getElementById('filterRol').value;
+
+      // Filteren
+      const filteredMembers = allMembers.filter(member => {
+        const matchesName = !nameFilter || 
+          `${member.voornaam} ${member.achternaam}`.toLowerCase().includes(nameFilter);
+        const matchesGraad = !graadFilter || member.graad === graadFilter;
+        const matchesPloeg = !ploegFilter || member.ploeg === ploegFilter;
+        const matchesRol = !rolFilter || member.rol === rolFilter;
+
+        return matchesName && matchesGraad && matchesPloeg && matchesRol;
+      });
+
+      if (filteredMembers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#aaa;">Geen leden gevonden die voldoen aan de filters.</td></tr>';
+        return;
+      }
+
+      filteredMembers.forEach((member) => {
+        const tr = document.createElement('tr');
+        
+        const specsHTML = (member.specialisaties || []).map(s => `<span class="tag">${s}</span>`).join('');
+        const rolHTML = member.rol === 'admin' 
+          ? `<span class="tag tag-admin">Admin</span>` 
+          : `<span class="tag">Gebruiker</span>`;
+
+        tr.innerHTML = `
+          <td><strong>${member.voornaam} ${member.achternaam}</strong></td>
+          <td>${member.graad || '-'}</td>
+          <td>${member.ploeg || '-'}</td>
+          <td>${rolHTML}</td>
+          <td>${specsHTML || '<span style="color:#666;">Geen</span>'}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-edit" data-id="${member.id}">✏️ Bewerk</button>
+              <button class="btn-delete" data-id="${member.id}">🗑️ Verwijder</button>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      // Koppel Event Listeners aan Knoppen
+      attachActionListeners();
     }
-  });
 
-  // 3. iOS Detectie (Safari op iPhone/iPad)
-  const isIos = () => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent);
-  };
-  const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+    // Event listeners voor filters
+    ['filterNaam', 'filterGraad', 'filterPloeg', 'filterRol'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderTable);
+      document.getElementById(id).addEventListener('change', renderTable);
+    });
 
-  if (isIos() && !isInStandaloneMode()) {
-    // Toon de iOS instructiebalk als hij nog niet geïnstalleerd is als app
-    document.getElementById('iosInstallBanner').style.display = 'block';
-  }
-</script>
+    // 4. Knoppen Logica (Bewerken & Verwijderen)
+    function attachActionListeners() {
+      // Verwijderen
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const docId = e.target.getAttribute('data-id');
+          if (confirm("Weet je zeker dat je dit lid wilt verwijderen uit de database?")) {
+            await deleteDoc(doc(db, "leden", docId));
+          }
+        });
+      });
+
+      // Bewerken (Modal Openen)
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const docId = e.target.getAttribute('data-id');
+          const member = allMembers.find(m => m.id === docId);
+          if (member) {
+            openEditModal(member);
+          }
+        });
+      });
+    }
+
+    // Modal Logica
+    const modal = document.getElementById('editModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const editForm = document.getElementById('editMemberForm');
+
+    function openEditModal(member) {
+      document.getElementById('editDocId').value = member.id;
+      document.getElementById('editVoornaam').value = member.voornaam || '';
+      document.getElementById('editAchternaam').value = member.achternaam || '';
+      document.getElementById('editGraad').value = member.graad || '';
+      document.getElementById('editPloeg').value = member.ploeg || '';
+      document.getElementById('editRol').value = member.rol || 'gebruiker';
+      document.getElementById('editSpecialisaties').value = (member.specialisaties || []).join(', ');
+
+      modal.style.display = 'flex';
+    }
+
+    closeModalBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+
+    // Wijzigingen Opslaan
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const docId = document.getElementById('editDocId').value;
+      const voornaam = document.getElementById('editVoornaam').value.trim();
+      const achternaam = document.getElementById('editAchternaam').value.trim();
+      const graad = document.getElementById('editGraad').value;
+      const ploeg = document.getElementById('editPloeg').value;
+      const rol = document.getElementById('editRol').value;
+      
+      const rawSpecs = document.getElementById('editSpecialisaties').value;
+      const specialisaties = rawSpecs
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      try {
+        const memberRef = doc(db, "leden", docId);
+        await updateDoc(memberRef, {
+          voornaam,
+          achternaam,
+          volledigeNaam: `${voornaam} ${achternaam}`.toLowerCase(),
+          graad,
+          ploeg,
+          rol,
+          specialisaties
+        });
+
+        alert('Gegevens succesvol bijgewerkt!');
+        modal.style.display = 'none';
+      } catch (err) {
+        console.error("Fout bij bijwerken:", err);
+        alert('Kon de gegevens niet bijwerken.');
+      }
+    });
+  </script>
 </body>
 </html>
