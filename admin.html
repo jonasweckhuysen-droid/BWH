@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Admin Beheer</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #121212;
+      color: #ffffff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #d32f2f;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .btn-nav:hover {
+      background: #444;
+    }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 25px;
+      border: 1px solid #333;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #ff4d4d;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    input, select {
+      padding: 10px 12px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #ff4d4d;
+    }
+
+    .btn-submit {
+      margin-top: 15px;
+      grid-column: 1 / -1;
+      padding: 12px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-submit:hover {
+      background: #ff4d4d;
+    }
+
+    /* Leden Tabel */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+
+    th {
+      background: #252525;
+      color: #ff4d4d;
+    }
+
+    tr:hover {
+      background: #2a2a2a;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #444;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    .tag-admin {
+      background: #b71c1c;
+      color: #fff;
+    }
+
+    .btn-delete {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-delete:hover {
+      background: #ff4d4d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🚒 Admin Dashboard</h1>
+      <a href="home.html" class="btn-nav">← Terug naar Home</a>
+    </header>
+
+    <!-- Formulier Lid Toevoegen -->
+    <div class="card">
+      <h2>Nieuw Lid Toevoegen</h2>
+      <form id="addMemberForm">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="voornaam">Voornaam</label>
+            <input type="text" id="voornaam" placeholder="Jan" required>
+          </div>
+
+          <div class="form-group">
+            <label for="achternaam">Achternaam</label>
+            <input type="text" id="achternaam" placeholder="Janssens" required>
+          </div>
+
+          <div class="form-group">
+            <label for="graad">Graad</label>
+            <select id="graad" required>
+              <option value="">Kies graad...</option>
+              <option value="Brandweerman">Brandweerman / -vrouw</option>
+              <option value="Korporaal">Korporaal</option>
+              <option value="Sergeant">Sergeant</option>
+              <option value="Adjudant">Adjudant</option>
+              <option value="Luitenant">Luitenant</option>
+              <option value="Kapitein">Kapitein</option>
+              <option value="Majoor">Majoor</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ploeg">Ploeg / Dienst</label>
+            <select id="ploeg" required>
+              <option value="">Kies ploeg...</option>
+              <option value="A-Ploeg">A-Ploeg</option>
+              <option value="B-Ploeg">B-Ploeg</option>
+              <option value="C-Ploeg">C-Ploeg</option>
+              <option value="Dagdienst">Dagdienst</option>
+              <option value="Vrijwilliger">Vrijwilliger</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="rol">Systeem Rol (Rechten)</label>
+            <select id="rol" required>
+              <option value="gebruiker">Standaard Gebruiker</option>
+              <option value="admin">Administrator (Beheerder)</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="specialisaties">Specialisaties (gescheiden door komma's)</label>
+            <input type="text" id="specialisaties" placeholder="bijv. Duiker, Binnenaanval, Chauffeur C, Gazenpakdrager">
+          </div>
+
+          <button type="submit" class="btn-submit">+ Lid Opslaan in Database</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Lijst met Leden -->
+    <div class="card">
+      <h2>Leden in Database</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Graad</th>
+              <th>Ploeg</th>
+              <th>Rol</th>
+              <th>Specialisaties</th>
+              <th>Actie</th>
+            </tr>
+          </thead>
+          <tbody id="membersTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; color: #888;">Laden van gegevens...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      deleteDoc, 
+      doc, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Configuratie
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const membersCollection = collection(db, "leden");
+
+    // Formulier afhandelen (Nieuw lid toevoegen)
+    const form = document.getElementById('addMemberForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const voornaam = document.getElementById('voornaam').value.trim();
+      const achternaam = document.getElementById('achternaam').value.trim();
+      const graad = document.getElementById('graad').value;
+      const ploeg = document.getElementById('ploeg').value;
+      const rol = document.getElementById('rol').value;
+      
+      // Specialisaties omzetten naar een array van strings
+      const rawSpecs = document.getElementById('specialisaties').value;
+      const specialisaties = rawSpecs
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      try {
+        await addDoc(membersCollection, {
+          voornaam,
+          achternaam,
+          volledigeNaam: `${voornaam} ${achternaam}`.toLowerCase(),
+          graad,
+          ploeg,
+          rol,
+          specialisaties,
+          created: serverTimestamp()
+        });
+
+        alert(`Lid ${voornaam} ${achternaam} succesvol toegevoegd!`);
+        form.reset();
+      } catch (error) {
+        console.error("Fout bij opslaan:", error);
+        alert("Er is een fout opgetreden bij het opslaan.");
+      }
+    });
+
+    // Realtime uitlezen van de database
+    onSnapshot(membersCollection, (snapshot) => {
+      const tbody = document.getElementById('membersTableBody');
+      tbody.innerHTML = '';
+
+      if (snapshot.empty) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nog geen leden gevonden.</td></tr>';
+        return;
+      }
+
+      snapshot.forEach((docSnapshot) => {
+        const member = docSnapshot.data();
+        const id = docSnapshot.id;
+
+        const tr = document.createElement('tr');
+        
+        // Specialisaties badges
+        const specsHTML = (member.specialisaties || []).map(s => `<span class="tag">${s}</span>`).join('');
+        
+        // Rol badge
+        const rolHTML = member.rol === 'admin' 
+          ? `<span class="tag tag-admin">Admin</span>` 
+          : `<span class="tag">Gebruiker</span>`;
+
+        tr.innerHTML = `
+          <td><strong>${member.voornaam} ${member.achternaam}</strong></td>
+          <td>${member.graad || '-'}</td>
+          <td>${member.ploeg || '-'}</td>
+          <td>${rolHTML}</td>
+          <td>${specsHTML || '<span style="color:#666;">Geen</span>'}</td>
+          <td>
+            <button class="btn-delete" data-id="${id}">Verwijder</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      // Verwijderknoppen instellen
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const docId = e.target.getAttribute('data-id');
+          if (confirm("Weet je zeker dat je dit lid wilt verwijderen?")) {
+            await deleteDoc(doc(db, "leden", docId));
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
