@@ -61,7 +61,7 @@
       font-size: 13px;
       white-space: nowrap;
       transition: background 0.3s;
-      cursor: pointer;
+      display: inline-block;
     }
 
     .btn-nav:hover { background: #444; }
@@ -340,7 +340,7 @@
   <div class="container">
     <header>
       <h1>⚠️ Defectmeldingen</h1>
-      <button class="btn-nav" onclick="safeNavigate('home.html')">← Home</button>
+      <a href="home.html" class="btn-nav">← Home</a>
     </header>
 
     <!-- MICROSOFT FORMS BANNER -->
@@ -361,13 +361,13 @@
 
       <!-- LINK INSTELLEN (ENKEL ZICHTBAAR VOOR ADMINS) -->
       <div class="excel-config-box" id="adminConfigBox">
-        <label for="excelUrlInput">⚙️ Admin Instelling - Google Sheets Deellink:</label>
+        <label for="excelUrlInput">⚙️️ Admin Instelling - Google Sheets Deellink:</label>
         <div class="config-inputs">
           <input type="text" id="excelUrlInput" placeholder="Plak hier je Google Sheets delen-link...">
           <button class="btn-refresh" id="saveLinkBtn">Opslaan & Laden</button>
         </div>
         <div class="sync-info">
-          💡 <strong>Tip:</strong> Klik in Google Sheets op <em>Delen ➔ Iedereen met de link (Lezer)</em> en plak die link hierboven.
+          💡 <strong>Tip:</strong> Klik in Google Sheets op <em>Delen ➔ Algemene toegang ➔ Iedereen met de link (Lezer)</em>.
         </div>
       </div>
 
@@ -453,24 +453,14 @@
 
   <!-- LOGICA VOOR OPHALEN & VERWERKEN VAN HET SPREADSHEET -->
   <script>
-    const DEFAULT_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit';
-
-    // Navigation fallback helper
-    window.safeNavigate = function(targetUrl) {
-      try {
-        if (window.location && window.location.href) {
-          window.location.href = targetUrl;
-        }
-      } catch (err) {
-        console.warn("Navigatie niet mogelijk:", err);
-      }
-    };
+    // Jouw vast ingestelde Google Drive Sheet URL
+    const DEFAULT_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1CrW-UbQQnV4sujgnEaZHGvHJwlvH_KNQ/edit?usp=drivesdk';
 
     let rawExcelData = [];
 
-    // Opgeslagen link ophalen uit localStorage (of gebruik de geldige standaardlink)
+    // Opgeslagen link controleren (en overschrijven als die oud of leeg was)
     let savedExcelUrl = localStorage.getItem('bw_excel_defecten_url');
-    if (!savedExcelUrl || !savedExcelUrl.trim()) {
+    if (!savedExcelUrl || !savedExcelUrl.includes('1CrW-UbQQnV4sujgnEaZHGvHJwlvH_KNQ')) {
       savedExcelUrl = DEFAULT_SHEETS_URL;
       localStorage.setItem('bw_excel_defecten_url', savedExcelUrl);
     }
@@ -495,12 +485,11 @@
       });
     }
 
-    // Zet een Google Sheets of OneDrive delen-link om naar een directe CSV/export URL
+    // Zet een Google Sheets deellink om naar een directe CSV export URL
     function convertToDirectDownloadLink(url) {
       let cleanUrl = url.trim();
       if (!cleanUrl) return '';
 
-      // Google Sheets link omzetten naar een directe CSV export URL
       if (cleanUrl.includes('docs.google.com/spreadsheets')) {
         const matches = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
         if (matches && matches[1]) {
@@ -509,7 +498,6 @@
         }
       }
 
-      // SharePoint / OneDrive link omzetten
       if (cleanUrl.includes('sharepoint.com') || cleanUrl.includes('onedrive.live.com')) {
         if (!cleanUrl.includes('download=1')) {
           cleanUrl += cleanUrl.includes('?') ? '&download=1' : '?download=1';
@@ -518,7 +506,7 @@
       return cleanUrl;
     }
 
-    // SLIMME DATUM FORMATTERING
+    // SLIMME DATUM FORMATTERING (ENKEL DATUM, GEEN UUR)
     function formatDatumValue(rawVal) {
       if (rawVal === undefined || rawVal === null || String(rawVal).trim() === '') {
         return '';
@@ -535,9 +523,7 @@
           const dag = String(dateObj.getUTCDate()).padStart(2, '0');
           const maand = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
           const jaar = dateObj.getUTCFullYear();
-          const uur = String(dateObj.getUTCHours()).padStart(2, '0');
-          const min = String(dateObj.getUTCMinutes()).padStart(2, '0');
-          return `${dag}/${maand}/${jaar} ${uur}:${min}`;
+          return `${dag}/${maand}/${jaar}`;
         }
       }
 
@@ -547,16 +533,12 @@
         const dag = String(parsedDate.getDate()).padStart(2, '0');
         const maand = String(parsedDate.getMonth() + 1).padStart(2, '0');
         const jaar = parsedDate.getFullYear();
-        const uur = String(parsedDate.getHours()).padStart(2, '0');
-        const min = String(parsedDate.getMinutes()).padStart(2, '0');
-        
-        if (uur === '00' && min === '00') {
-          return `${dag}/${maand}/${jaar}`;
-        }
-        return `${dag}/${maand}/${jaar} ${uur}:${min}`;
+        return `${dag}/${maand}/${jaar}`;
       }
 
-      return strVal;
+      // 3. Fallback: als het tekst is, neem enkel het gedeelte vóór een spatie of 'T'
+      const datePartOnly = strVal.split(/[ T]/)[0];
+      return datePartOnly || strVal;
     }
 
     // SLIMME KOLOM DETECTIE
@@ -587,7 +569,7 @@
       return '';
     }
 
-    // INLADEN VAN GOOGLE SHEETS / EXCEL
+    // INLADEN VAN GOOGLE SHEETS
     async function loadExcelFromOneDrive() {
       let urlInput = document.getElementById('excelUrlInput').value.trim();
       if (!urlInput) {
@@ -596,11 +578,21 @@
       }
 
       const downloadUrl = convertToDirectDownloadLink(urlInput);
-      document.getElementById('defectTableBody').innerHTML = 
-        '<tr><td colspan="4" style="text-align:center; color:#888;">⏳ Gegevens worden opgehaald uit het spreadsheet...</td></tr>';
+      const tbody = document.getElementById('defectTableBody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">⏳ Gegevens worden opgehaald uit het spreadsheet...</td></tr>';
 
       try {
-        const response = await fetch(downloadUrl);
+        let response = await fetch(downloadUrl);
+        
+        // Fallback als de gewone CSV export URL een beveiligingsmelding geeft
+        if (!response.ok && downloadUrl.includes('docs.google.com/spreadsheets')) {
+          const matches = urlInput.match(/\/d\/([a-zA-Z0-9-_]+)/);
+          if (matches && matches[1]) {
+            const altUrl = `https://docs.google.com/spreadsheets/d/${matches[1]}/gviz/tq?tqx=out:csv`;
+            response = await fetch(altUrl);
+          }
+        }
+
         if (!response.ok) throw new Error("Netwerkrespons was niet ok (" + response.status + ")");
         
         const data = await response.arrayBuffer();
@@ -612,16 +604,20 @@
         rawExcelData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
         if (rawExcelData.length === 0) {
-          document.getElementById('defectTableBody').innerHTML = 
-            '<tr><td colspan="4" style="text-align:center; color:#888;">Geen defecten gevonden in het bestand.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">Geen defecten gevonden in het bestand.</td></tr>';
           return;
         }
 
         renderExcelTable();
       } catch (err) {
         console.error("Fout bij inladen data:", err);
-        document.getElementById('defectTableBody').innerHTML = 
-          '<tr><td colspan="4" style="text-align:center; color:#ff4d4d; padding:20px;">❌ Kon het bestand niet openen.<br><br><span style="font-size:12px; color:#ccc;">Zorg ervoor dat de Google Sheet op <strong>"Iedereen met de link" (Lezer)</strong> staat ingesteld.</span></td></tr>';
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff4d4d; padding:20px;">
+          ❌ Kon het bestand niet openen.<br><br>
+          <span style="font-size:12px; color:#ccc;">
+            Zorg ervoor dat de Google Sheet op <strong>"Iedereen met de link" (Lezer)</strong> staat ingesteld.<br>
+            (Klik in Google Sheets op <em>Delen ➔ Algemene toegang ➔ Iedereen met de link</em>).
+          </span>
+        </td></tr>`;
       }
     }
 
@@ -651,10 +647,11 @@
         let melderVal = getValueFromRow(row, ['naam', 'name', 'melder', 'aanvrager', 'e-mailadres', 'email', 'wie']);
         if (!melderVal && keys.length > 3) melderVal = row[keys[4]] || row[keys[3]] || 'Anoniem';
 
-        // 2. Datum ophalen & Formatteren
+        // 2. Datum ophalen & Formatteren (ENKEL DATUM)
         let rawDatum = getValueFromRow(row, ['datum', 'wanneer', 'tijdstempel', 'timestamp', 'voltooide tijd', 'completion time', 'begintijd', 'start time', 'tijd']);
         if (!rawDatum && keys.length > 2) rawDatum = row[keys[2]] || row[keys[1]] || '';
         
         const geformatteerdeDatum = formatDatumValue(rawDatum) || 'Onbekend';
 
         // 3. Locatie / Materiaal / Kazerne ophalen
+        let locatieVal = getValueFromRow(row, ['locatie', 'voertuig', 'materi
