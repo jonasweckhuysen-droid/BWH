@@ -2,538 +2,212 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
-  >
-
-  <meta name="theme-color" content="#d71920">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="BWH 2.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Inloggen</title>
+  
+  <!-- PWA Metadata & Manifest -->
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="css/style.css">
+  <meta name="theme-color" content="#d32f2f">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
-  <title>BWH 2.0 - Brandweer Herentals</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-  <script src="register-sw.js"></script>
+    body {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a0808 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #ffffff;
+    }
+
+    .login-card {
+      background: rgba(30, 30, 30, 0.95);
+      border: 2px solid #d32f2f;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(211, 47, 47, 0.3);
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .badge-icon {
+      font-size: 50px;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 24px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    p.subtitle {
+      color: #aaa;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #2b2b2b;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #ff4d4d;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 25px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input {
+      accent-color: #d32f2f;
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    .btn-login:hover {
+      background: linear-gradient(135deg, #ff4d4d 0%, #d32f2f 100%);
+      transform: translateY(-2px);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+  </style>
 </head>
+<body>
 
-<body class="login-page">
+  <div class="login-card">
+    <div class="badge-icon">🚒</div>
+    <h1>Brandweer App</h1>
+    <p class="subtitle">Meld u aan om toegang te krijgen</p>
 
-  <!-- =========================================
-       DECORATIEVE ACHTERGROND
-       ========================================= -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Naam / Dienstnummer</label>
+        <input type="text" id="username" placeholder="Voer je naam in..." required>
+      </div>
 
-  <div class="bg-decoration">
+      <label class="checkbox-group">
+        <input type="checkbox" id="rememberMe">
+        <span>Onthoud mijn naam op dit apparaat</span>
+      </label>
 
-    <div class="blob blob-red"></div>
-    <div class="blob blob-orange"></div>
-    <div class="blob blob-yellow"></div>
-
-    <div class="watermark watermark-1">✦</div>
-    <div class="watermark watermark-2">✦</div>
-    <div class="watermark watermark-3">✦</div>
-
+      <button type="submit" class="btn-login">Inloggen</button>
+    </form>
   </div>
 
-
-  <!-- =========================================
-       APP
-       ========================================= -->
-
-  <main class="app-container">
-
-
-    <!-- =======================================
-         TOP BRANDING
-         ======================================= -->
-
-    <header class="app-header">
-
-      <div class="brand">
-
-        <div class="brand-badge">
-
-          <div class="badge-flame">
-
-            <svg
-              viewBox="0 0 80 100"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M43 2
-                C48 25 31 29 37 47
-                C39 54 47 56 51 47
-                C61 61 61 75 52 84
-                C43 94 26 91 21 79
-                C16 67 22 57 29 49
-                C20 53 13 62 13 72
-                C13 89 27 99 43 99
-                C62 99 76 86 76 68
-                C76 50 64 31 53 20
-                C48 15 45 8 43 2Z"
-                fill="currentColor"
-              />
-            </svg>
-
-          </div>
-
-          <div class="badge-shine"></div>
-
-        </div>
-
-
-        <div class="brand-info">
-
-          <div class="brand-name">
-            BWH <span>2.0</span>
-          </div>
-
-          <div class="brand-location">
-            BRANDWEER HERENTALS
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="header-status">
-
-        <span class="status-dot"></span>
-
-        <span>ONLINE</span>
-
-      </div>
-
-    </header>
-
-
-    <!-- =======================================
-         HERO
-         ======================================= -->
-
-    <section class="hero">
-
-      <div class="hero-decoration hero-circle-1"></div>
-      <div class="hero-decoration hero-circle-2"></div>
-
-      <div class="hero-content">
-
-        <div class="hero-small-title">
-          🚒  WELKOM BIJ BWH 2.0
-        </div>
-
-        <h1>
-          Klaar voor<br>
-          <span>actie?</span>
-        </h1>
-
-        <p>
-          Meld je aan en krijg toegang tot
-          jouw brandweeromgeving.
-        </p>
-
-      </div>
-
-
-      <!-- Illustratieve brandweerwagen -->
-
-      <div class="firetruck">
-
-        <div class="truck-lights">
-
-          <span class="light-blue"></span>
-          <span class="light-blue"></span>
-
-        </div>
-
-        <div class="truck-body">
-
-          <div class="truck-cabin">
-
-            <div class="truck-window"></div>
-
-            <div class="truck-door"></div>
-
-          </div>
-
-          <div class="truck-box">
-
-            <div class="truck-stripe"></div>
-
-            <div class="truck-symbol">
-              ✦
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="truck-wheel wheel-left"></div>
-        <div class="truck-wheel wheel-right"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =======================================
-         LOGIN KAART
-         ======================================= -->
-
-    <section class="login-card">
-
-
-      <!-- titel -->
-
-      <div class="login-title">
-
-        <div class="title-icon">
-
-          <svg
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 12a4.5 4.5 0 1 0 0-9
-              4.5 4.5 0 0 0 0 9Zm0 2
-              c-4.4 0-8 2.2-8 5v2h16v-2
-              c0-2.8-3.6-5-8-5Z"
-            />
-          </svg>
-
-        </div>
-
-        <div>
-
-          <h2>Even aanmelden</h2>
-
-          <p>
-            Wie ben jij?
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================
-           FORM
-           ===================================== -->
-
-      <form
-        id="loginForm"
-        autocomplete="on"
-      >
-
-
-        <!-- NAAM -->
-
-        <div class="field">
-
-          <label for="name">
-            Jouw naam
-          </label>
-
-          <div class="name-input">
-
-            <div class="input-icon icon-red">
-
-              <svg
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 12a4 4 0 1 0 0-8
-                  4 4 0 0 0 0 8Zm0 2
-                  c-4.4 0-8 2.2-8 6h16
-                  c0-4-3.6-6-8-6Z"
-                />
-              </svg>
-
-            </div>
-
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Voornaam en achternaam"
-              autocomplete="name"
-              autocapitalize="words"
-              maxlength="80"
-              required
-            />
-
-            <div class="input-check">
-
-              <svg
-                viewBox="0 0 24 24"
-              >
-                <path d="m5 12 4 4L19 6"/>
-              </svg>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ONTHOUDEN -->
-
-        <label
-          class="remember"
-          for="remember"
-        >
-
-          <span class="check-box">
-
-            <input
-              id="remember"
-              type="checkbox"
-            >
-
-            <span class="check-visual">
-
-              <svg viewBox="0 0 24 24">
-                <path d="m5 12 4 4L19 6"/>
-              </svg>
-
-            </span>
-
-          </span>
-
-
-          <span class="remember-content">
-
-            <strong>
-              Onthoud mij
-            </strong>
-
-            <small>
-              Je naam wordt op dit toestel bewaard
-            </small>
-
-          </span>
-
-        </label>
-
-
-        <!-- AANMELDEN -->
-
-        <button
-          type="submit"
-          class="login-button"
-        >
-
-          <span class="login-button-icon">
-
-            <svg
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15 3h4a2 2 0 0 1 2 2v14
-                a2 2 0 0 1-2 2h-4
-                M10 17l5-5-5-5
-                M15 12H3"
-              />
-            </svg>
-
-          </span>
-
-          <span>
-            AANMELDEN
-          </span>
-
-          <span class="login-arrow">
-            →
-          </span>
-
-        </button>
-
-
-        <p
-          id="message"
-          class="message"
-          role="alert"
-        ></p>
-
-      </form>
-
-
-      <!-- =====================================
-           QUICK FEATURES
-           ===================================== -->
-
-      <div class="features">
-
-        <div class="feature">
-
-          <div class="feature-icon feature-red">
-
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M12 3 4 6v5c0 5.2 3.4 9.1 8 10
-                4.6-.9 8-4.8 8-10V6l-8-3Z"
-              />
-
-              <path d="m9 12 2 2 4-4"/>
-            </svg>
-
-          </div>
-
-          <span>
-            Beveiligd
-          </span>
-
-        </div>
-
-
-        <div class="feature">
-
-          <div class="feature-icon feature-blue">
-
-            <svg viewBox="0 0 24 24">
-
-              <rect
-                x="5"
-                y="2"
-                width="14"
-                height="20"
-                rx="2"
-              />
-
-              <path d="M9 18h6"/>
-
-            </svg>
-
-          </div>
-
-          <span>
-            Mobiel
-          </span>
-
-        </div>
-
-
-        <div class="feature">
-
-          <div class="feature-icon feature-yellow">
-
-            <svg viewBox="0 0 24 24">
-
-              <path
-                d="M13 2 4 14h7l-1 8
-                10-13h-7l0-7Z"
-              />
-
-            </svg>
-
-          </div>
-
-          <span>
-            Snel
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================
-           INSTALLATIE
-           ===================================== -->
-
-      <div
-        id="installBox"
-        class="install-box"
-        hidden
-      >
-
-        <div class="install-app-icon">
-
-          <svg viewBox="0 0 24 24">
-
-            <path
-              d="M12 3v11"
-            />
-
-            <path
-              d="m7 9 5 5 5-5"
-            />
-
-            <path
-              d="M5 21h14"
-            />
-
-          </svg>
-
-        </div>
-
-
-        <div class="install-text">
-
-          <strong>
-            BWH 2.0 installeren
-          </strong>
-
-          <span>
-            Zet BWH 2.0 op je startscherm.
-          </span>
-
-        </div>
-
-
-        <button
-          id="installBtn"
-          type="button"
-        >
-          INSTALLEREN
-        </button>
-
-      </div>
-
-
-    </section>
-
-
-    <!-- =======================================
-         FOOTER
-         ======================================= -->
-
-    <footer>
-
-      <div class="footer-logo">
-        BWH
-      </div>
-
-      <div class="footer-text">
-
-        <strong>
-          Brandweer Herentals
-        </strong>
-
-        <span>
-          BWH 2.0 · Veilige digitale werkomgeving
-        </span>
-
-      </div>
-
-      <div class="footer-year">
-        2026
-      </div>
-
-    </footer>
-
-
-  </main>
-
-
-  <script type="module" src="js/index.js"></script>
-
+  <!-- Firebase Scripts (Modular SDK v10) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Configuratie
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    // Initialiseer Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Inloglogica & Onthoudfunctie
+    const loginForm = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const rememberMeCheckbox = document.getElementById('rememberMe');
+
+    // Automatisch invullen/doorsturen als 'rememberMe' geactiveerd was
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedName = localStorage.getItem('bw_username');
+      if (savedName) {
+        // Direct doorsturen als de gebruiker al opgeslagen is
+        window.location.href = 'home.html';
+      }
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = usernameInput.value.trim();
+
+      if (username) {
+        if (rememberMeCheckbox.checked) {
+          localStorage.setItem('bw_username', username);
+        } else {
+          sessionStorage.setItem('bw_username', username);
+        }
+
+        // Stuur door naar home.html
+        window.location.href = 'home.html';
+      }
+    });
+  </script>
+
+  <!-- Service Worker Registratie -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker geregistreerd:', reg.scope))
+          .catch(err => console.error('Service Worker registratie mislukt:', err));
+      });
+    }
+  </script>
 </body>
 </html>
