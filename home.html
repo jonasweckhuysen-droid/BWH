@@ -275,12 +275,13 @@
     <div class="section-title">Applicaties & Modules</div>
 
     <div class="grid-container">
-      <a href="abiweb.html" class="app-card">
+      <!-- Externe Knoppen met Directe Links (In-App Browsing + Wachtwoord Onthouden) -->
+      <a href="https://abiweb.brandweerzonekempen.be/" target="_self" class="app-card">
         <div class="app-icon">💻</div>
         <div class="app-title">Abiweb</div>
       </a>
 
-      <a href="ambulance.html" class="app-card">
+      <a href="https://dgh.brandweerzonekempen.be/" target="_self" class="app-card">
         <div class="app-icon">🚑</div>
         <div class="app-title">Ambulance</div>
       </a>
@@ -300,7 +301,7 @@
         <div class="app-title">Duikers</div>
       </a>
 
-      <a href="magazijn.html" class="app-card">
+      <a href="https://magazijn.brandweerzonekempen.be/" target="_self" class="app-card">
         <div class="app-icon">📦</div>
         <div class="app-title">Magazijn</div>
       </a>
@@ -310,17 +311,17 @@
         <div class="app-title">Permanentie</div>
       </a>
 
-      <a href="sportzaal.html" class="app-card">
+      <a href="https://jonasweckhuysen-droid.github.io/sportzaal/" target="_self" class="app-card">
         <div class="app-icon">🏋️‍♂️</div>
         <div class="app-title">Sportzaal</div>
       </a>
 
-      <a href="verdi.html" class="app-card">
+      <a href="https://kempen.verdi.cloud/" target="_self" class="app-card">
         <div class="app-icon">🚨</div>
         <div class="app-title">Verdi</div>
       </a>
 
-      <a href="vlam.html" class="app-card">
+      <a href="https://vlam.brandweerzonekempen.be/" target="_self" class="app-card">
         <div class="app-icon">🔥</div>
         <div class="app-title">Vlam</div>
       </a>
@@ -405,125 +406,113 @@
     function updateClock() {
       const now = new Date();
       
-      // Datum formatteren (bijv. Vrijdag 24 mei 2024)
       const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
       document.getElementById('currentDate').textContent = now.toLocaleDateString('nl-BE', options);
 
-      // Tijd formatteren (HH:MM:SS)
       document.getElementById('currentTime').textContent = now.toLocaleTimeString('nl-BE');
     }
     setInterval(updateClock, 1000);
     updateClock();
 
     // 3. AUTOMATISCHE BEREKENING "PLOEG VAN DE WEEK"
-// Wisselt elke VRIJDAG om 12:00 uur 's middags.
-// Volgorde: A1 -> B1 -> C1 -> A2 -> B2 -> C2
-function calculateDutyTeam() {
-  const teams = ["A1", "B1", "C1", "A2", "B2", "C2"];
-  
-  // Referentiepunt: Vrijdag 2 Oktober 2026 om 12:00:00 (Belgische tijd UTC+2 = 10:00 UTC)
-  // Op dit moment is de actieve ploeg B1 (Index 1)
-  const referenceFriday = new Date(Date.UTC(2026, 9, 2, 10, 0, 0)); // Maand 9 is oktober (0-geïndexeerd)
-  const refTeamIndex = 1; // Index 1 is B1
+    function calculateDutyTeam() {
+      const teams = ["A1", "B1", "C1", "A2", "B2", "C2"];
+      
+      const referenceFriday = new Date(Date.UTC(2026, 9, 2, 10, 0, 0));
+      const refTeamIndex = 1; // Index 1 is B1
 
-  const now = new Date();
+      const now = new Date();
 
-  // Bereken verschil in milliseconden
-  const diffTime = now - referenceFriday;
-  const msInWeek = 7 * 24 * 60 * 60 * 1000;
+      const diffTime = now - referenceFriday;
+      const msInWeek = 7 * 24 * 60 * 60 * 1000;
 
-  // Aantal verstreken weken sinds het referentiepunt
-  const weeksPassed = Math.floor(diffTime / msInWeek);
+      const weeksPassed = Math.floor(diffTime / msInWeek);
 
-  // Bereken de index van deze week (modulo 6 zorgt dat het netjes doordraait)
-  let currentTeamIndex = (refTeamIndex + weeksPassed) % teams.length;
-  if (currentTeamIndex < 0) currentTeamIndex += teams.length;
+      let currentTeamIndex = (refTeamIndex + weeksPassed) % teams.length;
+      if (currentTeamIndex < 0) currentTeamIndex += teams.length;
 
-  document.getElementById('dutyTeam').textContent = teams[currentTeamIndex];
-}
+      document.getElementById('dutyTeam').textContent = teams[currentTeamIndex];
+    }
 
-calculateDutyTeam();
+    calculateDutyTeam();
   </script>
-<!-- PWA Installatie Banner voor Android / Desktop -->
-<div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
-  <div style="font-weight: bold; font-size: 16px; margin-bottom: 6px;">📲 Installeer de Brandweer App</div>
-  <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">Voeg deze app toe aan je startscherm voor snelle toegang.</div>
-  <div style="display: flex; gap: 10px; justify-content: center;">
-    <button id="btnInstallPwa" style="background: white; color: #d32f2f; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;">Installeer Nu</button>
-    <button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="background: transparent; color: white; border: 1px solid white; padding: 8px 14px; border-radius: 6px; cursor: pointer;">Laten wezen</button>
+
+  <!-- PWA Installatie Banner voor Android / Desktop -->
+  <div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
+    <div style="font-weight: bold; font-size: 16px; margin-bottom: 6px;">📲 Installeer de Brandweer App</div>
+    <div style="font-size: 13px; margin-bottom: 12px; opacity: 0.9;">Voeg deze app toe aan je startscherm voor snelle toegang.</div>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button id="btnInstallPwa" style="background: white; color: #d32f2f; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer;">Installeer Nu</button>
+      <button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="background: transparent; color: white; border: 1px solid white; padding: 8px 14px; border-radius: 6px; cursor: pointer;">Laten wezen</button>
+    </div>
   </div>
-</div>
 
-<!-- iOS PWA Instructie Banner -->
-<div id="iosInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #222; border: 2px solid #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
-  <div style="font-weight: bold; font-size: 15px; color: #ff4d4d; margin-bottom: 6px;">📲 App installeren op iPhone / iPad</div>
-  <div style="font-size: 13px; color: #ccc;">
-    Tik onderaan op de <strong>Delen-knop</strong> <span style="font-size:16px;">⎋</span> en kies <strong>"Zet op startscherm"</strong>.
+  <!-- iOS PWA Instructie Banner -->
+  <div id="iosInstallBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; background: #222; border: 2px solid #d32f2f; color: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 9999; text-align: center;">
+    <div style="font-weight: bold; font-size: 15px; color: #ff4d4d; margin-bottom: 6px;">📲 App installeren op iPhone / iPad</div>
+    <div style="font-size: 13px; color: #ccc;">
+      Tik onderaan op de <strong>Delen-knop</strong> <span style="font-size:16px;">⎋</span> en kies <strong>"Zet op startscherm"</strong>.
+    </div>
+    <button onclick="document.getElementById('iosInstallBanner').style.display='none'" style="margin-top: 10px; background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Sluiten</button>
   </div>
-  <button onclick="document.getElementById('iosInstallBanner').style.display='none'" style="margin-top: 10px; background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Sluiten</button>
-</div>
-<script>
-  let deferredPrompt;
 
-  // 1. Service Worker Registratie met Automatische Verversing
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
-        console.log('Service Worker geregistreerd:', reg.scope);
+  <script>
+    let deferredPrompt;
 
-        // Controleer op updates zodra de pagina geladen wordt
-        reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Er is een nieuwe versie! Herlaad de pagina automatisch.
-              console.log('Nieuwe versie gedetecteerd, pagina wordt vernieuwd...');
-              window.location.reload();
-            }
+    // 1. Service Worker Registratie met Automatische Verversing
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          console.log('Service Worker geregistreerd:', reg.scope);
+
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('Nieuwe versie gedetecteerd, pagina wordt vernieuwd...');
+                window.location.reload();
+              }
+            });
           });
-        });
-      }).catch(err => console.error('Service Worker fout:', err));
+        }).catch(err => console.error('Service Worker fout:', err));
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+
+    // 2. PWA Installatieprompt Opvangen (Android & Chrome/Edge)
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwaInstallBanner').style.display = 'block';
     });
 
-    // Detecteer wanneer een nieuwe service worker de controle overneemt
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
+    document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Gebruiker respons op installatie: ${outcome}`);
+        deferredPrompt = null;
+        document.getElementById('pwaInstallBanner').style.display = 'none';
       }
     });
-  }
 
-  // 2. PWA Installatieprompt Opvangen (Android & Chrome/Edge)
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    // Toon onze opvallende installatiebalk
-    document.getElementById('pwaInstallBanner').style.display = 'block';
-  });
+    // 3. iOS Detectie (Safari op iPhone/iPad)
+    const isIos = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test(userAgent);
+    };
+    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
 
-  document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Gebruiker respons op installatie: ${outcome}`);
-      deferredPrompt = null;
-      document.getElementById('pwaInstallBanner').style.display = 'none';
+    if (isIos() && !isInStandaloneMode()) {
+      document.getElementById('iosInstallBanner').style.display = 'block';
     }
-  });
-
-  // 3. iOS Detectie (Safari op iPhone/iPad)
-  const isIos = () => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    return /iphone|ipad|ipod/.test(userAgent);
-  };
-  const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
-
-  if (isIos() && !isInStandaloneMode()) {
-    // Toon de iOS instructiebalk als hij nog niet geïnstalleerd is als app
-    document.getElementById('iosInstallBanner').style.display = 'block';
-  }
-</script>
+  </script>
 </body>
 </html>
