@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Wegenwerken</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #d32f2f;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.3s;
+    }
+
+    .btn-nav:hover { background: #444; }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid #333;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      width: 100%;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      color: #ff4d4d;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* ADMIN FORMULIER KADER */
+    .admin-card {
+      border: 2px solid #ff9800;
+      background: linear-gradient(135deg, #241c12 0%, #1e1e1e 100%);
+      display: none; /* Enkel zichtbaar voor admins */
+    }
+
+    .admin-card h2 {
+      color: #ffb74d;
+      border-bottom-color: #423018;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      min-height: 44px;
+      color-scheme: dark;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #ff4d4d;
+    }
+
+    .btn-submit {
+      margin-top: 10px;
+      padding: 12px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.3s;
+      min-height: 46px;
+      width: 100%;
+    }
+
+    .btn-submit:hover { background: #ff4d4d; }
+
+    /* WEGENWERKEN LIJST / CARDS */
+    .roadworks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .roadwork-item {
+      background: #252525;
+      border: 1px solid #383838;
+      border-left: 4px solid #ff9800;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .roadwork-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .roadwork-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .roadwork-dates {
+      font-size: 12px;
+      color: #ffb74d;
+      background: #332515;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #54391a;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+    }
+
+    .roadwork-description {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.4;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .btn-delete-item {
+      background: #c62828;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      align-self: flex-end;
+      margin-top: 4px;
+    }
+
+    .btn-delete-item:hover { background: #d32f2f; }
+
+    .empty-state {
+      text-align: center;
+      color: #888;
+      padding: 30px 10px;
+      font-size: 14px;
+    }
+
+    /* CUSTOM POP-UP MODAL */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .custom-modal {
+      background: #1e1e1e;
+      border: 2px solid #d32f2f;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 360px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+    }
+
+    .modal-icon { font-size: 36px; margin-bottom: 8px; }
+    .modal-title { font-size: 16px; font-weight: bold; color: #ff4d4d; margin-bottom: 8px; }
+    .modal-text { font-size: 13px; color: #ddd; margin-bottom: 16px; line-height: 1.4; }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-modal {
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn-modal-primary { background: #d32f2f; color: white; }
+    .btn-modal-secondary { background: #444; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🚧 Wegenwerken & Hindernissen</h1>
+      <a href="home.html" class="btn-nav">← Home</a>
+    </header>
+
+    <!-- ADMIN TOEVOEGFORMULIER -->
+    <div class="card admin-card" id="adminFormCard">
+      <h2>
+        <span>⚙ Wegenwerken Toevoegen</span>
+      </h2>
+
+      <form id="roadworkForm">
+        <div class="form-grid">
+          
+          <div class="form-group full-width">
+            <label for="titel">Titel / Locatie van de werken</label>
+            <input type="text" id="titel" placeholder="bijv. N13 Herentalsesteenweg afgesloten" required>
+          </div>
+
+          <div class="form-group">
+            <label for="datumVan">Datum Van</label>
+            <input type="date" id="datumVan" required>
+          </div>
+
+          <div class="form-group">
+            <label for="datumTot">Datum Tot (t.m.)</label>
+            <input type="date" id="datumTot" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="omschrijving">Omschrijving & Omleiding</label>
+            <textarea id="omschrijving" placeholder="Geef details over stremming, omleiding of bereikbaarheid..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">➕ Wegenwerken Opslaan & Publiceren</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- OVERZICHT ACTUELE WEGENWERKEN -->
+    <div class="card">
+      <h2>📋 Actuele & Geplande Wegenwerken</h2>
+      <div id="roadworksContainer" class="roadworks-list">
+        <div class="empty-state">Laden van wegenwerken...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CUSTOM POP-UP MODAL -->
+  <div class="custom-modal-overlay" id="customModal">
+    <div class="custom-modal">
+      <div class="modal-icon" id="modalIcon">🚧</div>
+      <div class="modal-title" id="modalTitle">Melding</div>
+      <div class="modal-text" id="modalText">Berichtinhoud...</div>
+      <div class="modal-actions" id="modalActions">
+        <button class="btn-modal btn-modal-primary" id="modalOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE SCRIPTS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      deleteDoc, 
+      doc, 
+      query, 
+      where, 
+      getDocs,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const roadworksCollection = collection(db, "wegenwerken");
+
+    let isAdmin = false;
+    const currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
+
+    if (currentUser) {
+      checkAdminStatus(currentUser);
+    }
+
+    // Datum formatteren (van YYYY-MM-DD naar DD/MM/YYYY)
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
+    }
+
+    // Modal Notificaties
+    function showNotification(title, message, icon = '🚧') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+        
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `<button class="btn-modal btn-modal-primary" id="modalOkBtn">Begrepen</button>`;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalOkBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+      });
+    }
+
+    function showConfirm(title, message, icon = '❓') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `
+          <button class="btn-modal btn-modal-secondary" id="modalCancelBtn">Annuleren</button>
+          <button class="btn-modal btn-modal-primary" id="modalConfirmBtn">Bevestigen</button>
+        `;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalConfirmBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+
+        document.getElementById('modalCancelBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(false);
+        };
+      });
+    }
+
+    // Admin status controleren
+    async function checkAdminStatus(username) {
+      try {
+        const q = query(collection(db, "leden"), where("volledigeNaam", "==", username.toLowerCase()));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          snapshot.forEach(docSnap => {
+            if (docSnap.data().rol === 'admin') {
+              isAdmin = true;
+              document.getElementById('adminFormCard').style.display = 'block';
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Fout bij Admin check:", err);
+      }
+    }
+
+    // Formulier afhandelen (Nieuwe wegenwerken opslaan)
+    const form = document.getElementById('roadworkForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const titel = document.getElementById('titel').value.trim();
+      const datumVan = document.getElementById('datumVan').value;
+      const datumTot = document.getElementById('datumTot').value;
+      const omschrijving = document.getElementById('omschrijving').value.trim();
+
+      if (datumTot < datumVan) {
+        showNotification('Datumfout', 'De einddatum kan niet voor de begindatum liggen.', '⚠️️');
+        return;
+      }
+
+      try {
+        await addDoc(roadworksCollection, {
+          titel,
+          datumVan,
+          datumTot,
+          omschrijving,
+          toegevoegdDoor: currentUser || 'Admin',
+          created: serverTimestamp()
+        });
+
+        await showNotification('Succesvol Opgeslagen', 'De wegenwerken zijn opgeslagen in de database en gepubliceerd.', '✅');
+        form.reset();
+      } catch (err) {
+        console.error("Fout bij opslaan wegenwerken:", err);
+        showNotification('Fout', 'Er is een fout opgetreden bij het opslaan van de gegevens.', '⚠️');
+      }
+    });
+
+    // Realtime Uitlezen en Automatisch Filteren van Verlopen Datums
+    onSnapshot(roadworksCollection, (snapshot) => {
+      const container = document.getElementById('roadworksContainer');
+      container.innerHTML = '';
+
+      const now = new Date();
+      const todayStr = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
+
+      let activeCount = 0;
+
+      // Sorteer op begindatum
+      const items = [];
+      snapshot.forEach(docSnap => {
+        items.push({ id: docSnap.id, ...docSnap.data() });
+      });
+
+      items.sort((a, b) => (a.datumVan || '').localeCompare(b.datumVan || ''));
+
+      items.forEach((item) => {
+        // AUTOMATISCH FILTEREN: Negeer wegenwerken waarvan de einddatum voor vandaag ligt
+        if (item.datumTot && item.datumTot < todayStr) {
+          return;
+        }
+
+        activeCount++;
+
+        const div = document.createElement('div');
+        div.className = 'roadwork-item';
+
+        const deleteBtnHTML = isAdmin 
+          ? `<button class="btn-delete-item" data-id="${item.id}">🗑️ Verwijderen</button>` 
+          : '';
+
+        div.innerHTML = `
+          <div class="roadwork-header">
+            <div class="roadwork-title">🚧 ${item.titel}</div>
+          </div>
+          <div class="roadwork-dates">
+            📅 ${formatDate(item.datumVan)} t.m. ${formatDate(item.datumTot)}
+          </div>
+          <div class="roadwork-description">${item.omschrijving}</div>
+          ${deleteBtnHTML}
+        `;
+
+        container.appendChild(div);
+      });
+
+      if (activeCount === 0) {
+        container.innerHTML = '<div class="empty-state">Er zijn momenteel geen actieve of geplande wegenwerken bekend.</div>';
+      } else {
+        attachDeleteEvents();
+      }
+    });
+
+    // Event listeners voor verwijderknoppen van admins
+    function attachDeleteEvents() {
+      document.querySelectorAll('.btn-delete-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const docId = e.target.getAttribute('data-id');
+          const confirmed = await showConfirm('Wegenwerken Verwijderen', 'Weet je zeker dat je deze melding wilt verwijderen?', '❓');
+          
+          if (confirmed) {
+            try {
+              await deleteDoc(doc(db, "wegenwerken", docId));
+              showNotification('Verwijderd', 'De wegenwerken zijn verwijderd uit het overzicht.', '🗑️');
+            } catch (err) {
+              console.error("Fout bij verwijderen:", err);
+            }
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
+```
