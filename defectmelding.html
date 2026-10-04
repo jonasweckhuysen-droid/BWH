@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#d32f2f">
 
-  <!-- SheetJS bibliotheek voor het rechtstreeks uitlezen van Excel-bestanden -->
+  <!-- SheetJS bibliotheek voor het rechtstreeks uitlezen van Excel en Google Sheets -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -138,14 +138,14 @@
       transform: translateY(-2px);
     }
 
-    /* CONFIGURATIE VOOR EXCEL LINK */
+    /* CONFIGURATIE VOOR GOOGLE SHEETS LINK (ENKEL ZICHTBAAR VOOR ADMINS) */
     .excel-config-box {
       background: #252525;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 12px;
       margin-bottom: 15px;
-      display: flex;
+      display: none; /* Standaard verborgen, wordt door JS geactiveerd voor Admins */
       flex-direction: column;
       gap: 8px;
     }
@@ -159,6 +159,13 @@
     .config-inputs {
       display: flex;
       gap: 8px;
+      flex-direction: column;
+    }
+
+    @media (min-width: 600px) {
+      .config-inputs {
+        flex-direction: row;
+      }
     }
 
     /* FILTERS */
@@ -205,21 +212,6 @@
     }
 
     .btn-refresh:hover { background: #444; }
-
-    /* BADGES */
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: bold;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .badge-open { background: #f44336; color: #fff; }
-    .badge-behandeling { background: #ff9800; color: #000; }
-    .badge-opgelost { background: #4caf50; color: #fff; }
 
     /* TABEL MET MOBIELE CARD-TRANSFORMATIE */
     .table-container {
@@ -337,9 +329,9 @@
 
     .sync-info {
       font-size: 11px;
-      color: #888;
-      margin-top: 8px;
-      line-height: 1.3;
+      color: #aaa;
+      margin-top: 10px;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -351,7 +343,7 @@
       <button class="btn-nav" onclick="safeNavigate('home.html')">← Home</button>
     </header>
 
-    <!-- MICROSOFT FORMS DROPPING BANNER -->
+    <!-- MICROSOFT FORMS BANNER -->
     <div class="forms-banner">
       <h2>📋 Nieuwe Defectmelding Ingeven</h2>
       <p>Meld een defect aan een voertuig, materiaal of kazerne via ons officieel Microsoft Forms formulier.</p>
@@ -363,22 +355,25 @@
       </a>
     </div>
 
-    <!-- OVERZICHT DEFECTEN UIT EXCEL -->
+    <!-- OVERZICHT DEFECTEN UIT GOOGLE SHEETS -->
     <div class="card">
-      <h2>🛠️ Overzicht Gemelde Defecten (OneDrive Excel)</h2>
+      <h2>🛠️ Overzicht Gemelde Defecten</h2>
 
-      <!-- LINK INSTELLEN (ONEDRIVE DEELLINK) -->
-      <div class="excel-config-box">
-        <label for="excelUrlInput">🔗 Excel Directe Downloadlink (OneDrive / SharePoint):</label>
+      <!-- LINK INSTELLEN (ENKEL ZICHTBAAR VOOR ADMINS) -->
+      <div class="excel-config-box" id="adminConfigBox">
+        <label for="excelUrlInput">⚙️ Admin Instelling - Google Sheets Deellink:</label>
         <div class="config-inputs">
-          <input type="text" id="excelUrlInput" placeholder="Plak hier je Excel downloadlink...">
+          <input type="text" id="excelUrlInput" placeholder="Plak hier je Google Sheets delen-link...">
           <button class="btn-refresh" id="saveLinkBtn">Opslaan & Laden</button>
+        </div>
+        <div class="sync-info">
+          💡 <strong>Tip:</strong> Klik in Google Sheets op <em>Delen ➔ Iedereen met de link (Lezer)</em> en plak die link hierboven.
         </div>
       </div>
 
       <!-- FILTERS -->
       <div class="filter-grid">
-        <input type="text" id="searchInput" placeholder="🔍 Zoek op voertuig, materiaal, melder, omschrijving...">
+        <input type="text" id="searchInput" placeholder="🔍 Zoek op naam, datum, locatie, omschrijving...">
         <button class="btn-refresh" id="manualReloadBtn">🔄 Vernieuwen</button>
       </div>
 
@@ -386,20 +381,16 @@
         <table>
           <thead>
             <tr>
-              <th>ID & Datum</th>
-              <th>Melder</th>
-              <th>Voertuig / Materiaal</th>
-              <th>Omschrijving Defect</th>
+              <th>Naam</th>
+              <th>Datum</th>
+              <th>Locatie</th>
+              <th>Omschrijving</th>
             </tr>
           </thead>
           <tbody id="defectTableBody">
-            <tr><td colspan="4" style="text-align:center; color:#888;">Geen Excel link geconfigureerd of bezig met laden...</td></tr>
+            <tr><td colspan="4" style="text-align:center; color:#888;">Data wordt opgehaald...</td></tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="sync-info">
-        💡 <em>De app leest de antwoorden live uit het `.xlsx` bestand via SheetJS. Plak een openbare directe downloadlink van het Excel-bestand in het vak hierboven.</em>
       </div>
     </div>
 
@@ -417,6 +408,51 @@
     </div>
   </div>
 
+  <!-- FIREBASE SAMENWERKING VOOR ADMIN CONTROLE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
+
+    // Controleer of de ingelogde gebruiker een Admin is
+    if (currentUser) {
+      checkAdminRole(currentUser);
+    }
+
+    async function checkAdminRole(username) {
+      try {
+        const q = query(collection(db, "leden"), where("volledigeNaam", "==", username.toLowerCase()));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          snapshot.forEach(docSnap => {
+            if (docSnap.data().rol === 'admin') {
+              const configBox = document.getElementById('adminConfigBox');
+              if (configBox) configBox.style.display = 'flex';
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Fout bij Admin controle:", err);
+      }
+    }
+  </script>
+
+  <!-- LOGICA VOOR OPHALEN & VERWERKEN VAN HET SPREADSHEET -->
   <script>
     // Navigation fallback helper
     window.safeNavigate = function(targetUrl) {
@@ -431,8 +467,8 @@
 
     let rawExcelData = [];
 
-    // Opgeslagen Excel link ophalen uit localStorage
-    const savedExcelUrl = localStorage.getItem('bw_excel_defecten_url') || '';
+    // Opgeslagen link ophalen uit localStorage
+    const savedExcelUrl = localStorage.getItem('bw_excel_defecten_url') || 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit';
     if (savedExcelUrl) {
       document.getElementById('excelUrlInput').value = savedExcelUrl;
     }
@@ -456,12 +492,21 @@
       });
     }
 
-    // Zet een OneDrive delen-link om naar een directe download-link indien nodig
+    // Zet een Google Sheets of OneDrive delen-link om naar een directe CSV/download URL
     function convertToDirectDownloadLink(url) {
       let cleanUrl = url.trim();
       if (!cleanUrl) return '';
 
-      // Als het een OneDrive Sharepoint link is, zorg dat download=1 erin staat
+      // Google Sheets link omzetten
+      if (cleanUrl.includes('docs.google.com/spreadsheets')) {
+        const matches = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if (matches && matches[1]) {
+          const sheetId = matches[1];
+          return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        }
+      }
+
+      // SharePoint / OneDrive link omzetten
       if (cleanUrl.includes('sharepoint.com') || cleanUrl.includes('onedrive.live.com')) {
         if (!cleanUrl.includes('download=1')) {
           cleanUrl += cleanUrl.includes('?') ? '&download=1' : '?download=1';
@@ -470,18 +515,91 @@
       return cleanUrl;
     }
 
-    // EXCEL BESTAND INLADEN VIA SHEETJS
+    // SLIMME EN GEAVANCEERDE DATUM FORMATTERING
+    function formatDatumValue(rawVal) {
+      if (rawVal === undefined || rawVal === null || String(rawVal).trim() === '') {
+        return '';
+      }
+
+      const strVal = String(rawVal).trim();
+
+      // 1. Excel Serienummer verwerken (bijv. 45200.5)
+      if (typeof rawVal === 'number' || (!isNaN(strVal) && !isNaN(parseFloat(strVal)) && Number(strVal) > 30000 && Number(strVal) < 60000)) {
+        const num = Number(strVal);
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+        const dateObj = new Date(excelEpoch.getTime() + num * 86400000);
+        if (!isNaN(dateObj.getTime())) {
+          const dag = String(dateObj.getUTCDate()).padStart(2, '0');
+          const maand = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+          const jaar = dateObj.getUTCFullYear();
+          const uur = String(dateObj.getUTCHours()).padStart(2, '0');
+          const min = String(dateObj.getUTCMinutes()).padStart(2, '0');
+          return `${dag}/${maand}/${jaar} ${uur}:${min}`;
+        }
+      }
+
+      // 2. Probeer te parses via Standaard JavaScript Date object
+      const parsedDate = new Date(strVal);
+      if (!isNaN(parsedDate.getTime()) && parsedDate.getFullYear() > 2000) {
+        const dag = String(parsedDate.getDate()).padStart(2, '0');
+        const maand = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const jaar = parsedDate.getFullYear();
+        const uur = String(parsedDate.getHours()).padStart(2, '0');
+        const min = String(parsedDate.getMinutes()).padStart(2, '0');
+        
+        // Als er geen specifiek uur/minuut opgeslagen was (00:00), toon enkel datum
+        if (uur === '00' && min === '00') {
+          return `${dag}/${maand}/${jaar}`;
+        }
+        return `${dag}/${maand}/${jaar} ${uur}:${min}`;
+      }
+
+      // 3. Fallback: geef de originele opgemaakte tekst terug als het al een string is
+      return strVal;
+    }
+
+    // SLIMME KOLOM DETECTIE
+    function getValueFromRow(row, keywords, excludeKeywords = []) {
+      const keys = Object.keys(row);
+      if (keys.length === 0) return '';
+
+      // 1. Zoek op exacte match
+      for (let kw of keywords) {
+        const exactKey = keys.find(k => k.trim().toLowerCase() === kw.toLowerCase());
+        if (exactKey && row[exactKey] !== undefined && String(row[exactKey]).trim() !== '') {
+          return row[exactKey];
+        }
+      }
+
+      // 2. Zoek op gedeeltelijke match (de vraag bevat het trefwoord)
+      for (let kw of keywords) {
+        const partialKey = keys.find(k => {
+          const lowerK = k.toLowerCase();
+          const matchesKw = lowerK.includes(kw.toLowerCase());
+          const isExcluded = excludeKeywords.some(ex => lowerK.includes(ex.toLowerCase()));
+          return matchesKw && !isExcluded;
+        });
+
+        if (partialKey && row[partialKey] !== undefined && String(row[partialKey]).trim() !== '') {
+          return row[partialKey];
+        }
+      }
+
+      return '';
+    }
+
+    // GOOGLE SHEETS / EXCEL INLADEN VIA SHEETJS
     async function loadExcelFromOneDrive() {
       const urlInput = document.getElementById('excelUrlInput').value.trim();
       if (!urlInput) {
         document.getElementById('defectTableBody').innerHTML = 
-          '<tr><td colspan="4" style="text-align:center; color:#ff9800;">⚠️ Voer een Excel downloadlink in om de defecten op te halen.</td></tr>';
+          '<tr><td colspan="4" style="text-align:center; color:#ff9800;">⚠️ Nog geen Google Sheets of Excel link ingesteld door de beheerder.</td></tr>';
         return;
       }
 
       const downloadUrl = convertToDirectDownloadLink(urlInput);
       document.getElementById('defectTableBody').innerHTML = 
-        '<tr><td colspan="4" style="text-align:center; color:#888;">⏳ Excel-bestand wordt opgehaald via OneDrive...</td></tr>';
+        '<tr><td colspan="4" style="text-align:center; color:#888;">⏳ Gegevens worden opgehaald uit het spreadsheet...</td></tr>';
 
       try {
         const response = await fetch(downloadUrl);
@@ -499,19 +617,19 @@
 
         if (rawExcelData.length === 0) {
           document.getElementById('defectTableBody').innerHTML = 
-            '<tr><td colspan="4" style="text-align:center; color:#888;">Geen defecten gevonden in het Excel-bestand.</td></tr>';
+            '<tr><td colspan="4" style="text-align:center; color:#888;">Geen defecten gevonden in het bestand.</td></tr>';
           return;
         }
 
         renderExcelTable();
       } catch (err) {
-        console.error("Fout bij inladen Excel via SheetJS:", err);
+        console.error("Fout bij inladen data:", err);
         document.getElementById('defectTableBody').innerHTML = 
-          '<tr><td colspan="4" style="text-align:center; color:#ff4d4d;">❌ Kon het Excel-bestand niet openen. Controleer of de deellink openbaar toegankelijk is.</td></tr>';
+          '<tr><td colspan="4" style="text-align:center; color:#ff4d4d;">❌ Kon het bestand niet openen. Controleer of de Google Sheets deellink op "Iedereen met de link kan bekijken" staat.</td></tr>';
       }
     }
 
-    // WEERGEVEN VAN DE EXCEL DATA IN DE TABEL / MOBIELE KAARTEN
+    // WEERGEVEN VAN DE DATA IN DE TABEL (NAAM, DATUM, LOCATIE, OMSCHRIJVING)
     function renderExcelTable() {
       const tbody = document.getElementById('defectTableBody');
       tbody.innerHTML = '';
@@ -532,68 +650,12 @@
       }
 
       // Weergeven (Nieuwste rijen eerst)
-      [...filtered].reverse().forEach((row, index) => {
-        const tr = document.createElement('tr');
-
-        // Bepaal de kolommen flexibel op basis van Microsoft Forms standaard velden
+      [...filtered].reverse().forEach((row) => {
         const keys = Object.keys(row);
-        
-        const idVal = row['ID'] || row['Id'] || (filtered.length - index);
-        const datumVal = row['Begintijd'] || row['Start time'] || row['Completion time'] || row['Datum'] || 'Onbekend';
-        const melderVal = row['Naam'] || row['Name'] || row['E-mailadres'] || row['Email'] || row['Melder'] || 'Anoniem';
-        
-        // Zoek naar velden die materiaal of omschrijving bevatten
-        let materiaalVal = row['Voertuig'] || row['Materiaal'] || row['Onderwerp'] || '';
-        let omschrijvingVal = row['Omschrijving'] || row['Beschrijving'] || row['Defect'] || '';
 
-        // Fallback als de kolomnamen niet exact overeenkomen
-        if (!materiaalVal && keys.length > 5) materiaalVal = row[keys[5]] || 'Defectmelding';
-        if (!omschrijvingVal && keys.length > 6) omschrijvingVal = row[keys[6]] || 'Geen omschrijving';
+        // 1. Naam ophalen
+        let melderVal = getValueFromRow(row, ['naam', 'name', 'melder', 'aanvrager', 'e-mailadres', 'email', 'wie']);
+        if (!melderVal && keys.length > 3) melderVal = row[keys[4]] || row[keys[3]] || 'Anoniem';
 
-        tr.innerHTML = `
-          <td data-label="ID & Datum">
-            <strong>#${idVal}</strong><br>
-            <span style="color:#aaa; font-size:11px;">${datumVal}</span>
-          </td>
-          <td data-label="Melder">
-            👤 <strong>${melderVal}</strong>
-          </td>
-          <td data-label="Voertuig / Materiaal">
-            🛠️ <strong>${materiaalVal}</strong>
-          </td>
-          <td data-label="Omschrijving">
-            ${omschrijvingVal}
-          </td>
-        `;
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    // EVENTS
-    document.getElementById('saveLinkBtn').addEventListener('click', () => {
-      const url = document.getElementById('excelUrlInput').value.trim();
-      localStorage.setItem('bw_excel_defecten_url', url);
-      showNotification('Link Opgeslagen', 'De Excel-deellink is opgeslagen. De data wordt nu opgehaald.', '✅');
-      loadExcelFromOneDrive();
-    });
-
-    document.getElementById('manualReloadBtn').addEventListener('click', loadExcelFromOneDrive);
-    document.getElementById('searchInput').addEventListener('input', renderExcelTable);
-
-    // Automatisch laden bij openen als er al een link is ingesteld
-    if (savedExcelUrl) {
-      loadExcelFromOneDrive();
-    }
-  </script>
-</body>
-</html>
-```eoc
-
----
-
-### Wat is er aangepast:
-1. **Rechtstreekse SheetJS Integratie**: Het bestand `defectmelding.html` laadt via SheetJS het Excel-bestand rechtstreeks in vanuit OneDrive en zet de Microsoft Forms-reacties automatisch om naar een tabel op het scherm.
-2. **Mobielvriendelijke Kaartweergave**: Op mobiele telefoons worden alle defecten automatisch weergegeven als nette, overzichtelijke kaarten onder elkaar (zonder horizontaal te hoeven scrollen).
-3. **Instelbare Deellink**: Je kunt eenmalig de openbare deellink van je OneDrive Excel-bestand invoeren. Deze link wordt onthouden op het toestel.
-```
+        // 2. Datum ophalen & Foutloos formatteren
+        let rawDatum = getValueFromRow(row, ['datum', 'wanneer', 'tijdstempel',
