@@ -20,7 +20,7 @@
       background-color: #121212;
       color: #ffffff;
       min-height: 100vh;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container {
@@ -32,14 +32,14 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 20px;
+      padding-bottom: 15px;
       border-bottom: 3px solid #d32f2f;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     h1 {
       color: #ff4d4d;
-      font-size: 24px;
+      font-size: 22px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -49,10 +49,10 @@
       background: #333;
       color: #fff;
       border: 1px solid #555;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 6px;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13px;
       transition: background 0.3s;
     }
 
@@ -61,16 +61,16 @@
     .card {
       background: #1e1e1e;
       border-radius: 10px;
-      padding: 25px;
+      padding: 20px;
       border: 1px solid #333;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
     .card h2 {
-      font-size: 18px;
+      font-size: 17px;
       color: #ff4d4d;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       border-bottom: 1px solid #333;
       padding-bottom: 8px;
       display: flex;
@@ -80,7 +80,7 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
     }
 
@@ -100,13 +100,16 @@
     }
 
     input, select, textarea {
-      padding: 10px 12px;
+      padding: 12px 14px;
       background: #2b2b2b;
       border: 1px solid #444;
       border-radius: 6px;
       color: #fff;
       font-size: 15px;
       outline: none;
+      width: 100%;
+      min-height: 48px;
+      color-scheme: dark;
     }
 
     input:focus, select:focus, textarea:focus {
@@ -116,7 +119,7 @@
     .btn-submit {
       margin-top: 10px;
       grid-column: 1 / -1;
-      padding: 12px;
+      padding: 14px;
       background: #d32f2f;
       color: white;
       border: none;
@@ -125,37 +128,41 @@
       font-size: 16px;
       cursor: pointer;
       transition: background 0.3s;
+      min-height: 48px;
     }
 
     .btn-submit:hover { background: #ff4d4d; }
 
-    /* STATUS BADGES */
     .badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 5px 10px;
       border-radius: 4px;
       font-size: 12px;
       font-weight: bold;
       text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .badge-pending { background: #ff9800; color: #000; }
     .badge-approved { background: #4caf50; color: #fff; }
     .badge-rejected { background: #f44336; color: #fff; }
 
-    /* TABEL STYLES */
     .table-container {
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 6px;
+      border: 1px solid #2d2d2d;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
+      min-width: 600px;
     }
 
     th, td {
-      padding: 12px 15px;
+      padding: 12px 14px;
       border-bottom: 1px solid #333;
       font-size: 14px;
     }
@@ -163,6 +170,7 @@
     th {
       background: #252525;
       color: #ff4d4d;
+      white-space: nowrap;
     }
 
     tr:hover { background: #2a2a2a; }
@@ -174,7 +182,7 @@
     }
 
     .admin-actions select {
-      padding: 6px;
+      min-height: 40px;
       font-size: 13px;
     }
 
@@ -187,10 +195,11 @@
       background: #2e7d32;
       color: white;
       border: none;
-      padding: 6px 12px;
+      padding: 8px 12px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
+      font-weight: bold;
     }
 
     .btn-approve:hover { background: #388e3c; }
@@ -199,23 +208,83 @@
       background: #c62828;
       color: white;
       border: none;
-      padding: 6px 12px;
+      padding: 8px 12px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
+      font-weight: bold;
     }
 
     .btn-reject:hover { background: #d32f2f; }
 
-    /* ADMIN PANEL SECTION */
     .admin-card {
       border: 2px solid #ff9800;
       background: #241c12;
-      display: none; /* Enkel zichtbaar voor admins */
+      display: none;
     }
 
-    .admin-card h2 {
-      color: #ffb74d;
+    .admin-card h2 { color: #ffb74d; }
+
+    /* CUSTOM POP-UP */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .custom-modal {
+      background: #1e1e1e;
+      border: 2px solid #d32f2f;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-icon { font-size: 45px; margin-bottom: 12px; }
+    .modal-title { font-size: 18px; font-weight: bold; color: #ff4d4d; margin-bottom: 10px; }
+    .modal-text { font-size: 14px; color: #ddd; margin-bottom: 22px; line-height: 1.5; }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn-modal {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn-modal-primary { background: #d32f2f; color: white; }
+    .btn-modal-primary:hover { background: #ff4d4d; }
+    .btn-modal-secondary { background: #444; color: white; }
+    .btn-modal-secondary:hover { background: #555; }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .card { padding: 15px; }
+      h1 { font-size: 19px; }
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -227,7 +296,7 @@
       <a href="home.html" class="btn-nav">← Terug naar Home</a>
     </header>
 
-    <!-- FORMULIER VOERTUIG AANVRAAG -->
+    <!-- FORMULIER -->
     <div class="card">
       <h2>🚗 Voertuig Aanvragen</h2>
       <form id="reservationForm">
@@ -263,12 +332,12 @@
             <input type="text" id="reden" placeholder="bijv. Opleiding PBO, Dienstverplaatsing Zone, ..." required>
           </div>
 
-          <button type="submit" class="btn-submit">📨 Aanvraag Indienen</button>
+          <button type="submit" class="btn-submit">📨 Aanvraag Indienen & Opslaan</button>
         </div>
       </form>
     </div>
 
-    <!-- MELDINGEN / MIJN AANVRAGEN -->
+    <!-- MIJN AANVRAGEN -->
     <div class="card">
       <h2>📋 Mijn Aanvragen & Status</h2>
       <div class="table-container">
@@ -289,9 +358,9 @@
       </div>
     </div>
 
-    <!-- ADMIN GEDEELTE (ENKEL ZICHTBAAR VOOR ADMINS) -->
+    <!-- ADMIN BEHEER -->
     <div class="card admin-card" id="adminPanel">
-      <h2>⚙️️ Beheer: Openstaande Aanvragen</h2>
+      <h2>⚙ Beheer: Openstaande Aanvragen</h2>
       <div class="table-container">
         <table>
           <thead>
@@ -310,7 +379,7 @@
       </div>
     </div>
 
-    <!-- OPLIJSTING GOEDGEKEURDE RESERVATIES (HUIDIGE & TOEKOMSTIGE) -->
+    <!-- GOEDGEKEURDE RESERVATIES -->
     <div class="card">
       <h2>📅 Goedgekeurde Reservaties (Actueel & Toekomstig)</h2>
       <div class="table-container">
@@ -334,7 +403,19 @@
 
   </div>
 
-  <!-- FIREBASE INTEGRATIE -->
+  <!-- CUSTOM POP-UP -->
+  <div class="custom-modal-overlay" id="customModal">
+    <div class="custom-modal">
+      <div class="modal-icon" id="modalIcon">🚒</div>
+      <div class="modal-title" id="modalTitle">Melding</div>
+      <div class="modal-text" id="modalText">Berichtinhoud...</div>
+      <div class="modal-actions" id="modalActions">
+        <button class="btn-modal btn-modal-primary" id="modalOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE SCRIPTS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -349,6 +430,7 @@
       getDocs,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
     // Firebase Config
     const firebaseConfig = {
@@ -363,7 +445,10 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const messaging = getMessaging(app);
     const reservationsCollection = collection(db, "reservaties");
+
+    let userFcmToken = null;
 
     // 1. Ingelogde gebruiker ophalen
     const currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
@@ -373,13 +458,80 @@
     } else {
       document.getElementById('naam').value = currentUser;
       checkAdminStatus(currentUser);
+      initNotifications();
     }
 
-    // Minimaal vandaag instellen op datumkiezer
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('datum').min = todayStr;
 
-    // 2. Controleer of gebruiker Admin is
+    // 2. Notificatierechten Vragen & Token Ophalen
+    async function initNotifications() {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          userFcmToken = await getToken(messaging, { 
+            vapidKey: "BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg" // <-- PLAK HIER JE VAPID KEY UIT STAP 2
+          });
+          console.log("Notificatie Token verkregen:", userFcmToken);
+        }
+      } catch (err) {
+        console.log("Geen notificatierechten verkregen:", err);
+      }
+    }
+
+    // Inkomend bericht verwerken als de app open staat
+    onMessage(messaging, (payload) => {
+      showNotification(payload.notification.title, payload.notification.body, '🔔');
+    });
+
+    // 3. Custom Popup Functies
+    function showNotification(title, message, icon = '🚒') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+        
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `<button class="btn-modal btn-modal-primary" id="modalOkBtn">Begrepen</button>`;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalOkBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+      });
+    }
+
+    function showConfirm(title, message, icon = '❓') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `
+          <button class="btn-modal btn-modal-secondary" id="modalCancelBtn">Annuleren</button>
+          <button class="btn-modal btn-modal-primary" id="modalConfirmBtn">Bevestigen</button>
+        `;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalConfirmBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+
+        document.getElementById('modalCancelBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(false);
+        };
+      });
+    }
+
+    // 4. Admin Check
     async function checkAdminStatus(username) {
       try {
         const q = query(collection(db, "leden"), where("volledigeNaam", "==", username.toLowerCase()));
@@ -397,7 +549,7 @@
       }
     }
 
-    // 3. Aanvraag opslaan in Firestore
+    // 5. Aanvraag opslaan in Firestore Database
     const form = document.getElementById('reservationForm');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -416,21 +568,22 @@
           eindTijd,
           aantalPersonen: parseInt(aantalPersonen),
           reden,
-          status: 'pending', // pending, approved, rejected
+          status: 'pending',
           voertuig: '',
+          fcmToken: userFcmToken || '',
           created: serverTimestamp()
         });
 
-        alert('Je aanvraag is succesvol ingediend! Een beheerder zal deze verwerken.');
+        await showNotification('Aanvraag Opslagen!', 'Je voertuigaanvraag is opgeslagen in de database. De beheerders hebben een melding ontvangen.', '✅');
         form.reset();
         document.getElementById('naam').value = currentUser;
       } catch (err) {
-        console.error("Fout bij indienen reservatie:", err);
-        alert('Er is een fout opgetreden bij het indienen.');
+        console.error("Fout bij indienen:", err);
+        showNotification('Fout', 'Er is een fout opgetreden bij het opslaan van de reservatie.', '⚠️');
       }
     });
 
-    // 4. Realtime Luisteraar voor Reservaties
+    // 6. Realtime Luisteraar voor Tabel Weergaven
     onSnapshot(reservationsCollection, (snapshot) => {
       const myRequestsTbody = document.getElementById('myRequestsTableBody');
       const adminTbody = document.getElementById('adminRequestsTableBody');
@@ -444,7 +597,6 @@
       let openAdminCount = 0;
       let approvedCount = 0;
 
-      // Huidige datum zonder uur voor vergelijking (YYYY-MM-DD)
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
 
@@ -452,7 +604,7 @@
         const item = docSnap.data();
         const id = docSnap.id;
 
-        // A. MIJN AANVRAGEN & STATUS MELDINGEN
+        // MIJN AANVRAGEN
         if (item.aanvrager.toLowerCase() === currentUser.toLowerCase()) {
           myRequestsCount++;
           const tr = document.createElement('tr');
@@ -478,7 +630,7 @@
           myRequestsTbody.appendChild(tr);
         }
 
-        // B. ADMIN PENDING AANVRAGEN
+        // ADMIN OPENSTAANDE AANVRAGEN
         if (item.status === 'pending') {
           openAdminCount++;
           const tr = document.createElement('tr');
@@ -507,7 +659,7 @@
           adminTbody.appendChild(tr);
         }
 
-        // C. GEACCEPTEERDE RESERVATIES (ENKEL HUIDIGE & TOEKOMSTIGE DATUM)
+        // GEACCEPTEERDE RESERVATIES (ENKEL ACTUEEL & TOEKOMSTIG)
         if (item.status === 'approved' && item.datum >= today) {
           approvedCount++;
           const tr = document.createElement('tr');
@@ -535,11 +687,10 @@
         approvedTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Geen geplande reservaties voor de komende periode.</td></tr>';
       }
 
-      // Koppel actieknoppen voor Admin
       attachAdminEvents();
     });
 
-    // 5. Admin Acties Afhandelen (Accepteren / Afwijzen)
+    // 7. Admin Acties Afhandelen
     function attachAdminEvents() {
       // Goedkeuren
       document.querySelectorAll('.btn-approve').forEach(btn => {
@@ -549,7 +700,7 @@
           const selectedVehicle = vehicleSelect.value;
 
           if (!selectedVehicle) {
-            alert('Selecteer eerst een voertuig om toe te wijzen!');
+            showNotification('Voertuig Selecteren', 'Selecteer eerst een voertuig uit de lijst om toe te wijzen!', '⚠️');
             return;
           }
 
@@ -559,7 +710,8 @@
               status: 'approved',
               voertuig: selectedVehicle
             });
-            alert('Reservatie goedgekeurd en voertuig toegewezen!');
+
+            showNotification('Goedgekeurd', `De reservatie is goedgekeurd en voertuig ${selectedVehicle} is opgeslagen en toegewezen!`, '✅');
           } catch (err) {
             console.error("Fout bij goedkeuren:", err);
           }
@@ -571,12 +723,14 @@
         btn.addEventListener('click', async (e) => {
           const docId = e.target.getAttribute('data-id');
 
-          if (confirm("Weet je zeker dat je deze aanvraag wilt afwijzen?")) {
+          const confirmed = await showConfirm('Aanvraag Afwijzen', 'Weet je zeker dat je deze voertuigaanvraag wilt afwijzen?', '❓');
+          if (confirmed) {
             try {
               const resRef = doc(db, "reservaties", docId);
               await updateDoc(resRef, {
                 status: 'rejected'
               });
+              showNotification('Afgewezen', 'De aanvraag is afgewezen.', '❌');
             } catch (err) {
               console.error("Fout bij afwijzen:", err);
             }
