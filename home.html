@@ -415,34 +415,34 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 3. AUTOMATISCHE BEREKENING "PLOEG VAN DE WEEK"
-    // Wisselt elke VRIJDAG om 12:00 uur 's middags.
-    // Volgorde: A1 -> B1 -> C1 -> A2 -> B2 -> C2
-    function calculateDutyTeam() {
-      const teams = ["A1", "B1", "C1", "A2", "B2", "C2"];
-      
-      // We nemen een bekende Vrijdag 12:00 als referentiepunt waarop het B1 is (Index 1)
-      // Referentie: Vrijdag 24 Mei 2024 12:00:00 UTC
-      const referenceFriday = new Date(Date.UTC(2024, 4, 24, 10, 0, 0)); // 12:00 uur Belgische tijd (UTC+2)
-      const refTeamIndex = 1; // Index 1 is B1
+   // 3. AUTOMATISCHE BEREKENING "PLOEG VAN DE WEEK"
+// Wisselt elke VRIJDAG om 12:00 uur 's middags.
+// Volgorde: A1 -> B1 -> C1 -> A2 -> B2 -> C2
+function calculateDutyTeam() {
+  const teams = ["A1", "B1", "C1", "A2", "B2", "C2"];
+  
+  // Referentiepunt: Vrijdag 2 Oktober 2026 om 12:00:00 (Belgische tijd UTC+2 = 10:00 UTC)
+  // Op dit moment is de actieve ploeg B1 (Index 1)
+  const referenceFriday = new Date(Date.UTC(2026, 9, 2, 10, 0, 0)); // Maand 9 is oktober (0-geïndexeerd)
+  const refTeamIndex = 1; // Index 1 is B1
 
-      const now = new Date();
+  const now = new Date();
 
-      // Bereken verschil in milliseconden
-      const diffTime = now - referenceFriday;
-      const msInWeek = 7 * 24 * 60 * 60 * 1000;
+  // Bereken verschil in milliseconden
+  const diffTime = now - referenceFriday;
+  const msInWeek = 7 * 24 * 60 * 60 * 1000;
 
-      // Aantal verstreken weken sinds het referentiepunt
-      const weeksPassed = Math.floor(diffTime / msInWeek);
+  // Aantal verstreken weken sinds het referentiepunt
+  const weeksPassed = Math.floor(diffTime / msInWeek);
 
-      // Bereken de index van deze week (modulo 6 zorgt dat het ronddraait)
-      let currentTeamIndex = (refTeamIndex + weeksPassed) % teams.length;
-      if (currentTeamIndex < 0) currentTeamIndex += teams.length;
+  // Bereken de index van deze week (modulo 6 zorgt dat het netjes doordraait)
+  let currentTeamIndex = (refTeamIndex + weeksPassed) % teams.length;
+  if (currentTeamIndex < 0) currentTeamIndex += teams.length;
 
-      document.getElementById('dutyTeam').textContent = teams[currentTeamIndex];
-    }
+  document.getElementById('dutyTeam').textContent = teams[currentTeamIndex];
+}
 
-    calculateDutyTeam();
+calculateDutyTeam();
   </script>
 </body>
 </html>
