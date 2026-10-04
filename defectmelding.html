@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#d32f2f">
 
-  <!-- SheetJS bibliotheek voor het rechtstreeks uitlezen van spreadsheets -->
+  <!-- SheetJS bibliotheek als reserve parser -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -136,36 +136,6 @@
     .btn-forms:hover {
       background: #ff4d4d;
       transform: translateY(-2px);
-    }
-
-    /* CONFIGURATIE VOOR GOOGLE SHEETS LINK (ENKEL ZICHTBAAR VOOR ADMINS) */
-    .excel-config-box {
-      background: #252525;
-      border: 1px solid #ff9800;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 15px;
-      display: none; /* Standaard verborgen, wordt door JS geactiveerd voor Admins */
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .excel-config-box label {
-      font-size: 12px;
-      color: #ff9800;
-      font-weight: bold;
-    }
-
-    .config-inputs {
-      display: flex;
-      gap: 8px;
-      flex-direction: column;
-    }
-
-    @media (min-width: 600px) {
-      .config-inputs {
-        flex-direction: row;
-      }
     }
 
     /* FILTERS */
@@ -325,14 +295,6 @@
     }
 
     .btn-modal-primary { background: #d32f2f; color: white; }
-    .btn-modal-secondary { background: #444; color: white; }
-
-    .sync-info {
-      font-size: 11px;
-      color: #aaa;
-      margin-top: 10px;
-      line-height: 1.4;
-    }
   </style>
 </head>
 <body>
@@ -357,19 +319,7 @@
 
     <!-- OVERZICHT DEFECTEN UIT GOOGLE SHEETS -->
     <div class="card">
-      <h2>🛠️️ Overzicht Gemelde Defecten</h2>
-
-      <!-- LINK INSTELLEN (ENKEL ZICHTBAAR VOOR ADMINS) -->
-      <div class="excel-config-box" id="adminConfigBox">
-        <label for="excelUrlInput">⚙ Admin Instelling - Google Sheets Deellink:</label>
-        <div class="config-inputs">
-          <input type="text" id="excelUrlInput" placeholder="Plak hier je Google Sheets delen-link...">
-          <button class="btn-refresh" id="saveLinkBtn">Opslaan & Laden</button>
-        </div>
-        <div class="sync-info">
-          💡 <strong>Tip:</strong> Klik in Google Sheets op <em>Delen ➔ Algemene toegang ➔ Iedereen met de link (Lezer)</em>.
-        </div>
-      </div>
+      <h2>🛠 Overzicht Gemelde Defecten</h2>
 
       <!-- FILTERS -->
       <div class="filter-grid">
@@ -408,99 +358,12 @@
     </div>
   </div>
 
-  <!-- FIREBASE CONTROLE VOOR ADMIN ROLLEN -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
-      authDomain: "bwhnew.firebaseapp.com",
-      projectId: "bwhnew",
-      storageBucket: "bwhnew.firebasestorage.app",
-      messagingSenderId: "822224776722",
-      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
-      measurementId: "G-5CRMVYSQ7W"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
-
-    if (currentUser) {
-      checkAdminRole(currentUser);
-    }
-
-    async function checkAdminRole(username) {
-      try {
-        const q = query(collection(db, "leden"), where("volledigeNaam", "==", username.toLowerCase()));
-        const snapshot = await getDocs(q);
-
-        if (!snapshot.empty) {
-          snapshot.forEach(docSnap => {
-            if (docSnap.data().rol === 'admin') {
-              const configBox = document.getElementById('adminConfigBox');
-              if (configBox) configBox.style.display = 'flex';
-            }
-          });
-        }
-      } catch (err) {
-        console.error("Fout bij Admin controle:", err);
-      }
-    }
-  </script>
-
-  <!-- LOGICA VOOR OPHALEN & VERWERKEN VAN HET SPREADSHEET -->
+  <!-- LOGICA VOOR OPHALEN & VERWERKEN VAN HET SPREADSHEET VIA CORS-PROOF JSONP -->
   <script>
-    // Vaste Google Drive/Sheet URL voor defecten
-    const DEFAULT_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1CrW-UbQQnV4sujgnEaZHGvHJwlvH_KNQ/edit?usp=drivesdk';
+    // Vaste Google Sheets ID
+    const GOOGLE_SHEET_ID = '1CrW-UbQQnV4sujgnEaZHGvHJwlvH_KNQ';
 
     let rawExcelData = [];
-
-    // Opgeslagen link opschonen/instellen
-    let savedExcelUrl = localStorage.getItem('bw_excel_defecten_url');
-    if (!savedExcelUrl || !savedExcelUrl.includes('1CrW-UbQQnV4sujgnEaZHGvHJwlvH_KNQ')) {
-      savedExcelUrl = DEFAULT_SHEETS_URL;
-      localStorage.setItem('bw_excel_defecten_url', savedExcelUrl);
-    }
-    document.getElementById('excelUrlInput').value = savedExcelUrl;
-
-    function showNotification(title, message, icon = '🚒') {
-      return new Promise((resolve) => {
-        const modal = document.getElementById('customModal');
-        document.getElementById('modalIcon').textContent = icon;
-        document.getElementById('modalTitle').textContent = title;
-        document.getElementById('modalText').textContent = message;
-        
-        const actions = document.getElementById('modalActions');
-        actions.innerHTML = `<button class="btn-modal btn-modal-primary" id="modalOkBtn">Begrepen</button>`;
-
-        modal.style.display = 'flex';
-
-        document.getElementById('modalOkBtn').onclick = () => {
-          modal.style.display = 'none';
-          resolve(true);
-        };
-      });
-    }
-
-    // Google Sheets deellink omzetten naar een rechtstreeks laadbare CORS-friendly CSV/gviz URL
-    function getGoogleSheetFetchUrls(url) {
-      let cleanUrl = url.trim();
-      if (!cleanUrl) return [];
-
-      const matches = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
-      if (matches && matches[1]) {
-        const sheetId = matches[1];
-        return [
-          `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`,
-          `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`
-        ];
-      }
-
-      return [cleanUrl];
-    }
 
     // SLIMME DATUM FORMATTERING (ENKEL DATUM DD/MM/YYYY, GEEN UUR)
     function formatDatumValue(rawVal) {
@@ -510,7 +373,16 @@
 
       const strVal = String(rawVal).trim();
 
-      // 1. Excel Serienummer verwerken (bijv. 45200.5)
+      // 1. Google Viz Date String (bijv: "Date(2024,4,24,12,30,0)")
+      const gvizMatch = strVal.match(/Date\((\d+),(\d+),(\d+)/);
+      if (gvizMatch) {
+        const y = gvizMatch[1];
+        const m = String(Number(gvizMatch[2]) + 1).padStart(2, '0'); // GViz maanden zijn 0-indexed
+        const d = String(gvizMatch[3]).padStart(2, '0');
+        return `${d}/${m}/${y}`;
+      }
+
+      // 2. Excel Serienummer verwerken (bijv. 45200.5)
       if (typeof rawVal === 'number' || (!isNaN(strVal) && !isNaN(parseFloat(strVal)) && Number(strVal) > 30000 && Number(strVal) < 60000)) {
         const num = Number(strVal);
         const excelEpoch = new Date(Date.UTC(1899, 11, 30));
@@ -523,7 +395,7 @@
         }
       }
 
-      // 2. Probeer te parsen via Standaard JavaScript Date object
+      // 3. Probeer te parsen via Standaard JavaScript Date object
       const parsedDate = new Date(strVal);
       if (!isNaN(parsedDate.getTime()) && parsedDate.getFullYear() > 2000) {
         const dag = String(parsedDate.getDate()).padStart(2, '0');
@@ -532,7 +404,7 @@
         return `${dag}/${maand}/${jaar}`;
       }
 
-      // 3. Fallback: neem het eerste gedeelte voor een spatie of T
+      // 4. Fallback: neem het eerste gedeelte voor een spatie of T
       const datePartOnly = strVal.split(/[ T]/)[0];
       return datePartOnly || strVal;
     }
@@ -565,55 +437,111 @@
       return '';
     }
 
-    // INLADEN VAN GOOGLE SHEETS
-    async function loadExcelFromOneDrive() {
-      let urlInput = document.getElementById('excelUrlInput').value.trim();
-      if (!urlInput) {
-        urlInput = DEFAULT_SHEETS_URL;
-        document.getElementById('excelUrlInput').value = DEFAULT_SHEETS_URL;
-      }
-
-      const fetchUrls = getGoogleSheetFetchUrls(urlInput);
+    // OPHALEN VAN HET SPREADSHEET VIA INJECTED SCRIPT (JSONP - VOLLEDIG CORS VRIJ)
+    function loadExcelFromGoogleSheets() {
       const tbody = document.getElementById('defectTableBody');
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">⏳ Gegevens worden opgehaald uit het spreadsheet...</td></tr>';
 
-      let success = false;
+      let loaded = false;
 
-      for (let fetchUrl of fetchUrls) {
+      // Google Visualization Callback klaarzetten
+      window.google = window.google || {};
+      window.google.visualization = window.google.visualization || {};
+      window.google.visualization.Query = window.google.visualization.Query || {};
+
+      window.google.visualization.Query.setResponse = function(response) {
+        if (loaded) return;
+        loaded = true;
+
+        if (response && response.status === 'ok' && response.table) {
+          parseGvizTable(response.table);
+        } else {
+          fallbackCorsFetch();
+        }
+      };
+
+      // Oude script tag opruimen indien aanwezig
+      const oldScript = document.getElementById('gvizScriptTag');
+      if (oldScript) oldScript.remove();
+
+      // Script injecteren (Browsers voeren dit altijd uit, onafhankelijk van CORS restrictions)
+      const script = document.createElement('script');
+      script.id = 'gvizScriptTag';
+      script.src = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json`;
+      script.onerror = function() {
+        if (!loaded) fallbackCorsFetch();
+      };
+
+      document.body.appendChild(script);
+
+      // Veiligheidstimeout van 5 seconden voor de fallback
+      setTimeout(() => {
+        if (!loaded) fallbackCorsFetch();
+      }, 5000);
+    }
+
+    // Google Visualization Tabel omzetten naar een JavaScript Object Array
+    function parseGvizTable(table) {
+      const headers = table.cols.map((col, idx) => col.label || col.id || `col_${idx}`);
+
+      rawExcelData = table.rows.map(row => {
+        const rowObj = {};
+        if (row.c) {
+          row.c.forEach((cell, idx) => {
+            const h = headers[idx] || `col_${idx}`;
+            if (cell) {
+              rowObj[h] = (cell.f !== undefined && cell.f !== null) ? cell.f : cell.v;
+            } else {
+              rowObj[h] = '';
+            }
+          });
+        }
+        return rowObj;
+      });
+
+      if (rawExcelData.length === 0) {
+        document.getElementById('defectTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">Geen defecten gevonden in het bestand.</td></tr>';
+        return;
+      }
+
+      renderExcelTable();
+    }
+
+    // RESERVE FALLBACK VIA CORS-PROXIES EN SHEETJS
+    async function fallbackCorsFetch() {
+      const tbody = document.getElementById('defectTableBody');
+      const proxyUrls = [
+        `https://corsproxy.io/?https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv`)}`
+      ];
+
+      for (let proxyUrl of proxyUrls) {
         try {
-          const response = await fetch(fetchUrl);
-          if (!response.ok) continue;
+          const res = await fetch(proxyUrl);
+          if (!res.ok) continue;
 
-          const data = await response.arrayBuffer();
+          const data = await res.arrayBuffer();
           const workbook = XLSX.read(data, { type: 'array' });
-
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
           rawExcelData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-          if (rawExcelData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">Geen defecten gevonden in het bestand.</td></tr>';
+          if (rawExcelData.length > 0) {
+            renderExcelTable();
             return;
           }
-
-          renderExcelTable();
-          success = true;
-          break; // Stop zodra we een geslaagde response hebben
         } catch (e) {
-          console.warn("Poging mislukt voor URL:", fetchUrl, e);
+          console.warn("Proxy fallback mislukt:", proxyUrl, e);
         }
       }
 
-      if (!success) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff4d4d; padding:20px;">
-          ❌ Kon het spreadsheet niet laden.<br><br>
-          <span style="font-size:12px; color:#ccc;">
-            Zorg ervoor dat het Google Sheet ingesteld staat op:<br>
-            <strong>"Iedereen met de link" (Lezer)</strong>.
-          </span>
-        </td></tr>`;
-      }
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#ff4d4d; padding:20px;">
+        ❌ Kon het spreadsheet niet laden.<br><br>
+        <span style="font-size:12px; color:#ccc;">
+          Zorg ervoor dat het Google Sheet in Google Drive staat ingesteld op:<br>
+          <strong>"Iedereen met de link" (Lezer)</strong>.
+        </span>
+      </td></tr>`;
     }
 
     // WEERGEVEN VAN DE DATA IN DE TABEL (NAAM, DATUM, LOCATIE, OMSCHRIJVING)
@@ -658,4 +586,42 @@
         if (!omschrijvingVal) {
           for (let i = keys.length - 1; i >= 0; i--) {
             const keyName = keys[i].toLowerCase();
-            if (i >= 5 && !keyName.includes('naam') && !keyName.includes('datum') && !keyName.includes('email') &
+            if (i >= 5 && !keyName.includes('naam') && !keyName.includes('datum') && !keyName.includes('email') && !keyName.includes('tijd')) {
+              omschrijvingVal = row[keys[i]];
+              if (omschrijvingVal) break;
+            }
+          }
+        }
+
+        if (!omschrijvingVal) omschrijvingVal = 'Geen omschrijving opgegeven';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="Naam">
+            👤 <strong>${melderVal || 'Anoniem'}</strong>
+          </td>
+          <td data-label="Datum">
+            📅 <span style="color:#ddd; font-size:12px;">${geformatteerdeDatum}</span>
+          </td>
+          <td data-label="Locatie">
+            📍 <strong>${locatieVal || 'Onbekend'}</strong>
+          </td>
+          <td data-label="Omschrijving">
+            🛠 ${omschrijvingVal}
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // EVENTS
+    document.getElementById('manualReloadBtn').addEventListener('click', loadExcelFromGoogleSheets);
+    document.getElementById('searchInput').addEventListener('input', renderExcelTable);
+
+    // Automatisch laden bij openen van de pagina
+    loadExcelFromGoogleSheets();
+  </script>
+</body>
+</html>
+```
