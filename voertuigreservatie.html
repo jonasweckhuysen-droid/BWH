@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Voertuigreservatie</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #d32f2f;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .btn-nav:hover { background: #444; }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 25px;
+      border: 1px solid #333;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #ff4d4d;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #ff4d4d;
+    }
+
+    .btn-submit {
+      margin-top: 10px;
+      grid-column: 1 / -1;
+      padding: 12px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-submit:hover { background: #ff4d4d; }
+
+    /* STATUS BADGES */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .badge-pending { background: #ff9800; color: #000; }
+    .badge-approved { background: #4caf50; color: #fff; }
+    .badge-rejected { background: #f44336; color: #fff; }
+
+    /* TABEL STYLES */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+
+    th {
+      background: #252525;
+      color: #ff4d4d;
+    }
+
+    tr:hover { background: #2a2a2a; }
+
+    .admin-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .admin-actions select {
+      padding: 6px;
+      font-size: 13px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-approve {
+      background: #2e7d32;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-approve:hover { background: #388e3c; }
+
+    .btn-reject {
+      background: #c62828;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-reject:hover { background: #d32f2f; }
+
+    /* ADMIN PANEL SECTION */
+    .admin-card {
+      border: 2px solid #ff9800;
+      background: #241c12;
+      display: none; /* Enkel zichtbaar voor admins */
+    }
+
+    .admin-card h2 {
+      color: #ffb74d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🔑 Voertuigreservatie</h1>
+      <a href="home.html" class="btn-nav">← Terug naar Home</a>
+    </header>
+
+    <!-- FORMULIER VOERTUIG AANVRAAG -->
+    <div class="card">
+      <h2>🚗 Voertuig Aanvragen</h2>
+      <form id="reservationForm">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="naam">Naam Aanvrager</label>
+            <input type="text" id="naam" readonly style="background: #1a1a1a; color: #aaa; cursor: not-allowed;">
+          </div>
+
+          <div class="form-group">
+            <label for="datum">Datum van Reservatie</label>
+            <input type="date" id="datum" required>
+          </div>
+
+          <div class="form-group">
+            <label for="startTijd">Start Uur</label>
+            <input type="time" id="startTijd" required>
+          </div>
+
+          <div class="form-group">
+            <label for="eindTijd">Eind Uur</label>
+            <input type="time" id="eindTijd" required>
+          </div>
+
+          <div class="form-group">
+            <label for="aantalPersonen">Aantal Personen</label>
+            <input type="number" id="aantalPersonen" min="1" max="50" placeholder="bijv. 4" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="reden">Reden / Bestemming van de rit</label>
+            <input type="text" id="reden" placeholder="bijv. Opleiding PBO, Dienstverplaatsing Zone, ..." required>
+          </div>
+
+          <button type="submit" class="btn-submit">📨 Aanvraag Indienen</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MELDINGEN / MIJN AANVRAGEN -->
+    <div class="card">
+      <h2>📋 Mijn Aanvragen & Status</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Datum & Tijd</th>
+              <th>Reden</th>
+              <th>Personen</th>
+              <th>Status</th>
+              <th>Toegewezen Voertuig</th>
+            </tr>
+          </thead>
+          <tbody id="myRequestsTableBody">
+            <tr><td colspan="5" style="text-align:center; color:#888;">Laden...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADMIN GEDEELTE (ENKEL ZICHTBAAR VOOR ADMINS) -->
+    <div class="card admin-card" id="adminPanel">
+      <h2>⚙️️ Beheer: Openstaande Aanvragen</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Aanvrager</th>
+              <th>Datum & Tijd</th>
+              <th>Reden</th>
+              <th>Personen</th>
+              <th>Voertuig Toewijzen & Actie</th>
+            </tr>
+          </thead>
+          <tbody id="adminRequestsTableBody">
+            <tr><td colspan="5" style="text-align:center; color:#888;">Geen openstaande aanvragen.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OPLIJSTING GOEDGEKEURDE RESERVATIES (HUIDIGE & TOEKOMSTIGE) -->
+    <div class="card">
+      <h2>📅 Goedgekeurde Reservaties (Actueel & Toekomstig)</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Voertuig</th>
+              <th>Datum</th>
+              <th>Tijdstip</th>
+              <th>Aanvrager</th>
+              <th>Reden</th>
+              <th>Personen</th>
+            </tr>
+          </thead>
+          <tbody id="approvedTableBody">
+            <tr><td colspan="6" style="text-align:center; color:#888;">Geen geplande reservaties.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FIREBASE INTEGRATIE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      updateDoc, 
+      doc, 
+      query, 
+      where, 
+      getDocs,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const reservationsCollection = collection(db, "reservaties");
+
+    // 1. Ingelogde gebruiker ophalen
+    const currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
+
+    if (!currentUser) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('naam').value = currentUser;
+      checkAdminStatus(currentUser);
+    }
+
+    // Minimaal vandaag instellen op datumkiezer
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('datum').min = todayStr;
+
+    // 2. Controleer of gebruiker Admin is
+    async function checkAdminStatus(username) {
+      try {
+        const q = query(collection(db, "leden"), where("volledigeNaam", "==", username.toLowerCase()));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          snapshot.forEach(docSnap => {
+            if (docSnap.data().rol === 'admin') {
+              document.getElementById('adminPanel').style.display = 'block';
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Fout bij Admin check:", err);
+      }
+    }
+
+    // 3. Aanvraag opslaan in Firestore
+    const form = document.getElementById('reservationForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const datum = document.getElementById('datum').value;
+      const startTijd = document.getElementById('startTijd').value;
+      const eindTijd = document.getElementById('eindTijd').value;
+      const aantalPersonen = document.getElementById('aantalPersonen').value;
+      const reden = document.getElementById('reden').value.trim();
+
+      try {
+        await addDoc(reservationsCollection, {
+          aanvrager: currentUser,
+          datum,
+          startTijd,
+          eindTijd,
+          aantalPersonen: parseInt(aantalPersonen),
+          reden,
+          status: 'pending', // pending, approved, rejected
+          voertuig: '',
+          created: serverTimestamp()
+        });
+
+        alert('Je aanvraag is succesvol ingediend! Een beheerder zal deze verwerken.');
+        form.reset();
+        document.getElementById('naam').value = currentUser;
+      } catch (err) {
+        console.error("Fout bij indienen reservatie:", err);
+        alert('Er is een fout opgetreden bij het indienen.');
+      }
+    });
+
+    // 4. Realtime Luisteraar voor Reservaties
+    onSnapshot(reservationsCollection, (snapshot) => {
+      const myRequestsTbody = document.getElementById('myRequestsTableBody');
+      const adminTbody = document.getElementById('adminRequestsTableBody');
+      const approvedTbody = document.getElementById('approvedTableBody');
+
+      myRequestsTbody.innerHTML = '';
+      adminTbody.innerHTML = '';
+      approvedTbody.innerHTML = '';
+
+      let myRequestsCount = 0;
+      let openAdminCount = 0;
+      let approvedCount = 0;
+
+      // Huidige datum zonder uur voor vergelijking (YYYY-MM-DD)
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().split('T')[0];
+
+      snapshot.forEach(docSnap => {
+        const item = docSnap.data();
+        const id = docSnap.id;
+
+        // A. MIJN AANVRAGEN & STATUS MELDINGEN
+        if (item.aanvrager.toLowerCase() === currentUser.toLowerCase()) {
+          myRequestsCount++;
+          const tr = document.createElement('tr');
+          
+          let badgeClass = 'badge-pending';
+          let statusText = 'In behandeling';
+
+          if (item.status === 'approved') {
+            badgeClass = 'badge-approved';
+            statusText = 'Goedgekeurd';
+          } else if (item.status === 'rejected') {
+            badgeClass = 'badge-rejected';
+            statusText = 'Afgewezen';
+          }
+
+          tr.innerHTML = `
+            <td><strong>${item.datum}</strong> (${item.startTijd} - ${item.eindTijd})</td>
+            <td>${item.reden}</td>
+            <td>${item.aantalPersonen} p.</td>
+            <td><span class="badge ${badgeClass}">${statusText}</span></td>
+            <td><strong>${item.voertuig || 'Nog niet toegewezen'}</strong></td>
+          `;
+          myRequestsTbody.appendChild(tr);
+        }
+
+        // B. ADMIN PENDING AANVRAGEN
+        if (item.status === 'pending') {
+          openAdminCount++;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${item.aanvrager}</strong></td>
+            <td><strong>${item.datum}</strong><br>${item.startTijd} - ${item.eindTijd}</td>
+            <td>${item.reden}</td>
+            <td>${item.aantalPersonen} p.</td>
+            <td>
+              <div class="admin-actions">
+                <select id="vehicleSelect_${id}">
+                  <option value="">-- Kies Voertuig --</option>
+                  <option value="S541 Galaxy">S541 Galaxy</option>
+                  <option value="S542 Caddy">S542 Caddy</option>
+                  <option value="S545 Personeelsbus">S545 Personeelsbus</option>
+                  <option value="L543 Camionette">L543 Camionette</option>
+                  <option value="L542 Pick up">L542 Pick up</option>
+                </select>
+                <div class="action-buttons">
+                  <button class="btn-approve" data-id="${id}">✅ Accepteren</button>
+                  <button class="btn-reject" data-id="${id}">❌ Afwijzen</button>
+                </div>
+              </div>
+            </td>
+          `;
+          adminTbody.appendChild(tr);
+        }
+
+        // C. GEACCEPTEERDE RESERVATIES (ENKEL HUIDIGE & TOEKOMSTIGE DATUM)
+        if (item.status === 'approved' && item.datum >= today) {
+          approvedCount++;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>🚐 ${item.voertuig}</strong></td>
+            <td>${item.datum}</td>
+            <td>${item.startTijd} - ${item.eindTijd}</td>
+            <td>${item.aanvrager}</td>
+            <td>${item.reden}</td>
+            <td>${item.aantalPersonen} p.</td>
+          `;
+          approvedTbody.appendChild(tr);
+        }
+      });
+
+      if (myRequestsCount === 0) {
+        myRequestsTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nog geen aanvragen ingediend.</td></tr>';
+      }
+
+      if (openAdminCount === 0) {
+        adminTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Geen openstaande aanvragen.</td></tr>';
+      }
+
+      if (approvedCount === 0) {
+        approvedTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Geen geplande reservaties voor de komende periode.</td></tr>';
+      }
+
+      // Koppel actieknoppen voor Admin
+      attachAdminEvents();
+    });
+
+    // 5. Admin Acties Afhandelen (Accepteren / Afwijzen)
+    function attachAdminEvents() {
+      // Goedkeuren
+      document.querySelectorAll('.btn-approve').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const docId = e.target.getAttribute('data-id');
+          const vehicleSelect = document.getElementById(`vehicleSelect_${docId}`);
+          const selectedVehicle = vehicleSelect.value;
+
+          if (!selectedVehicle) {
+            alert('Selecteer eerst een voertuig om toe te wijzen!');
+            return;
+          }
+
+          try {
+            const resRef = doc(db, "reservaties", docId);
+            await updateDoc(resRef, {
+              status: 'approved',
+              voertuig: selectedVehicle
+            });
+            alert('Reservatie goedgekeurd en voertuig toegewezen!');
+          } catch (err) {
+            console.error("Fout bij goedkeuren:", err);
+          }
+        });
+      });
+
+      // Afwijzen
+      document.querySelectorAll('.btn-reject').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const docId = e.target.getAttribute('data-id');
+
+          if (confirm("Weet je zeker dat je deze aanvraag wilt afwijzen?")) {
+            try {
+              const resRef = doc(db, "reservaties", docId);
+              await updateDoc(resRef, {
+                status: 'rejected'
+              });
+            } catch (err) {
+              console.error("Fout bij afwijzen:", err);
+            }
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
