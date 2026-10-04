@@ -1,832 +1,1058 @@
+```html
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brandweer App - Permanentie</title>
-​<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#d32f2f">
-​<style>
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-​body {
-background-color: #121212;
-color: #ffffff;
-min-height: 100vh;
-padding: 12px;
-overflow-x: hidden;
-}
-​.container {
-max-width: 1000px;
-margin: 0 auto;
-width: 100%;
-}
-​header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding-bottom: 12px;
-border-bottom: 3px solid #d32f2f;
-margin-bottom: 20px;
-gap: 10px;
-}
-​h1 {
-color: #ff4d4d;
-font-size: 20px;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-​.btn-nav {
-background: #333;
-color: #fff;
-border: 1px solid #555;
-padding: 8px 12px;
-border-radius: 6px;
-text-decoration: none;
-font-size: 13px;
-white-space: nowrap;
-transition: background 0.3s;
-}
-​.btn-nav:hover { background: #444; }
-​.card {
-background: #1e1e1e;
-border-radius: 10px;
-padding: 18px;
-border: 1px solid #333;
-margin-bottom: 20px;
-box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-width: 100%;
-}
-​.card h2 {
-font-size: 16px;
-color: #ff4d4d;
-margin-bottom: 15px;
-border-bottom: 1px solid #333;
-padding-bottom: 8px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 8px;
-flex-wrap: wrap;
-}
-​.deadline-banner {
-background: #2a1b0a;
-border: 1px solid #ff9800;
-color: #ffb74d;
-padding: 12px 15px;
-border-radius: 8px;
-margin-bottom: 15px;
-font-size: 13px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 10px;
-flex-wrap: wrap;
-}
-​.deadline-banner.closed {
-background: #2b1111;
-border-color: #f44336;
-color: #e57373;
-}
-​.month-selector {
-display: flex;
-gap: 10px;
-align-items: center;
-margin-bottom: 15px;
-flex-wrap: wrap;
-}
-​select, input[type="date"], input[type="text"] {
-padding: 10px 12px;
-background: #2b2b2b;
-border: 1px solid #444;
-border-radius: 6px;
-color: #fff;
-font-size: 14px;
-outline: none;
-min-height: 44px;
-color-scheme: dark;
-}
-​select:focus, input:focus {
-border-color: #ff4d4d;
-}
-​/* KALENDER GRID MET BESCHIKBAARHEID CHECKBOXES */
-.days-grid {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-gap: 10px;
-margin-bottom: 15px;
-}
-​.day-box {
-background: #252525;
-border: 1px solid #383838;
-border-radius: 8px;
-padding: 10px;
-display: flex;
-flex-direction: column;
-gap: 6px;
-cursor: pointer;
-transition: all 0.2s ease;
-user-select: none;
-}
-​.day-box:hover {
-border-color: #666;
-}
-​.day-box.selected {
-background: #1b3a1e;
-border-color: #4caf50;
-}
-​.day-box.holiday {
-background: #2d1818;
-border-color: #792d2d;
-opacity: 0.6;
-cursor: not-allowed;
-}
-​.day-date {
-font-weight: bold;
-font-size: 13px;
-color: #fff;
-}
-​.day-name {
-font-size: 11px;
-color: #aaa;
-text-transform: uppercase;
-}
-​.day-status {
-font-size: 11px;
-font-weight: bold;
-color: #ff9800;
-}
-​.day-box.selected .day-status {
-color: #81c784;
-}
-​.btn-action-main {
-padding: 12px 18px;
-background: #d32f2f;
-color: white;
-border: none;
-border-radius: 6px;
-font-weight: bold;
-font-size: 14px;
-cursor: pointer;
-transition: background 0.3s;
-min-height: 44px;
-width: 100%;
-}
-​.btn-action-main:hover { background: #ff4d4d; }
-.btn-action-main:disabled { background: #444; color: #888; cursor: not-allowed; }
-​.btn-secondary {
-background: #333;
-color: #fff;
-border: 1px solid #555;
-padding: 8px 12px;
-border-radius: 6px;
-font-size: 12px;
-cursor: pointer;
-}
-​.btn-secondary:hover { background: #444; }
-​/* SCHEMA WEERGAVE (ROSTER) */
-.roster-list {
-display: flex;
-flex-direction: column;
-gap: 12px;
-}
-​.roster-card {
-background: #252525;
-border: 1px solid #383838;
-border-left: 4px solid #d32f2f;
-border-radius: 8px;
-padding: 14px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-}
-​.roster-date-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-border-bottom: 1px solid #333;
-padding-bottom: 6px;
-flex-wrap: wrap;
-gap: 6px;
-}
-​.roster-date-title {
-font-size: 15px;
-font-weight: bold;
-color: #ff4d4d;
-}
-​.staff-grid {
-display: grid;
-grid-template-columns: 1fr;
-gap: 8px;
-}
-​@media (min-width: 600px) {
-.staff-grid {
-grid-template-columns: repeat(3, 1fr);
-}
-}
-​.staff-role-box {
-background: #1a1a1a;
-border: 1px solid #333;
-padding: 8px 10px;
-border-radius: 6px;
-}
-​.staff-role-title {
-font-size: 10px;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-color: #aaa;
-margin-bottom: 4px;
-}
-​.staff-role-name {
-font-size: 13px;
-font-weight: bold;
-color: #fff;
-}
-​.badge-role {
-display: inline-block;
-padding: 2px 6px;
-border-radius: 3px;
-font-size: 10px;
-font-weight: bold;
-text-transform: uppercase;
-}
-​.badge-bv { background: #b71c1c; color: white; }
-.badge-ch { background: #f57c00; color: white; }
-.badge-ms { background: #388e3c; color: white; }
-​/* ADMIN PANEL */
-.admin-card {
-border: 2px solid #ff9800;
-background: linear-gradient(135deg, #241c12 0%, #1e1e1e 100%);
-display: none;
-}
-​.admin-card h2 { color: #ffb74d; }
-​.stats-table-container {
-width: 100%;
-overflow-x: auto;
-}
-​table {
-width: 100%;
-border-collapse: collapse;
-text-align: left;
-}
-​th, td {
-padding: 8px 10px;
-border-bottom: 1px solid #333;
-font-size: 12px;
-}
-​th {
-background: #252525;
-color: #ff4d4d;
-}
-​/* CUSTOM MODAL */
-.custom-modal-overlay {
-display: none;
-position: fixed;
-top: 0; left: 0; width: 100%; height: 100%;
-background: rgba(0, 0, 0, 0.85);
-backdrop-filter: blur(4px);
-z-index: 10000;
-justify-content: center;
-align-items: center;
-padding: 15px;
-}
-​.custom-modal {
-background: #1e1e1e;
-border: 2px solid #d32f2f;
-border-radius: 12px;
-width: 100%;
-max-width: 380px;
-padding: 20px;
-text-align: center;
-box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
-}
-​.modal-icon { font-size: 36px; margin-bottom: 8px; }
-.modal-title { font-size: 16px; font-weight: bold; color: #ff4d4d; margin-bottom: 8px; }
-.modal-text { font-size: 13px; color: #ddd; margin-bottom: 16px; line-height: 1.4; }
-​.modal-actions {
-display: flex;
-gap: 8px;
-}
-​.btn-modal {
-padding: 10px;
-border-radius: 6px;
-font-weight: bold;
-font-size: 13px;
-border: none;
-cursor: pointer;
-flex: 1;
-}
-​.btn-modal-primary { background: #d32f2f; color: white; }
-.btn-modal-secondary { background: #444; color: white; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Permanentie</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #d32f2f;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.3s;
+    }
+
+    .btn-nav:hover { background: #444; }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid #333;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      width: 100%;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      color: #ff4d4d;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .deadline-banner {
+      background: #2a1b0a;
+      border: 1px solid #ff9800;
+      color: #ffb74d;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .deadline-banner.closed {
+      background: #2b1111;
+      border-color: #f44336;
+      color: #e57373;
+    }
+
+    .month-selector {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    select, input[type="date"], input[type="text"] {
+      padding: 10px 12px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      min-height: 44px;
+      color-scheme: dark;
+    }
+
+    select:focus, input:focus {
+      border-color: #ff4d4d;
+    }
+
+    /* KALENDER GRID MET BESCHIKBAARHEID CHECKBOXES */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .day-box {
+      background: #252525;
+      border: 1px solid #383838;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .day-box:hover {
+      border-color: #666;
+    }
+
+    .day-box.selected {
+      background: #1b3a1e;
+      border-color: #4caf50;
+    }
+
+    .day-box.holiday {
+      background: #2d1818;
+      border-color: #792d2d;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .day-date {
+      font-weight: bold;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .day-name {
+      font-size: 11px;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+
+    .day-status {
+      font-size: 11px;
+      font-weight: bold;
+      color: #ff9800;
+    }
+
+    .day-box.selected .day-status {
+      color: #81c784;
+    }
+
+    .btn-action-main {
+      padding: 12px 18px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      min-height: 44px;
+      width: 100%;
+    }
+
+    .btn-action-main:hover { background: #ff4d4d; }
+    .btn-action-main:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover { background: #444; }
+
+    /* SCHEMA WEERGAVE (ROSTER) */
+    .roster-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .roster-card {
+      background: #252525;
+      border: 1px solid #383838;
+      border-left: 4px solid #d32f2f;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .roster-date-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .roster-date-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ff4d4d;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 600px) {
+      .staff-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .staff-role-box {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      padding: 8px 10px;
+      border-radius: 6px;
+    }
+
+    .staff-role-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    .staff-role-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .badge-role {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .badge-bv { background: #b71c1c; color: white; }
+    .badge-ch { background: #f57c00; color: white; }
+    .badge-ms { background: #388e3c; color: white; }
+
+    /* ADMIN PANEL */
+    .admin-card {
+      border: 2px solid #ff9800;
+      background: linear-gradient(135deg, #241c12 0%, #1e1e1e 100%);
+      display: none;
+    }
+
+    .admin-card h2 { color: #ffb74d; }
+
+    .stats-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+    }
+
+    th {
+      background: #252525;
+      color: #ff4d4d;
+    }
+
+    /* MOBIELE TRANSFORMATIE VOOR STATISTIEKENTABEL */
+    @media (max-width: 650px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead { display: none; }
+
+      tr {
+        background: #262626;
+        border: 1px solid #383838;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid #333;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      td:last-child { border-bottom: none; }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #ff4d4d;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+    }
+
+    /* CUSTOM MODAL */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .custom-modal {
+      background: #1e1e1e;
+      border: 2px solid #d32f2f;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 380px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+    }
+
+    .modal-icon { font-size: 36px; margin-bottom: 8px; }
+    .modal-title { font-size: 16px; font-weight: bold; color: #ff4d4d; margin-bottom: 8px; }
+    .modal-text { font-size: 13px; color: #ddd; margin-bottom: 16px; line-height: 1.4; }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-modal {
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn-modal-primary { background: #d32f2f; color: white; }
+    .btn-modal-secondary { background: #444; color: white; }
+  </style>
 </head>
 <body>
-​<div class="container">
-<header>
-<h1>📋 Permanentie Beheer</h1>
-<a href="home.html" class="btn-nav">← Home</a>
-</header>
-​<!-- STATUS & DEADLINE BANNER -->
-<div class="deadline-banner" id="deadlineBanner">
-<span id="deadlineText">⏳ Berekenen van status...</span>
-</div>
-​<!-- SECTIE 1: BESCHIKBAARHEID OPGEVEN (VOOR MENSEN) -->
-<div class="card">
-<h2>
-<span>🗓 Beschikbaarheid Ingeven</span>
-<div style="display:flex; gap:6px;">
-<button class="btn-secondary" id="btnSelectAll">Alles Aan</button>
-<button class="btn-secondary" id="btnClearAll">Alles Uit</button>
-</div>
-</h2>
-​<div class="month-selector">
-<label for="selectTargetMonth">Maand:</label>
-<select id="selectTargetMonth"></select>
-</div>
-​<div class="days-grid" id="daysGrid">
-<div style="color:#888; grid-column:1/-1;">Kalender wordt opgebouwd...</div>
-</div>
-​<button class="btn-action-main" id="btnSaveAvailability">💾 Mijn Beschikbaarheden Opslaan</button>
-</div>
-​<!-- SECTIE 2: DEFINITIEF SCHEMA PERMANENTIE -->
-<div class="card">
-<h2>
-<span>📅 Permanentie Schema</span>
-<div class="month-selector" style="margin-bottom:0;">
-<select id="selectRosterMonth"></select>
-</div>
-</h2>
-​<div class="roster-list" id="rosterContainer">
-<div style="color:#888; text-align:center; padding:20px;">Geen schema gevonden voor deze maand.</div>
-</div>
-</div>
-​<!-- SECTIE 3: ADMIN PANEL (SCHEMA GENEREREN & TELLERS) -->
-<div class="card admin-card" id="adminPanel">
-<h2>⚙ Admin: Permanentie Genereren & Tellers</h2>
-​<div style="margin-bottom:20px;">
-<p style="font-size:13px; color:#ccc; margin-bottom:12px;">
-Met onderstaande knop genereert de app automatisch een eerlijke permanentie voor de geselecteerde maand op basis van beschikbare bevelvoerders, chauffeurs en manschappen, met voorrang voor wie het minste aantal diensten heeft gedraaid.
-</p>
-<button class="btn-action-main" id="btnGenerateRoster" style="background:#ff9800; color:#000;">
-🎲 Genereer Eerlijk Permanentie Schema
-</button>
-</div>
-​<h3 style="font-size:14px; color:#ffb74d; margin-bottom:10px;">📊 Tellers Overzicht (Permanentie Historie)</h3>
-<div class="stats-table-container">
-<table>
-<thead>
-<tr>
-<th>Naam</th>
-<th>Graad</th>
-<th>Functies</th>
-<th>Totaal Permanenties</th>
-</tr>
-</thead>
-<tbody id="statsTableBody">
-<tr><td colspan="4" style="text-align:center; color:#888;">Laden...</td></tr>
-</tbody>
-</table>
-</div>
-</div>
-​</div>
-​<!-- CUSTOM POP-UP MODAL -->
-<div class="custom-modal-overlay" id="customModal">
-<div class="custom-modal">
-<div class="modal-icon" id="modalIcon">📋</div>
-<div class="modal-title" id="modalTitle">Melding</div>
-<div class="modal-text" id="modalText">Berichtinhoud...</div>
-<div class="modal-actions" id="modalActions">
-<button class="btn-modal btn-modal-primary" id="modalOkBtn">OK</button>
-</div>
-</div>
-</div>
-​<!-- DIRECT UI INIT SCRIPT -->
-<script>
-window.selectedDays = new Set();
-window.holidays = [
-"2026-01-01", "2026-04-06", "2026-05-01", "2026-05-14", "2026-05-25",
-"2026-07-21", "2026-08-15", "2026-11-01", "2026-11-11", "2026-12-25"
-];
-​function setupMonthSelectorsDirect() {
-const targetMonthSelect = document.getElementById('selectTargetMonth');
-const rosterMonthSelect = document.getElementById('selectRosterMonth');
-if (!targetMonthSelect || !rosterMonthSelect) return;
-​const now = new Date();
-targetMonthSelect.innerHTML = '';
-rosterMonthSelect.innerHTML = '';
-​for (let i = 0; i <= 3; i++) {
-const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-const year = d.getFullYear();
-const month = String(d.getMonth() + 1).padStart(2, '0');
-const monthName = d.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' });
-​const val = ${year}-${month};
-​const opt1 = document.createElement('option');
-opt1.value = val;
-opt1.textContent = monthName;
-​const opt2 = document.createElement('option');
-opt2.value = val;
-opt2.textContent = monthName;
-​targetMonthSelect.appendChild(opt1);
-rosterMonthSelect.appendChild(opt2);
-}
-​if (targetMonthSelect.options.length > 1) {
-targetMonthSelect.selectedIndex = 1;
-}
-​checkDeadlineDirect(targetMonthSelect.value);
-}
-​function checkDeadlineDirect(selectedMonthStr) {
-if (!selectedMonthStr) return;
-const now = new Date();
-const currentDay = now.getDate();
-​const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-const nextMonthVal = ${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')};
-​const banner = document.getElementById('deadlineBanner');
-const bannerText = document.getElementById('deadlineText');
-const saveBtn = document.getElementById('btnSaveAvailability');
-​if (!banner || !bannerText) return;
-​if (selectedMonthStr === nextMonthVal) {
-if (currentDay <= 15) {
-banner.className = 'deadline-banner';
-bannerText.innerHTML = ⏰ <strong>Deadline Open:</strong> Je kunt je beschikbaarheden voor ${selectedMonthStr} nog ingeven t.m. <strong>15 ${now.toLocaleDateString('nl-BE', {month:'long'})}</strong>.;
-if (saveBtn) saveBtn.disabled = false;
-} else {
-banner.className = 'deadline-banner closed';
-bannerText.innerHTML = 🔒 <strong>Deadline Verstreken:</strong> De inzendingen voor ${selectedMonthStr} zijn gesloten (verstreken op 15 ${now.toLocaleDateString('nl-BE', {month:'long'})}).;
-if (saveBtn) saveBtn.disabled = false;
-}
-} else {
-banner.className = 'deadline-banner';
-bannerText.innerHTML = ℹ️ Maand ${selectedMonthStr} geselecteerd.;
-if (saveBtn) saveBtn.disabled = false;
-}
-}
-​function renderDaysGridDirect() {
-const targetMonthSelect = document.getElementById('selectTargetMonth');
-if (!targetMonthSelect) return;
-​const monthStr = targetMonthSelect.value;
-if (!monthStr) return;
-​checkDeadlineDirect(monthStr);
-​const [year, month] = monthStr.split('-').map(Number);
-const daysContainer = document.getElementById('daysGrid');
-if (!daysContainer) return;
-​daysContainer.innerHTML = '';
-​const totalDays = new Date(year, month, 0).getDate();
-​for (let day = 1; day <= totalDays; day++) {
-const dateObj = new Date(year, month - 1, day);
-const dayOfWeek = dateObj.getDay();
-​if (dayOfWeek === 0 || dayOfWeek === 6) continue;
-​const dateStr = ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')};
-const isHoliday = window.holidays.includes(dateStr);
-​const div = document.createElement('div');
-div.className = 'day-box';
-if (isHoliday) div.classList.add('holiday');
-if (window.selectedDays.has(dateStr)) div.classList.add('selected');
-​const dayName = dateObj.toLocaleDateString('nl-BE', { weekday: 'short' });
-​div.innerHTML = <div class="day-name">${dayName}</div> <div class="day-date">${day} ${dateObj.toLocaleDateString('nl-BE', { month: 'short' })}</div> <div class="day-status">${isHoliday ? 'Feestdag' : (window.selectedDays.has(dateStr) ? 'Beschikbaar' : 'Niet beschikbaar')}</div>;
-​if (!isHoliday) {
-div.onclick = () => {
-if (window.selectedDays.has(dateStr)) {
-window.selectedDays.delete(dateStr);
-div.classList.remove('selected');
-div.querySelector('.day-status').textContent = 'Niet beschikbaar';
-} else {
-window.selectedDays.add(dateStr);
-div.classList.add('selected');
-div.querySelector('.day-status').textContent = 'Beschikbaar';
-}
-};
-}
-​daysContainer.appendChild(div);
-}
-}
-​document.addEventListener('DOMContentLoaded', () => {
-setupMonthSelectorsDirect();
-renderDaysGridDirect();
-​const selTarget = document.getElementById('selectTargetMonth');
-if (selTarget) {
-selTarget.addEventListener('change', () => {
-window.selectedDays.clear();
-renderDaysGridDirect();
-if (typeof window.fetchSavedAvailability === 'function') {
-window.fetchSavedAvailability();
-}
-});
-}
-});
-​setupMonthSelectorsDirect();
-renderDaysGridDirect();
-</script>
-​<!-- FIREBASE ASYNC MODULE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-getFirestore,
-collection,
-setDoc,
-getDoc,
-updateDoc,
-doc,
-query,
-where,
-getDocs,
-serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-​const firebaseConfig = {
-apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
-authDomain: "bwhnew.firebaseapp.com",
-projectId: "bwhnew",
-storageBucket: "bwhnew.firebasestorage.app",
-messagingSenderId: "822224776722",
-appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
-measurementId: "G-5CRMVYSQ7W"
-};
-​let db = null;
-try {
-const app = initializeApp(firebaseConfig);
-db = getFirestore(app);
-} catch (e) {
-console.warn("Firebase kon niet worden geïnitialiseerd:", e);
-}
-​let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username') || "Demo Gebruiker";
-let currentUserData = null;
-​// Modal Helpers
-function showNotification(title, message, icon = '📋') {
-return new Promise((resolve) => {
-const modal = document.getElementById('customModal');
-document.getElementById('modalIcon').textContent = icon;
-document.getElementById('modalTitle').textContent = title;
-document.getElementById('modalText').textContent = message;
-​const actions = document.getElementById('modalActions');
-actions.innerHTML = <button class="btn-modal btn-modal-primary" id="modalOkBtn">Begrepen</button>;
-​modal.style.display = 'flex';
-​document.getElementById('modalOkBtn').onclick = () => {
-modal.style.display = 'none';
-resolve(true);
-};
-});
-}
-​function showConfirm(title, message, icon = '❓') {
-return new Promise((resolve) => {
-const modal = document.getElementById('customModal');
-document.getElementById('modalIcon').textContent = icon;
-document.getElementById('modalTitle').textContent = title;
-document.getElementById('modalText').textContent = message;
-​const actions = document.getElementById('modalActions');
-actions.innerHTML = <button class="btn-modal btn-modal-secondary" id="modalCancelBtn">Annuleren</button> <button class="btn-modal btn-modal-primary" id="modalConfirmBtn">Bevestigen</button>;
-​modal.style.display = 'flex';
-​document.getElementById('modalConfirmBtn').onclick = () => {
-modal.style.display = 'none';
-resolve(true);
-};
-​document.getElementById('modalCancelBtn').onclick = () => {
-modal.style.display = 'none';
-resolve(false);
-};
-});
-}
-​// Ophalen opgeslagen beschikbaarheden uit Firestore
-window.fetchSavedAvailability = async function() {
-if (!db) return;
-const monthStr = document.getElementById('selectTargetMonth')?.value;
-if (!monthStr) return;
-​try {
-const cleanUser = currentUser.toLowerCase().trim();
-const q = query(
-collection(db, "permanentie_beschikbaarheden"),
-where("gebruiker", "", cleanUser),
-where("maand", "", monthStr)
-);
-const snap = await getDocs(q);
-​window.selectedDays.clear();
-if (!snap.empty) {
-snap.forEach(docSnap => {
-const userAvailDoc = docSnap.data();
-if (userAvailDoc.dagen) {
-userAvailDoc.dagen.forEach(d => window.selectedDays.add(d));
-}
-});
-}
-renderDaysGridDirect();
-} catch (e) {
-console.error("Fout bij ophalen beschikbaarheden:", e);
-}
-};
-​// Alles aan / uit knoppen
-document.getElementById('btnSelectAll').onclick = () => {
-const monthStr = document.getElementById('selectTargetMonth').value;
-const [year, month] = monthStr.split('-').map(Number);
-const totalDays = new Date(year, month, 0).getDate();
-for (let day = 1; day <= totalDays; day++) {
-const dateObj = new Date(year, month - 1, day);
-if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6) {
-const dateStr = ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')};
-if (!window.holidays.includes(dateStr)) window.selectedDays.add(dateStr);
-}
-}
-renderDaysGridDirect();
-};
-​document.getElementById('btnClearAll').onclick = () => {
-window.selectedDays.clear();
-renderDaysGridDirect();
-};
-​// Opslaan beschikbaarheid in Firestore
-document.getElementById('btnSaveAvailability').onclick = async () => {
-if (!db) {
-showNotification('Info', 'Gegevens opgeslagen in lokaal geheugen.', 'ℹ️');
-return;
-}
-const monthStr = document.getElementById('selectTargetMonth').value;
-const cleanUser = currentUser.toLowerCase().trim();
-const docId = ${cleanUser.replace(/\s+/g, '_')}_${monthStr};
-​try {
-await setDoc(doc(db, "permanentie_beschikbaarheden", docId), {
-gebruiker: cleanUser,
-lidId: currentUserData?.id || '',
-maand: monthStr,
-dagen: Array.from(window.selectedDays),
-updatedAt: serverTimestamp()
-});
-​showNotification('Opgeslagen', 'Je beschikbaarheid is succesvol opgeslagen in de Firebase database!', '✅');
-} catch (err) {
-console.error("Fout bij opslaan beschikbaarheid:", err);
-showNotification('Fout', 'Er is een fout opgetreden bij het opslaan in Firebase.', '⚠️');
-}
-};
-​// Gebruikersgegevens ophalen
-async function loadUserData() {
-if (!db) return;
-try {
-const cleanUser = currentUser.toLowerCase().trim();
-const q = query(collection(db, "leden"), where("volledigeNaam", "==", cleanUser));
-const snapshot = await getDocs(q);
-​if (!snapshot.empty) {
-snapshot.forEach(docSnap => {
-currentUserData = { id: docSnap.id, ...docSnap.data() };
-if (currentUserData.rol === 'admin') {
-document.getElementById('adminPanel').style.display = 'block';
-loadStatsTable();
-}
-});
-}
-} catch (err) {
-console.error("Fout bij laden gebruiker:", err);
-}
-}
-​// Kwalificatie helpers
-function isBevelvoerder(member) {
-const g = (member.graad || '').toLowerCase();
-return g.includes('sergeant') || g.includes('adjudant') || g.includes('luitenant') || g.includes('kapitein') || g.includes('majoor');
-}
-​function isChauffeur(member) {
-const specs = (member.specialisaties || []).map(s => s.toLowerCase());
-return specs.some(s => s.includes('chauffeur'));
-}
-​// SCHEMA GENERATOR (ADMIN) -> OPSLAAN IN FIRESTORE
-document.getElementById('btnGenerateRoster')?.addEventListener('click', async () => {
-if (!db) return;
-const monthStr = document.getElementById('selectTargetMonth').value;
-​const confirmed = await showConfirm(
-'Permanentie Genereren',
-Wil je het schema voor ${monthStr} genereren? Dit berekent automatisch de meest eerlijke verdeling op basis van de tellers en slaat het opslagbestand in Firebase op.,
-'🎲'
-);
-​if (!confirmed) return;
-​try {
-const membersSnap = await getDocs(collection(db, "leden"));
-const members = [];
-membersSnap.forEach(d => members.push({ id: d.id, ...d.data(), count: d.data().permanentieTeller || 0 }));
-​const availSnap = await getDocs(query(collection(db, "permanentie_beschikbaarheden"), where("maand", "==", monthStr)));
-const availMap = {};
-​availSnap.forEach(d => {
-const data = d.data();
-const member = members.find(m =>
-(m.volledigeNaam || '').toLowerCase() === (data.gebruiker || '').toLowerCase() ||
-m.id === data.lidId
-);
-if (member && data.dagen) {
-data.dagen.forEach(dateStr => {
-if (!availMap[dateStr]) availMap[dateStr] = [];
-availMap[dateStr].push(member);
-});
-}
-});
-​const [year, month] = monthStr.split('-').map(Number);
-const totalDays = new Date(year, month, 0).getDate();
-const rosterDays = {};
-​for (let day = 1; day <= totalDays; day++) {
-const dateObj = new Date(year, month - 1, day);
-const dayOfWeek = dateObj.getDay();
-const dateStr = ${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')};
-​if (dayOfWeek === 0 || dayOfWeek === 6 || window.holidays.includes(dateStr)) continue;
-​let candidates = availMap[dateStr] || [];
-candidates.sort((a, b) => a.count - b.count);
-​let bv = candidates.find(m => isBevelvoerder(m));
-if (bv) {
-candidates = candidates.filter(m => m.id !== bv.id);
-bv.count++;
-}
-​let ch = candidates.find(m => isChauffeur(m));
-if (ch) {
-candidates = candidates.filter(m => m.id !== ch.id);
-ch.count++;
-}
-​let manschappen = candidates.slice(0, 4);
-manschappen.forEach(m => m.count++);
-​rosterDays[dateStr] = {
-bevelvoerder: bv ? ${bv.voornaam} ${bv.achternaam} : '⚠️️ Geen Bevelvoerder',
-chauffeur: ch ? ${ch.voornaam} ${ch.achternaam} : '⚠️ Geen Chauffeur',
-manschappen: manschappen.map(m => ${m.voornaam} ${m.achternaam})
-};
-}
-​// Schema opslaan in Firestore
-await setDoc(doc(db, "permanentie_roosters", monthStr), {
-maand: monthStr,
-schema: rosterDays,
-updatedAt: serverTimestamp()
-});
-​// Tellers bijwerken in de leden-collectie in Firestore
-for (let m of members) {
-await updateDoc(doc(db, "leden", m.id), {
-permanentieTeller: m.count
-});
-}
-​showNotification('Gegenereerd!', Het permanentie schema voor ${monthStr} is succesvol gegenereerd en opgeslagen in Firebase., '✅');
-loadRoster();
-loadStatsTable();
-​} catch (err) {
-console.error("Fout bij genereren schema:", err);
-showNotification('Fout', 'Er is een fout opgetreden bij het opslaan van de gegevens.', '⚠️');
-}
-});
-​// ROSTER WEERGEVEN UIT FIRESTORE
-async function loadRoster() {
-if (!db) return;
-const monthStr = document.getElementById('selectRosterMonth').value;
-const container = document.getElementById('rosterContainer');
-container.innerHTML = '';
-​try {
-const snap = await getDoc(doc(db, "permanentie_roosters", monthStr));
-if (!snap.exists()) {
-container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Nog geen definitief schema gegenereerd voor deze maand.</div>';
-return;
-}
-​const data = snap.data();
-const schema = data.schema || {};
-const sortedDates = Object.keys(schema).sort();
-​if (sortedDates.length === 0) {
-container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Geen werkdagen gevonden in het schema.</div>';
-return;
-}
-​sortedDates.forEach(dateStr => {
-const dayData = schema[dateStr];
-const dObj = new Date(dateStr);
-const formattedDate = dObj.toLocaleDateString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long' });
-​const div = document.createElement('div');
-div.className = 'roster-card';
-​const manschappenHTML = (dayData.manschappen || []).map(m => <span style="display:block;">• ${m}</span>).join('') || '<span style="color:#888;">Geen manschappen</span>';
-​div.innerHTML = <div class="roster-date-header"> <div class="roster-date-title">📅 ${formattedDate}</div> <span class="badge-role badge-ms">6 Pers. Permanentie</span> </div> <div class="staff-grid"> <div class="staff-role-box"> <div class="staff-role-title"><span class="badge-role badge-bv">Bevelvoerder</span></div> <div class="staff-role-name">${dayData.bevelvoerder}</div> </div> <div class="staff-role-box"> <div class="staff-role-title"><span class="badge-role badge-ch">Chauffeur</span></div> <div class="staff-role-name">${dayData.chauffeur}</div> </div> <div class="staff-role-box"> <div class="staff-role-title"><span class="badge-role badge-ms">Manschappen (4)</span></div> <div class="staff-role-name">${manschappenHTML}</div> </div> </div>;
-​container.appendChild(div);
-});
-​} catch (err) {
-console.error("Fout bij laden schema:", err);
-}
-}
-​// STATS TABEL OPHALEN UIT FIRESTORE
-async function loadStatsTable() {
-if (!db) return;
-const tbody = document.getElementById('statsTableBody');
-tbody.innerHTML = '';
-​try {
-const snap = await getDocs(collection(db, "leden"));
-const members = [];
-snap.forEach(d => members.push({ id: d.id, ...d.data() }));
-​members.sort((a, b) => (a.voornaam || '').localeCompare(b.voornaam || ''));
-​members.forEach(m => {
-const tr = document.createElement('tr');
-const isBv = isBevelvoerder(m);
-const isCh = isChauffeur(m);
-​let tags = [];
-if (isBv) tags.push('<span class="badge-role badge-bv">BV</span>');
-if (isCh) tags.push('<span class="badge-role badge-ch">CH</span>');
-if (tags.length === 0) tags.push('<span class="badge-role badge-ms">MS</span>');
-​tr.innerHTML = <td><strong>${m.voornaam || ''} ${m.achternaam || ''}</strong></td> <td>${m.graad || '-'}</td> <td>${tags.join(' ')}</td> <td><strong>${m.permanentieTeller || 0}x</strong></td>;
-​tbody.appendChild(tr);
-});
-} catch (e) {
-console.error("Fout bij laden stats:", e);
-}
-}
-​// LISTENERS VOOR MAANDVERANDERING
-document.getElementById('selectRosterMonth')?.addEventListener('change', loadRoster);
-​// INITIËLE ASYNC OPROEPEN
-window.fetchSavedAvailability();
-loadRoster();
-loadUserData();
-</script>
+
+  <div class="container">
+    <header>
+      <h1>📋 Permanentie Beheer</h1>
+      <a href="home.html" class="btn-nav">← Home</a>
+    </header>
+
+    <!-- STATUS & DEADLINE BANNER -->
+    <div class="deadline-banner" id="deadlineBanner">
+      <span id="deadlineText">⏳ Berekenen van status...</span>
+    </div>
+
+    <!-- SECTIE 1: BESCHIKBAARHEID OPGEVEN (VOOR LEDEN) -->
+    <div class="card">
+      <h2>
+        <span>🗓 Beschikbaarheid Ingeven</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-secondary" id="btnSelectAll">Alles Aan</button>
+          <button class="btn-secondary" id="btnClearAll">Alles Uit</button>
+        </div>
+      </h2>
+
+      <div class="month-selector">
+        <label for="selectTargetMonth">Maand:</label>
+        <select id="selectTargetMonth"></select>
+      </div>
+
+      <div class="days-grid" id="daysGrid">
+        <div style="color:#888; grid-column:1/-1;">Kalender wordt opgebouwd...</div>
+      </div>
+
+      <button class="btn-action-main" id="btnSaveAvailability">💾 Mijn Beschikbaarheden Opslaan</button>
+    </div>
+
+    <!-- SECTIE 2: DEFINITIEF SCHEMA PERMANENTIE -->
+    <div class="card">
+      <h2>
+        <span>📅 Permanentie Schema</span>
+        <div class="month-selector" style="margin-bottom:0;">
+          <select id="selectRosterMonth"></select>
+        </div>
+      </h2>
+
+      <div class="roster-list" id="rosterContainer">
+        <div style="color:#888; text-align:center; padding:20px;">Geen schema gevonden voor deze maand.</div>
+      </div>
+    </div>
+
+    <!-- SECTIE 3: ADMIN PANEL (SCHEMA GENEREREN & TELLERS) -->
+    <div class="card admin-card" id="adminPanel">
+      <h2>⚙ Admin: Permanentie Genereren & Tellers</h2>
+
+      <div style="margin-bottom:20px;">
+        <p style="font-size:13px; color:#ccc; margin-bottom:12px;">
+          Met onderstaande knop genereert de app automatisch een eerlijke permanentie voor de geselecteerde maand op basis van beschikbare bevelvoerders, chauffeurs en manschappen, met voorrang voor wie het minste aantal diensten heeft gedraaid.
+        </p>
+        <button class="btn-action-main" id="btnGenerateRoster" style="background:#ff9800; color:#000;">
+          🎲 Genereer Eerlijk Permanentie Schema
+        </button>
+      </div>
+
+      <h3 style="font-size:14px; color:#ffb74d; margin-bottom:10px;">📊 Tellers Overzicht (Permanentie Historie)</h3>
+      <div class="stats-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Graad</th>
+              <th>Functies</th>
+              <th>Totaal Permanenties</th>
+            </tr>
+          </thead>
+          <tbody id="statsTableBody">
+            <tr><td colspan="4" style="text-align:center; color:#888;">Laden...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CUSTOM POP-UP MODAL -->
+  <div class="custom-modal-overlay" id="customModal">
+    <div class="custom-modal">
+      <div class="modal-icon" id="modalIcon">📋</div>
+      <div class="modal-title" id="modalTitle">Melding</div>
+      <div class="modal-text" id="modalText">Berichtinhoud...</div>
+      <div class="modal-actions" id="modalActions">
+        <button class="btn-modal btn-modal-primary" id="modalOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECT UI INIT SCRIPT (GARANDEERT ONMIDDELLIJKE WEERGAVE) -->
+  <script>
+    window.selectedDays = new Set();
+    window.holidays = [
+      "2026-01-01", "2026-04-06", "2026-05-01", "2026-05-14", "2026-05-25", 
+      "2026-07-21", "2026-08-15", "2026-11-01", "2026-11-11", "2026-12-25"
+    ];
+
+    function setupMonthSelectorsDirect() {
+      const targetMonthSelect = document.getElementById('selectTargetMonth');
+      const rosterMonthSelect = document.getElementById('selectRosterMonth');
+      if (!targetMonthSelect || !rosterMonthSelect) return;
+
+      const now = new Date();
+      targetMonthSelect.innerHTML = '';
+      rosterMonthSelect.innerHTML = '';
+
+      for (let i = 0; i <= 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const monthName = d.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' });
+        
+        const val = `${year}-${month}`;
+
+        const opt1 = document.createElement('option');
+        opt1.value = val;
+        opt1.textContent = monthName;
+
+        const opt2 = document.createElement('option');
+        opt2.value = val;
+        opt2.textContent = monthName;
+
+        targetMonthSelect.appendChild(opt1);
+        rosterMonthSelect.appendChild(opt2);
+      }
+
+      if (targetMonthSelect.options.length > 1) {
+        targetMonthSelect.selectedIndex = 1;
+      }
+
+      checkDeadlineDirect(targetMonthSelect.value);
+    }
+
+    function checkDeadlineDirect(selectedMonthStr) {
+      if (!selectedMonthStr) return;
+      const now = new Date();
+      const currentDay = now.getDate();
+      
+      const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const nextMonthVal = `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}`;
+
+      const banner = document.getElementById('deadlineBanner');
+      const bannerText = document.getElementById('deadlineText');
+      const saveBtn = document.getElementById('btnSaveAvailability');
+
+      if (!banner || !bannerText) return;
+
+      if (selectedMonthStr === nextMonthVal) {
+        if (currentDay <= 15) {
+          banner.className = 'deadline-banner';
+          bannerText.innerHTML = `⏰ <strong>Deadline Open:</strong> Je kunt je beschikbaarheden voor ${selectedMonthStr} nog ingeven t.m. <strong>15 ${now.toLocaleDateString('nl-BE', {month:'long'})}</strong>.`;
+          if (saveBtn) saveBtn.disabled = false;
+        } else {
+          banner.className = 'deadline-banner closed';
+          bannerText.innerHTML = `🔒 <strong>Deadline Verstreken:</strong> De inzendingen voor ${selectedMonthStr} zijn gesloten (verstreken op 15 ${now.toLocaleDateString('nl-BE', {month:'long'})}).`;
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      } else {
+        banner.className = 'deadline-banner';
+        bannerText.innerHTML = `ℹ️ Maand ${selectedMonthStr} geselecteerd.`;
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    }
+
+    function renderDaysGridDirect() {
+      const targetMonthSelect = document.getElementById('selectTargetMonth');
+      if (!targetMonthSelect) return;
+      
+      const monthStr = targetMonthSelect.value;
+      if (!monthStr) return;
+      
+      checkDeadlineDirect(monthStr);
+
+      const [year, month] = monthStr.split('-').map(Number);
+      const daysContainer = document.getElementById('daysGrid');
+      if (!daysContainer) return;
+
+      daysContainer.innerHTML = '';
+
+      const totalDays = new Date(year, month, 0).getDate();
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dateObj = new Date(year, month - 1, day);
+        const dayOfWeek = dateObj.getDay();
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isHoliday = window.holidays.includes(dateStr);
+
+        const div = document.createElement('div');
+        div.className = 'day-box';
+        if (isHoliday) div.classList.add('holiday');
+        if (window.selectedDays.has(dateStr)) div.classList.add('selected');
+
+        const dayName = dateObj.toLocaleDateString('nl-BE', { weekday: 'short' });
+
+        div.innerHTML = `
+          <div class="day-name">${dayName}</div>
+          <div class="day-date">${day} ${dateObj.toLocaleDateString('nl-BE', { month: 'short' })}</div>
+          <div class="day-status">${isHoliday ? 'Feestdag' : (window.selectedDays.has(dateStr) ? 'Beschikbaar' : 'Niet beschikbaar')}</div>
+        `;
+
+        if (!isHoliday) {
+          div.onclick = () => {
+            if (window.selectedDays.has(dateStr)) {
+              window.selectedDays.delete(dateStr);
+              div.classList.remove('selected');
+              div.querySelector('.day-status').textContent = 'Niet beschikbaar';
+            } else {
+              window.selectedDays.add(dateStr);
+              div.classList.add('selected');
+              div.querySelector('.day-status').textContent = 'Beschikbaar';
+            }
+          };
+        }
+
+        daysContainer.appendChild(div);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      setupMonthSelectorsDirect();
+      renderDaysGridDirect();
+
+      const selTarget = document.getElementById('selectTargetMonth');
+      if (selTarget) {
+        selTarget.addEventListener('change', () => {
+          window.selectedDays.clear();
+          renderDaysGridDirect();
+          if (typeof window.fetchSavedAvailability === 'function') {
+            window.fetchSavedAvailability();
+          }
+        });
+      }
+    });
+
+    setupMonthSelectorsDirect();
+    renderDaysGridDirect();
+  </script>
+
+  <!-- FIREBASE ASYNC MODULE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      setDoc,
+      getDoc,
+      updateDoc, 
+      doc, 
+      query, 
+      where, 
+      getDocs,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (e) {
+      console.warn("Firebase kon niet worden geïnitialiseerd:", e);
+    }
+
+    let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username') || "Demo Gebruiker";
+    let currentUserData = null;
+
+  // Modal Helpers
+    function showNotification(title, message, icon = '📋') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+        
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `<button class="btn-modal btn-modal-primary" id="modalOkBtn">Begrepen</button>`;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalOkBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+      });
+    }
+
+    function showConfirm(title, message, icon = '❓') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `
+          <button class="btn-modal btn-modal-secondary" id="modalCancelBtn">Annuleren</button>
+          <button class="btn-modal btn-modal-primary" id="modalConfirmBtn">Bevestigen</button>
+        `;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalConfirmBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+
+        document.getElementById('modalCancelBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(false);
+        };
+      });
+    }
+
+    // Ophalen opgeslagen beschikbaarheden uit Firestore
+    window.fetchSavedAvailability = async function() {
+      if (!db) return;
+      const monthStr = document.getElementById('selectTargetMonth')?.value;
+      if (!monthStr) return;
+
+      try {
+        const cleanUser = currentUser.toLowerCase().trim();
+        const q = query(
+          collection(db, "permanentie_beschikbaarheden"),
+          where("gebruiker", "==", cleanUser),
+          where("maand", "==", monthStr)
+        );
+        const snap = await getDocs(q);
+        
+        window.selectedDays.clear();
+        if (!snap.empty) {
+          snap.forEach(docSnap => {
+            const userAvailDoc = docSnap.data();
+            if (userAvailDoc.dagen) {
+              userAvailDoc.dagen.forEach(d => window.selectedDays.add(d));
+            }
+          });
+        }
+        renderDaysGridDirect();
+      } catch (e) {
+        console.error("Fout bij ophalen beschikbaarheden:", e);
+      }
+    };
+
+    // Alles aan / uit knoppen
+    document.getElementById('btnSelectAll').onclick = () => {
+      const monthStr = document.getElementById('selectTargetMonth').value;
+      const [year, month] = monthStr.split('-').map(Number);
+      const totalDays = new Date(year, month, 0).getDate();
+      for (let day = 1; day <= totalDays; day++) {
+        const dateObj = new Date(year, month - 1, day);
+        if (dateObj.getDay() !== 0 && dateObj.getDay() !== 6) {
+          const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          if (!window.holidays.includes(dateStr)) window.selectedDays.add(dateStr);
+        }
+      }
+      renderDaysGridDirect();
+    };
+
+    document.getElementById('btnClearAll').onclick = () => {
+      window.selectedDays.clear();
+      renderDaysGridDirect();
+    };
+// Opslaan beschikbaarheid in Firestore
+    document.getElementById('btnSaveAvailability').onclick = async () => {
+      if (!db) {
+        showNotification('Info', 'Gegevens opgeslagen in lokaal geheugen.', 'ℹ️');
+        return;
+      }
+      const monthStr = document.getElementById('selectTargetMonth').value;
+      const cleanUser = currentUser.toLowerCase().trim();
+      const docId = `${cleanUser.replace(/\s+/g, '_')}_${monthStr}`;
+
+      try {
+        await setDoc(doc(db, "permanentie_beschikbaarheden", docId), {
+          gebruiker: cleanUser,
+          lidId: currentUserData?.id || '',
+          maand: monthStr,
+          dagen: Array.from(window.selectedDays),
+          updatedAt: serverTimestamp()
+        });
+
+        showNotification('Opgeslagen', 'Je beschikbaarheid is succesvol opgeslagen in de Firebase database!', '✅');
+      } catch (err) {
+        console.error("Fout bij opslaan beschikbaarheid:", err);
+        showNotification('Fout', 'Er is een fout opgetreden bij het opslaan in Firebase.', '⚠️');
+      }
+    };
+
+    // Gebruikersgegevens ophalen
+    async function loadUserData() {
+      if (!db) return;
+      try {
+        const cleanUser = currentUser.toLowerCase().trim();
+        const q = query(collection(db, "leden"), where("volledigeNaam", "==", cleanUser));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          snapshot.forEach(docSnap => {
+            currentUserData = { id: docSnap.id, ...docSnap.data() };
+            if (currentUserData.rol === 'admin') {
+              document.getElementById('adminPanel').style.display = 'block';
+              loadStatsTable();
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Fout bij laden gebruiker:", err);
+      }
+    }
+
+    // Kwalificatie helpers
+    function isBevelvoerder(member) {
+      const g = (member.graad || '').toLowerCase();
+      return g.includes('sergeant') || g.includes('adjudant') || g.includes('luitenant') || g.includes('kapitein') || g.includes('majoor');
+    }
+
+    function isChauffeur(member) {
+      const specs = (member.specialisaties || []).map(s => s.toLowerCase());
+      return specs.some(s => s.includes('chauffeur'));
+    }
+
+    // SCHEMA GENERATOR (ADMIN) -> OPSLAAN IN FIRESTORE
+    document.getElementById('btnGenerateRoster')?.addEventListener('click', async () => {
+      if (!db) return;
+      const monthStr = document.getElementById('selectTargetMonth').value;
+
+      const confirmed = await showConfirm(
+        'Permanentie Genereren',
+        `Wil je het schema voor ${monthStr} genereren? Dit berekent automatisch de meest eerlijke verdeling op basis van de tellers en slaat het opslagbestand in Firebase op.`,
+        '🎲'
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const membersSnap = await getDocs(collection(db, "leden"));
+        const members = [];
+        membersSnap.forEach(d => members.push({ id: d.id, ...d.data(), count: d.data().permanentieTeller || 0 }));
+
+        const availSnap = await getDocs(query(collection(db, "permanentie_beschikbaarheden"), where("maand", "==", monthStr)));
+        const availMap = {};
+
+        availSnap.forEach(d => {
+          const data = d.data();
+          const member = members.find(m => 
+            (m.volledigeNaam || '').toLowerCase() === (data.gebruiker || '').toLowerCase() || 
+            m.id === data.lidId
+          );
+          if (member && data.dagen) {
+            data.dagen.forEach(dateStr => {
+              if (!availMap[dateStr]) availMap[dateStr] = [];
+              availMap[dateStr].push(member);
+            });
+          }
+        });
+
+        const [year, month] = monthStr.split('-').map(Number);
+        const totalDays = new Date(year, month, 0).getDate();
+        const rosterDays = {};
+
+        for (let day = 1; day <= totalDays; day++) {
+          const dateObj = new Date(year, month - 1, day);
+          const dayOfWeek = dateObj.getDay();
+          const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+          if (dayOfWeek === 0 || dayOfWeek === 6 || window.holidays.includes(dateStr)) continue;
+
+          let candidates = availMap[dateStr] || [];
+          candidates.sort((a, b) => a.count - b.count);
+
+          let bv = candidates.find(m => isBevelvoerder(m));
+          if (bv) {
+            candidates = candidates.filter(m => m.id !== bv.id);
+            bv.count++;
+          }
+
+          let ch = candidates.find(m => isChauffeur(m));
+          if (ch) {
+            candidates = candidates.filter(m => m.id !== ch.id);
+            ch.count++;
+          }
+
+          let manschappen = candidates.slice(0, 4);
+          manschappen.forEach(m => m.count++);
+
+          rosterDays[dateStr] = {
+            bevelvoerder: bv ? `${bv.voornaam} ${bv.achternaam}` : '⚠ Geen Bevelvoerder',
+            chauffeur: ch ? `${ch.voornaam} ${ch.achternaam}` : '⚠️ Geen Chauffeur',
+            manschappen: manschappen.map(m => `${m.voornaam} ${m.achternaam}`)
+          };
+        }
+
+        // Schema opslaan in Firestore
+        await setDoc(doc(db, "permanentie_roosters", monthStr), {
+          maand: monthStr,
+          schema: rosterDays,
+          updatedAt: serverTimestamp()
+        });
+
+        // Tellers bijwerken in de leden-collectie in Firestore
+        for (let m of members) {
+          await updateDoc(doc(db, "leden", m.id), {
+            permanentieTeller: m.count
+          });
+        }
+
+        showNotification('Gegenereerd!', `Het permanentie schema voor ${monthStr} is succesvol gegenereerd en opgeslagen in Firebase.`, '✅');
+        loadRoster();
+        loadStatsTable();
+
+      } catch (err) {
+        console.error("Fout bij genereren schema:", err);
+        showNotification('Fout', 'Er is een fout opgetreden bij het opslaan van de gegevens.', '⚠️');
+      }
+    });
+
+    // ROSTER WEERGEVEN UIT FIRESTORE
+    async function loadRoster() {
+      if (!db) return;
+      const monthStr = document.getElementById('selectRosterMonth').value;
+      const container = document.getElementById('rosterContainer');
+      container.innerHTML = '';
+
+      try {
+        const snap = await getDoc(doc(db, "permanentie_roosters", monthStr));
+        if (!snap.exists()) {
+          container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Nog geen definitief schema gegenereerd voor deze maand.</div>';
+          return;
+        }
+
+        const data = snap.data();
+        const schema = data.schema || {};
+        const sortedDates = Object.keys(schema).sort();
+
+        if (sortedDates.length === 0) {
+          container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Geen werkdagen gevonden in het schema.</div>';
+          return;
+        }
+
+        sortedDates.forEach(dateStr => {
+          const dayData = schema[dateStr];
+          const dObj = new Date(dateStr);
+          const formattedDate = dObj.toLocaleDateString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long' });
+
+          const div = document.createElement('div');
+          div.className = 'roster-card';
+
+          const manschappenHTML = (dayData.manschappen || []).map(m => `<span style="display:block;">• ${m}</span>`).join('') || '<span style="color:#888;">Geen manschappen</span>';
+
+          div.innerHTML = `
+            <div class="roster-date-header">
+              <div class="roster-date-title">📅 ${formattedDate}</div>
+              <span class="badge-role badge-ms">6 Pers. Permanentie</span>
+            </div>
+            <div class="staff-grid">
+              <div class="staff-role-box">
+                <div class="staff-role-title"><span class="badge-role badge-bv">Bevelvoerder</span></div>
+                <div class="staff-role-name">${dayData.bevelvoerder}</div>
+              </div>
+              <div class="staff-role-box">
+                <div class="staff-role-title"><span class="badge-role badge-ch">Chauffeur</span></div>
+                <div class="staff-role-name">${dayData.chauffeur}</div>
+              </div>
+              <div class="staff-role-box">
+                <div class="staff-role-title"><span class="badge-role badge-ms">Manschappen (4)</span></div>
+                <div class="staff-role-name">${manschappenHTML}</div>
+              </div>
+            </div>
+          `;
+
+          container.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error("Fout bij laden schema:", err);
+      }
+    }
+
+    // STATS TABEL OPHALEN UIT FIRESTORE
+    async function loadStatsTable() {
+      if (!db) return;
+      const tbody = document.getElementById('statsTableBody');
+      tbody.innerHTML = '';
+
+      try {
+        const snap = await getDocs(collection(db, "leden"));
+        const members = [];
+        snap.forEach(d => members.push({ id: d.id, ...d.data() }));
+
+        members.sort((a, b) => (a.voornaam || '').localeCompare(b.voornaam || ''));
+
+        members.forEach(m => {
+          const tr = document.createElement('tr');
+          const isBv = isBevelvoerder(m);
+          const isCh = isChauffeur(m);
+
+          let tags = [];
+          if (isBv) tags.push('<span class="badge-role badge-bv">BV</span>');
+          if (isCh) tags.push('<span class="badge-role badge-ch">CH</span>');
+          if (tags.length === 0) tags.push('<span class="badge-role badge-ms">MS</span>');
+
+          tr.innerHTML = `
+            <td data-label="Naam"><strong>${m.voornaam || ''} ${m.achternaam || ''}</strong></td>
+            <td data-label="Graad">${m.graad || '-'}</td>
+            <td data-label="Functies">${tags.join(' ')}</td>
+            <td data-label="Totaal Permanenties"><strong>${m.permanentieTeller || 0}x</strong></td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error("Fout bij laden stats:", e);
+      }
+    }
+
+    // LISTENERS VOOR MAANDVERANDERING
+    document.getElementById('selectRosterMonth')?.addEventListener('change', loadRoster);
+
+    // INITIËLE ASYNC OPROEPEN
+    window.fetchSavedAvailability();
+    loadRoster();
+    loadUserData();
+  </script>
 </body>
 </html>
