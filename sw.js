@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brandweer-app-v2.1'; // Verhoog dit versienummer bij grote updates
+const CACHE_NAME = 'brandweer-app-v2.2'; // Verhoog dit versienummer bij grote updates
 const ASSETS = [
   './',
   './index.html',
