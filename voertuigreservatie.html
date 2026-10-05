@@ -320,6 +320,11 @@
       <button class="btn-nav" onclick="safeNavigate('home.html')">← Home</button>
     </header>
 
+    <!-- KNOP VOOR PUSH-NOTIFICATIES TOESTAAN OP GSM -->
+    <button id="btnEnableNotifications" style="display:none; background:#ff9800; color:#000; border:none; padding:10px; border-radius:8px; font-weight:bold; font-size:13px; margin-bottom:15px; cursor:pointer; width:100%; box-shadow:0 4px 10px rgba(255,152,0,0.3);">
+      🔔 Tik hier om push-notificaties op je gsm in te schakelen
+    </button>
+
     <!-- FORMULIER -->
     <div class="card">
       <h2>🚗 Voertuig Aanvragen</h2>
@@ -453,7 +458,6 @@
       getDocs,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
     // Veilig navigeren helperfunctie om URL syntaxfouten te voorkomen in sandboxed iframes
     window.safeNavigate = function(targetUrl) {
@@ -478,17 +482,9 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    let messaging = null;
-    try {
-      messaging = getMessaging(app);
-    } catch (e) {
-      console.log("Firebase Messaging niet ondersteund in deze omgeving.");
-    }
     const reservationsCollection = collection(db, "reservaties");
 
-    let userFcmToken = null;
-
-    // Haal de ingelogde gebruiker op, of gebruik een veilige demogebruiker als er geen opgeslagen naam is
+    // Haal de ingelogde gebruiker op
     let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
 
     if (!currentUser) {
@@ -498,29 +494,95 @@
 
     document.getElementById('naam').value = currentUser;
     checkAdminStatus(currentUser);
-    initNotifications();
 
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('datum').min = todayStr;
 
-    async function initNotifications() {
-      if (!messaging) return;
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          userFcmToken = await getToken(messaging, { 
-            vapidKey: "BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg"
-          });
+    // --- SYSTEEM NOTIFICATIES LOGICA (WERKT OOK IN BACKGROUND / VERGRENDELSCHERM) ---
+    async function triggerSystemNotification(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            reg.showNotification(title, {
+              body: body,
+              icon: 'icon-192.png',
+              badge: 'icon-192.png',
+              vibrate: [200, 100, 200],
+              tag: 'voertuig-reservatie',
+              renotify: true
+            });
+          } else {
+            new Notification(title, { body: body, icon: 'icon-192.png' });
+          }
+        } catch (e) {
+          console.warn("Systeemnotificatie via ServiceWorker mislukt:", e);
         }
-      } catch (err) {
-        console.log("Geen notificatierechten verkregen:", err);
       }
     }
 
-    if (messaging) {
-      onMessage(messaging, (payload) => {
-        showNotification(payload.notification.title, payload.notification.body, '🔔');
+    // Verstuur notificatie naar Firestore
+    async function sendAppNotification(title, body, targetUser = null) {
+      if (!db) return;
+      try {
+        await addDoc(collection(db, "notificaties"), {
+          titel: title,
+          bericht: body,
+          van: currentUser,
+          voor: targetUser, // Specifieke gebruiker of null voor iedereen
+          type: "reservatie",
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Fout bij opslaan notificatie:", e);
+      }
+    }
+
+    // Realtime luisteraar voor binnenkomende meldingen
+    function listenNotifications() {
+      if (!db) return;
+      let initialLoad = true;
+      const q = query(collection(db, "notificaties"));
+      onSnapshot(q, (snapshot) => {
+        if (initialLoad) {
+          initialLoad = false;
+          return;
+        }
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const data = change.doc.data();
+            const isForMe = !data.voor || data.voor.toLowerCase() === currentUser.toLowerCase();
+            const isNotFromMe = data.van.toLowerCase() !== currentUser.toLowerCase();
+
+            if (isForMe && isNotFromMe) {
+              triggerSystemNotification(data.titel || "Nieuwe Melding", data.bericht || "");
+              showNotification(data.titel || "Nieuwe Melding", data.bericht || "", '🔔');
+            }
+          }
+        });
       });
+    }
+
+    // Controleer & vraag notificatierechten aan
+    async function initNotifications() {
+      const btn = document.getElementById('btnEnableNotifications');
+      if ('Notification' in window) {
+        if (Notification.permission === 'default') {
+          btn.style.display = 'block';
+          btn.onclick = async () => {
+            const perm = await Notification.requestPermission();
+            if (perm === 'granted') {
+              btn.style.display = 'none';
+              triggerSystemNotification("🔔 Notificaties Geactiveerd", "Je ontvangt nu meldingen voor voertuigreservaties op je gsm.");
+            }
+          };
+        } else if (Notification.permission === 'granted') {
+          btn.style.display = 'none';
+        } else {
+          btn.style.display = 'block';
+          btn.textContent = "⚠️️ Notificaties zijn geblokkeerd in je browserinstellingen";
+        }
+      }
     }
 
     function showNotification(title, message, icon = '🚒') {
@@ -606,9 +668,14 @@
           reden,
           status: 'pending',
           voertuig: '',
-          fcmToken: userFcmToken || '',
           created: serverTimestamp()
         });
+
+        // Verstuur notificatie naar beheerders
+        await sendAppNotification(
+          "🚗 Nieuwe Voertuigaanvraag",
+          `${currentUser} vraagt een voertuig aan op ${datum} (${startTijd} - ${eindTijd}) voor ${aantalPersonen}p.`
+        );
 
         await showNotification('Aanvraag Opslagen!', 'Je voertuigaanvraag is opgeslagen in de database. De beheerders hebben een melding ontvangen.', '✅');
         form.reset();
@@ -685,8 +752,8 @@
                   <option value="L542 Pick up">L542 Pick up</option>
                 </select>
                 <div class="action-buttons">
-                  <button class="btn-approve" data-id="${id}">✅ Accepteren</button>
-                  <button class="btn-reject" data-id="${id}">❌ Afwijzen</button>
+                  <button class="btn-approve" data-id="${id}" data-user="${item.aanvrager}" data-date="${item.datum}">✅ Accepteren</button>
+                  <button class="btn-reject" data-id="${id}" data-user="${item.aanvrager}" data-date="${item.datum}">❌ Afwijzen</button>
                 </div>
               </div>
             </td>
@@ -727,8 +794,10 @@
 
     function attachAdminEvents() {
       document.querySelectorAll('.btn-approve').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        btn.onclick = async (e) => {
           const docId = e.target.getAttribute('data-id');
+          const targetUser = e.target.getAttribute('data-user');
+          const resDate = e.target.getAttribute('data-date');
           const vehicleSelect = document.getElementById(`vehicleSelect_${docId}`);
           const selectedVehicle = vehicleSelect.value;
 
@@ -744,16 +813,25 @@
               voertuig: selectedVehicle
             });
 
+            // Verstuur persoonlijke push-notificatie naar de aanvrager
+            await sendAppNotification(
+              "✅ Voertuigaanvraag Goedgekeurd",
+              `Je aanvraag voor ${resDate} is goedgekeurd! Toegewezen voertuig: ${selectedVehicle}.`,
+              targetUser
+            );
+
             showNotification('Goedgekeurd', `De reservatie is goedgekeurd en voertuig ${selectedVehicle} is opgeslagen en toegewezen!`, '✅');
           } catch (err) {
             console.error("Fout bij goedkeuren:", err);
           }
-        });
+        };
       });
 
       document.querySelectorAll('.btn-reject').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        btn.onclick = async (e) => {
           const docId = e.target.getAttribute('data-id');
+          const targetUser = e.target.getAttribute('data-user');
+          const resDate = e.target.getAttribute('data-date');
 
           const confirmed = await showConfirm('Aanvraag Afwijzen', 'Weet je zeker dat je deze voertuigaanvraag wilt afwijzen?', '❓');
           if (confirmed) {
@@ -762,14 +840,26 @@
               await updateDoc(resRef, {
                 status: 'rejected'
               });
+
+              // Verstuur persoonlijke push-notificatie naar de aanvrager
+              await sendAppNotification(
+                "❌ Voertuigaanvraag Afgewezen",
+                `Je aanvraag voor ${resDate} is helaas afgewezen.`,
+                targetUser
+              );
+
               showNotification('Afgewezen', 'De aanvraag is afgewezen.', '❌');
             } catch (err) {
               console.error("Fout bij afwijzen:", err);
             }
           }
-        });
+        };
       });
     }
+
+    // Initialiseer notificaties en luisteraar
+    initNotifications();
+    listenNotifications();
   </script>
 </body>
 </html>
