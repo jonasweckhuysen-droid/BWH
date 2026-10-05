@@ -683,10 +683,18 @@
       paasEnd.setDate(paasStart.getDate() + 13);
       if (dateObj >= paasStart && dateObj <= paasEnd) return true;
 
-      // 5. Herfstvakantie: week van 1 november
+      // 5. Herfstvakantie: week van 1 november (of week erna als 1 nov op een zondag valt)
       const nov1 = new Date(year, 10, 1);
-      const nov1Day = nov1.getDay() === 0 ? 7 : nov1.getDay();
-      const herfstStart = new Date(year, 10, 1 - (nov1Day - 1));
+      const dayOfWeekNov1 = nov1.getDay(); // 0 = Zondag, 1 = Maandag, ...
+      let herfstStart;
+      
+      if (dayOfWeekNov1 === 0) {
+        // Indien 1 november op een zondag valt (zoals in 2026), begint de vakantie op maandag 2 november
+        herfstStart = new Date(year, 10, 2);
+      } else {
+        herfstStart = new Date(year, 10, 1 - (dayOfWeekNov1 - 1));
+      }
+      
       const herfstEnd = new Date(herfstStart);
       herfstEnd.setDate(herfstStart.getDate() + 6);
       if (dateObj >= herfstStart && dateObj <= herfstEnd) return true;
@@ -1182,7 +1190,7 @@
 
           rosterDays[dateStr] = {
             bevelvoerder: bv ? `${bv.voornaam || ''} ${bv.achternaam || ''}`.trim() : '⚠ Geen Bevelvoerder',
-            chauffeur: ch ? `${ch.voornaam || ''} ${ch.achternaam || ''}`.trim() : '⚠️️ Geen Chauffeur',
+            chauffeur: ch ? `${ch.voornaam || ''} ${ch.achternaam || ''}`.trim() : '⚠ Geen Chauffeur',
             manschappen: manschappen.map(m => `${m.voornaam || ''} ${m.achternaam || ''}`.trim())
           };
         }
