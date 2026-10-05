@@ -608,7 +608,7 @@
         }
       },
       "M541": {
-        name: "M541 - Materieelwagen klein",
+        name: "M541 - Materieelwagen Klein",
         oms: {
           "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
           "OM2": "Rijden",
@@ -792,9 +792,11 @@
 
         snap.forEach(d => {
           const data = d.data();
-          const fullName = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).toLowerCase().trim();
-          
-          if (fullName === cleanUser) {
+          const firstName = (data.voornaam || '').trim();
+          const lastName = (data.achternaam || '').trim();
+          const fullName = (data.volledigeNaam || `${firstName} ${lastName}`).trim();
+
+          if (fullName.toLowerCase() === cleanUser || `${firstName} ${lastName}`.toLowerCase() === cleanUser) {
             loggedInMemberDoc = { id: d.id, ...data };
           }
 
@@ -803,28 +805,40 @@
           const isAdmin = data.rol === 'admin';
 
           if (isChauffeur && !isAdmin) {
+            // Bepaal de achternaam voor de alfabetische sortering
+            let sortLastName = lastName;
+            if (!sortLastName && fullName) {
+              const parts = fullName.split(/\s+/);
+              sortLastName = parts.length > 1 ? parts.slice(1).join(' ') : parts[0];
+            }
+
             drivers.push({
               id: d.id,
-              name: `${data.voornaam || ''} ${data.achternaam || ''}`.trim() || data.volledigeNaam,
-              lastName: data.achternaam || data.voornaam || data.volledigeNaam
+              name: fullName || `${firstName} ${sortLastName}`.trim(),
+              firstName: firstName || fullName,
+              lastName: sortLastName || fullName
             });
           }
         });
 
         currentUserData = loggedInMemberDoc;
 
-        // Als ingelogde gebruiker admin is: toon Admin Panel
+        // Sorteer niet-admin chauffeurs strikt alfabetisch op ACHTERNAAM (met voornaam als secundaire tie-breaker)
+        drivers.sort((a, b) => {
+          const cmp = a.lastName.localeCompare(b.lastName, 'nl', { sensitivity: 'base' });
+          if (cmp !== 0) return cmp;
+          return a.firstName.localeCompare(b.firstName, 'nl', { sensitivity: 'base' });
+        });
+        allDriversList = drivers;
+
+        // Als ingelogde gebruiker admin is: toon Admin Panel met de correct gesorteerde lijst
         if (currentUserData && currentUserData.rol === 'admin') {
           document.getElementById('adminPanel').style.display = 'block';
           document.getElementById('driverGroupText').textContent = "🛡️ Beheerder (Vrijgesteld van opleidingen)";
           loadAdminDriversProgress(drivers);
         }
 
-        // Sorteer niet-admin chauffeurs alfabetisch
-        drivers.sort((a, b) => a.lastName.localeCompare(b.lastName));
-        allDriversList = drivers;
-
-        // Bepaal de helft voor Groep 1 en Groep 2
+        // Bepaal de helft voor Groep 1 en Groep 2 op basis van de op achternaam gesorteerde lijst
         const halfIndex = Math.ceil(drivers.length / 2);
         const myIndex = drivers.findIndex(m => (m.name || '').toLowerCase() === cleanUser);
 
@@ -835,7 +849,7 @@
         }
 
         if (!currentUserData || currentUserData.rol !== 'admin') {
-          const groupLabel = userGroup === 'groep1' ? 'Groep 1 (Alfabetisch Deel 1)' : 'Groep 2 (Alfabetisch Deel 2)';
+          const groupLabel = userGroup === 'groep1' ? 'Groep 1 (Alfabetisch op achternaam - Deel 1)' : 'Groep 2 (Alfabetisch op achternaam - Deel 2)';
           document.getElementById('driverGroupText').textContent = `📋 Toegewezen aan: ${groupLabel}`;
         }
 
