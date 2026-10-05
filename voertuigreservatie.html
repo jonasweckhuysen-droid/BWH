@@ -506,14 +506,14 @@
             const reg = await navigator.serviceWorker.ready;
             reg.showNotification(title, {
               body: body,
-              icon: 'icon-192.png',
-              badge: 'icon-192.png',
+              icon: 'Designer.png',
+              badge: 'Designer.png',
               vibrate: [200, 100, 200],
               tag: 'voertuig-reservatie',
               renotify: true
             });
           } else {
-            new Notification(title, { body: body, icon: 'icon-192.png' });
+            new Notification(title, { body: body, icon: 'Designer.png' });
           }
         } catch (e) {
           console.warn("Systeemnotificatie via ServiceWorker mislukt:", e);
