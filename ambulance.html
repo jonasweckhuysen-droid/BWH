@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Ambulanciers</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #d32f2f;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav:hover { background: #444; }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid #333;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      width: 100%;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #ff4d4d;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-intro {
+      font-size: 13px;
+      color: #ccc;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .links-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .nav-card-btn {
+      background: linear-gradient(135deg, #252525 0%, #1a1a1a 100%);
+      border: 2px solid #383838;
+      border-left: 6px solid #d32f2f;
+      border-radius: 10px;
+      padding: 20px;
+      text-decoration: none;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-card-btn:hover {
+      transform: translateY(-3px);
+      border-color: #ff4d4d;
+      box-shadow: 0 8px 20px rgba(211, 47, 47, 0.3);
+      background: linear-gradient(135deg, #2c2c2c 0%, #202020 100%);
+    }
+
+    .nav-card-btn.magazijn-btn {
+      border-left-color: #ff9800;
+    }
+
+    .nav-card-btn.magazijn-btn:hover {
+      border-color: #ffb74d;
+      box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+    }
+
+    .card-icon-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-icon {
+      font-size: 32px;
+      background: rgba(255, 255, 255, 0.05);
+      width: 54px;
+      height: 54px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: justify;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-title-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title-text h3 {
+      font-size: 17px;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    .card-title-text span {
+      font-size: 11px;
+      color: #ff9800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.4;
+    }
+
+    .action-badge {
+      align-self: flex-end;
+      background: #d32f2f;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .magazijn-btn .action-badge {
+      background: #e65100;
+    }
+
+    .nav-card-btn:hover .action-badge {
+      background: #ff4d4d;
+    }
+
+    .magazijn-btn:hover .action-badge {
+      background: #ff9800;
+      color: #000;
+    }
+
+    /* INFO FOOTER CARD */
+    .info-footer {
+      background: #181818;
+      border: 1px solid #2e2e2e;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🚑 Ambulanciers</h1>
+      <a href="home.html" class="btn-nav">← Home</a>
+    </header>
+
+    <div class="card">
+      <h2>📋 DGH Toepassingen Herentals</h2>
+      <p class="card-intro">
+        Selecteer een van de onderstaande modules om rechtstreeks door te gaan naar de gewenste applicatie van DGH Herentals.
+      </p>
+
+      <div class="links-grid">
+        
+        <!-- KNOP 1: PLANNING -->
+        <a href="https://dgh.brandweerzonekempen.be/" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="nav-card-btn">
+          <div class="card-icon-title">
+            <div class="card-icon">📅</div>
+            <div class="card-title-text">
+              <h3>Planning</h3>
+              <span>Brandweerzone Kempen</span>
+            </div>
+          </div>
+          <div class="card-desc">
+            Bekijk en beheer de dienstplanning en shiften van de DGH ambulancedienst.
+          </div>
+          <div class="action-badge">
+            Open Planning ➔
+          </div>
+        </a>
+
+        <!-- KNOP 2: MAGAZIJN -->
+        <a href="https://jonasweckhuysen-droid.github.io/DGHHerentals" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="nav-card-btn magazijn-btn">
+          <div class="card-icon-title">
+            <div class="card-icon">📦</div>
+            <div class="card-title-text">
+              <h3>Magazijn</h3>
+              <span>DGH Herentals</span>
+            </div>
+          </div>
+          <div class="card-desc">
+            Beheer het materiaal, de medicatievoorraad en het ziekenwagenmagazijn.
+          </div>
+          <div class="action-badge">
+            Open Magazijn ➔
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="info-footer">
+      <span>ℹ️</span>
+      <span>De applicaties openen in een nieuw venster of tabblad. Zorg voor een actieve netwerkverbinding.</span>
+    </div>
+
+  </div>
+
+  <script>
+    // Veilige navigatie helper
+    window.safeNavigate = function(targetUrl) {
+      try {
+        if (window.location && window.location.href) {
+          window.location.href = targetUrl;
+        }
+      } catch (err) {
+        console.warn("Navigatiefout:", err);
+      }
+    };
+  </script>
+</body>
+</html>
