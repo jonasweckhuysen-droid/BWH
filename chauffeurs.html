@@ -720,6 +720,39 @@
       }
     };
 
+    // VRIJSTELLINGEN PER VOERTUIG
+    const EXEMPTIONS = {
+      "L549": [
+        "Roel Dekort",
+        "Liese Meyskens",
+        "Noël Van Roy"
+      ],
+      "H541": [
+        "Simon Baeyens",
+        "Robin Buyens",
+        "Kurt Cools",
+        "Gianni Cornelis",
+        "Mike Dillen",
+        "Kris Hoeylaerts",
+        "Liese Meyskens",
+        "Lander Mondelaers",
+        "Rutger Moons",
+        "Deuis Mulop",
+        "Jens Van den Bruel",
+        "Robbe Vervecken"
+      ]
+    };
+
+    // HELPER FUNCTIE OM VRIJSTELLING TE CONTROLEREN
+    function isExemptFromVehicle(driverName, vehicleCode) {
+      if (!driverName || !EXEMPTIONS[vehicleCode]) return false;
+      const cleanName = driverName.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return EXEMPTIONS[vehicleCode].some(exemptName => {
+        const cleanExempt = exemptName.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return cleanName === cleanExempt;
+      });
+    }
+
     let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username') || "Demo Chauffeur";
     let currentUserData = null;
     let userGroup = "groep1";
@@ -879,10 +912,13 @@
       const container = document.getElementById('vehiclesContainer');
       container.innerHTML = '';
 
-      const assignedVehicles = GROUP_ASSIGNMENTS[userGroup][selectedPeriod] || [];
+      let assignedVehicles = GROUP_ASSIGNMENTS[userGroup][selectedPeriod] || [];
+
+      // Filter voertuigen waarvoor de ingelogde chauffeur is vrijgesteld
+      assignedVehicles = assignedVehicles.filter(vCode => !isExemptFromVehicle(currentUser, vCode));
 
       if (assignedVehicles.length === 0) {
-        container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Geen voertuigen toegewezen voor deze periode.</div>';
+        container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Geen voertuigen toegewezen voor deze periode (of vrijgesteld van alle voertuigen).</div>';
         return;
       }
 
@@ -1030,8 +1066,8 @@
           console.error(e);
         }
 
-        // Bereken Voorjaar %
-        const voorjaarVehicles = GROUP_ASSIGNMENTS[groupKey]["voorjaar"];
+        // Bereken Voorjaar % (exclusief vrijgestelde wagens)
+        const voorjaarVehicles = GROUP_ASSIGNMENTS[groupKey]["voorjaar"].filter(v => !isExemptFromVehicle(driver.name, v));
         let vDone = 0, vTotal = 0;
         voorjaarVehicles.forEach(v => {
           const oms = Object.keys(VEHICLE_DATA[v]?.oms || {});
@@ -1040,8 +1076,8 @@
         });
         const voorjaarPercent = vTotal > 0 ? Math.round((vDone / vTotal) * 100) : 0;
 
-        // Bereken Najaar %
-        const najaarVehicles = GROUP_ASSIGNMENTS[groupKey]["najaar"];
+        // Bereken Najaar % (exclusief vrijgestelde wagens)
+        const najaarVehicles = GROUP_ASSIGNMENTS[groupKey]["najaar"].filter(v => !isExemptFromVehicle(driver.name, v));
         let nDone = 0, nTotal = 0;
         najaarVehicles.forEach(v => {
           const oms = Object.keys(VEHICLE_DATA[v]?.oms || {});
@@ -1051,11 +1087,16 @@
         const najaarPercent = nTotal > 0 ? Math.round((nDone / nTotal) * 100) : 0;
 
         // L549 status
-        const l549Oms = Object.keys(VEHICLE_DATA["L549"].oms);
-        const l549DoneCount = l549Oms.filter(k => driverProgress[`L549_${k}`]).length;
-        let l549Badge = `<span style="color:#ff9800;">${l549DoneCount}/${l549Oms.length} OM's</span>`;
-        if (l549DoneCount === l549Oms.length) {
-          l549Badge = `<span style="color:#81c784; font-weight:bold;">✓ Voltooid</span>`;
+        let l549Badge = '';
+        if (isExemptFromVehicle(driver.name, "L549")) {
+          l549Badge = `<span style="color:#aaa; font-style:italic;">Vrijgesteld</span>`;
+        } else {
+          const l549Oms = Object.keys(VEHICLE_DATA["L549"].oms);
+          const l549DoneCount = l549Oms.filter(k => driverProgress[`L549_${k}`]).length;
+          l549Badge = `<span style="color:#ff9800;">${l549DoneCount}/${l549Oms.length} OM's</span>`;
+          if (l549DoneCount === l549Oms.length) {
+            l549Badge = `<span style="color:#81c784; font-weight:bold;">✓ Voltooid</span>`;
+          }
         }
 
         const tr = document.createElement('tr');
@@ -1096,6 +1137,13 @@
         vehicles.forEach(vCode => {
           const vInfo = VEHICLE_DATA[vCode];
           if (!vInfo) return;
+
+          if (isExemptFromVehicle(driverName, vCode)) {
+            html += `<div style="margin-top:8px; background:#282828; padding:8px; border-radius:6px;">`;
+            html += `<strong style="color:#888; font-size:12px;">🚛 ${vInfo.name}</strong> <span style="font-size:11px; color:#aaa; font-style:italic;">(Vrijgesteld)</span>`;
+            html += `</div>`;
+            return;
+          }
 
           html += `<div style="margin-top:8px; background:#282828; padding:8px; border-radius:6px;">`;
           html += `<strong style="color:#ff4d4d; font-size:12px;">🚛 ${vInfo.name}</strong>`;
