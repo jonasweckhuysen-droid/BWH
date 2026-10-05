@@ -274,64 +274,64 @@
   <main>
     <div class="section-title">Applicaties & Modules</div>
 
-    <div class="grid-container">
-      <!-- Externe Knoppen met Directe Links (In-App Browsing + Wachtwoord Onthouden) -->
-      <a href="https://abiweb.brandweerzonekempen.be/" target="_self" class="app-card">
+    <div class="grid-container" id="modulesGrid">
+      <!-- Externe Knoppen met Directe Links (Gefilterd via Rechten) -->
+      <a href="https://abiweb.brandweerzonekempen.be/" target="_self" class="app-card" data-module="abiweb">
         <div class="app-icon">💻</div>
         <div class="app-title">Abiweb</div>
       </a>
 
-      <a href="ambulance.html" class="app-card">
+      <a href="ambulance.html" class="app-card" data-module="ambulance">
         <div class="app-icon">🚑</div>
         <div class="app-title">Ambulance</div>
       </a>
 
-      <a href="chauffeurs.html" class="app-card">
+      <a href="chauffeurs.html" class="app-card" data-module="chauffeur">
         <div class="app-icon">🚛</div>
         <div class="app-title">Chauffeur</div>
       </a>
 
-      <a href="defectmelding.html" class="app-card">
+      <a href="defectmelding.html" class="app-card" data-module="defectmelding">
         <div class="app-icon">⚠️</div>
         <div class="app-title">Defectmelding</div>
       </a>
 
-      <a href="duikers.html" class="app-card">
+      <a href="duikers.html" class="app-card" data-module="duikers">
         <div class="app-icon">🤿</div>
         <div class="app-title">Duikers</div>
       </a>
 
-      <a href="https://magazijn.brandweerzonekempen.be/" target="_self" class="app-card">
+      <a href="https://magazijn.brandweerzonekempen.be/" target="_self" class="app-card" data-module="magazijn">
         <div class="app-icon">📦</div>
         <div class="app-title">Magazijn</div>
       </a>
 
-      <a href="permanentie.html" class="app-card">
+      <a href="permanentie.html" class="app-card" data-module="permanentie">
         <div class="app-icon">📋</div>
         <div class="app-title">Permanentie</div>
       </a>
 
-      <a href="https://jonasweckhuysen-droid.github.io/sportzaal/" target="_self" class="app-card">
+      <a href="https://jonasweckhuysen-droid.github.io/sportzaal/" target="_self" class="app-card" data-module="sportzaal">
         <div class="app-icon">🏋️‍♂️</div>
         <div class="app-title">Sportzaal</div>
       </a>
 
-      <a href="https://kempen.verdi.cloud/" target="_self" class="app-card">
+      <a href="https://kempen.verdi.cloud/" target="_self" class="app-card" data-module="verdi">
         <div class="app-icon">🚨</div>
         <div class="app-title">Verdi</div>
       </a>
 
-      <a href="https://vlam.brandweerzonekempen.be/" target="_self" class="app-card">
+      <a href="https://vlam.brandweerzonekempen.be/" target="_self" class="app-card" data-module="vlam">
         <div class="app-icon">🔥</div>
         <div class="app-title">Vlam</div>
       </a>
 
-      <a href="voertuigreservatie.html" class="app-card">
+      <a href="voertuigreservatie.html" class="app-card" data-module="voertuigreservatie">
         <div class="app-icon">🔑</div>
         <div class="app-title">Voertuigreservatie</div>
       </a>
 
-      <a href="wegenwerken.html" class="app-card">
+      <a href="wegenwerken.html" class="app-card" data-module="wegenwerken">
         <div class="app-icon">🚧</div>
         <div class="app-title">Wegenwerken</div>
       </a>
@@ -367,7 +367,7 @@
       fetchUserData(username);
     }
 
-    // Gebruikersgegevens ophalen uit Firestore
+    // Gebruikersgegevens & Functionaliteitenfilter ophalen uit Firestore
     async function fetchUserData(name) {
       try {
         const q = query(collection(db, "leden"), where("volledigeNaam", "==", name.toLowerCase()));
@@ -388,11 +388,88 @@
             if (data.rol === 'admin') {
               document.getElementById('adminBtn').style.display = 'inline-flex';
             }
+
+            // Filter de moduleknoppen op basis van de functies/specialisaties
+            applyModulePermissions(data);
           });
+        } else {
+          // Fallback indien gebruiker niet gevonden is in de ledenlijst
+          applyModulePermissions({});
         }
       } catch (err) {
         console.error("Fout bij ophalen gebruikersrechten:", err);
+        applyModulePermissions({});
       }
+    }
+
+    function applyModulePermissions(userData) {
+      const allCards = document.querySelectorAll('.app-card');
+
+      // 1. Admins zien ALLES
+      if (userData.rol === 'admin') {
+        allCards.forEach(card => card.style.display = 'flex');
+        return;
+      }
+
+      const specs = (userData.specialisaties || []).map(s => String(s).toLowerCase());
+
+      // 2. Controleer op Ambulancier Niet-Brandweerman
+      const isNietBrandweerman = specs.some(s => 
+        s.includes('niet-brandweerman') || 
+        s.includes('dgh_burger') || 
+        s.includes('ambulancier (niet-brandweerman)')
+      );
+
+      let allowedModules = new Set();
+
+      if (isNietBrandweerman) {
+        // Enkel specifieke rechten voor ambulanciers die geen brandweerman zijn
+        allowedModules = new Set([
+          "abiweb",
+          "ambulance",
+          "defectmelding",
+          "sportzaal",
+          "vlam",
+          "voertuigreservatie",
+          "wegenwerken"
+        ]);
+      } else {
+        // Standaard Brandweerman ("Geen functie")
+        allowedModules = new Set([
+          "abiweb",
+          "defectmelding",
+          "magazijn",
+          "permanentie",
+          "sportzaal",
+          "verdi",
+          "vlam",
+          "voertuigreservatie",
+          "wegenwerken"
+        ]);
+
+        // Uitbreiding op basis van specifieke functies
+        if (specs.some(s => s.includes('ambulancier'))) {
+          allowedModules.add("ambulance");
+        }
+
+        if (specs.some(s => s.includes('chauffeur'))) {
+          allowedModules.add("chauffeur");
+        }
+
+        if (specs.some(s => s.includes('duiker') || s.includes('assistent'))) {
+          allowedModules.add("duikers");
+        }
+      }
+
+      // Toon/verberg de kaarten in het raster
+      allCards.forEach(card => {
+        const modKey = card.getAttribute('data-module');
+        if (allowedModules.has(modKey)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
     }
 
     // Uitloggen
