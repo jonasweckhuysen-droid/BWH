@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -219,6 +218,36 @@
 
     .btn-secondary:hover { background: #444; }
 
+    .btn-swap {
+      background: #f57c00;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-swap:hover { background: #ff9800; }
+
+    .btn-edit-day {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-edit-day:hover { background: #2196f3; }
+
     /* SCHEMA WEERGAVE (ROSTER) */
     .roster-list {
       display: flex;
@@ -298,6 +327,55 @@
     .badge-bv { background: #b71c1c; color: white; }
     .badge-ch { background: #f57c00; color: white; }
     .badge-ms { background: #388e3c; color: white; }
+    .badge-open { background: #e65100; color: white; }
+
+    /* OPENSTAANDE SHIFTEN CARD */
+    .swap-card {
+      border: 2px solid #ff9800;
+      background: #211810;
+    }
+
+    .swap-card h2 { color: #ffb74d; }
+
+    .open-shift-item {
+      background: #2a2015;
+      border: 1px solid #543818;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .open-shift-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .bidders-list {
+      background: #1a140d;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bidder-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      border-bottom: 1px solid #332617;
+      padding-bottom: 4px;
+    }
+
+    .bidder-row:last-child { border-bottom: none; padding-bottom: 0; }
 
     /* ADMIN PANEL */
     .admin-card {
@@ -385,19 +463,22 @@
       border: 2px solid #d32f2f;
       border-radius: 12px;
       width: 100%;
-      max-width: 380px;
+      max-width: 440px;
       padding: 20px;
       text-align: center;
       box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .modal-icon { font-size: 36px; margin-bottom: 8px; }
     .modal-title { font-size: 16px; font-weight: bold; color: #ff4d4d; margin-bottom: 8px; }
-    .modal-text { font-size: 13px; color: #ddd; margin-bottom: 16px; line-height: 1.4; }
+    .modal-text { font-size: 13px; color: #ddd; margin-bottom: 16px; line-height: 1.4; text-align: left; }
 
     .modal-actions {
       display: flex;
       gap: 8px;
+      margin-top: 12px;
     }
 
     .btn-modal {
@@ -449,7 +530,20 @@
       <button class="btn-action-main" id="btnSaveAvailability">💾 Mijn Beschikbaarheden Opslaan</button>
     </div>
 
-    <!-- SECTIE 2: DEFINITIEF SCHEMA PERMANENTIE -->
+    <!-- SECTIE 2: OPENSTAANDE SHIFTEN & RUILVERZOEKEN -->
+    <div class="card swap-card">
+      <h2>
+        <span>🔄 Openstaande Shiften & Ruilverzoeken</span>
+      </h2>
+      <p style="font-size:12px; color:#ccc; margin-bottom:12px;">
+        Hieronder staan shiften die te ruil worden aangeboden of nog niet zijn ingevuld. Klik op "Aanmelden" om jezelf kandidaat te stellen. De admin kiest de vervanger op basis van de laagste teller.
+      </p>
+      <div id="openShiftsContainer">
+        <div style="color:#888; text-align:center; padding:15px;">Laden van openstaande shiften...</div>
+      </div>
+    </div>
+
+    <!-- SECTIE 3: DEFINITIEF SCHEMA PERMANENTIE -->
     <div class="card">
       <h2>
         <span>📅 Permanentie Schema</span>
@@ -463,7 +557,7 @@
       </div>
     </div>
 
-    <!-- SECTIE 3: ADMIN PANEL (SCHEMA GENEREREN & TELLERS) -->
+    <!-- SECTIE 4: ADMIN PANEL (SCHEMA GENEREREN & TELLERS) -->
     <div class="card admin-card" id="adminPanel">
       <h2>⚙ Admin: Permanentie Genereren & Tellers</h2>
 
@@ -504,6 +598,38 @@
       <div class="modal-text" id="modalText">Berichtinhoud...</div>
       <div class="modal-actions" id="modalActions">
         <button class="btn-modal btn-modal-primary" id="modalOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT DAY MODAL (FOR ADMINS) -->
+  <div class="custom-modal-overlay" id="editDayModal">
+    <div class="custom-modal" style="max-width:500px;">
+      <div class="modal-icon">✏️</div>
+      <div class="modal-title">Dag-permanentie Bewerken</div>
+      <div style="text-align:left; font-size:12px; color:#aaa; margin-bottom:12px;" id="editDaySubtitle">Datum</div>
+      
+      <div id="editDayForm" style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+        <div>
+          <label style="font-size:11px; color:#ffb74d;">Bevelvoerder:</label>
+          <input type="text" id="editBvInput" placeholder="Naam bevelvoerder">
+        </div>
+        <div>
+          <label style="font-size:11px; color:#ffb74d;">Chauffeur:</label>
+          <input type="text" id="editChInput" placeholder="Naam chauffeur">
+        </div>
+        <div>
+          <label style="font-size:11px; color:#ffb74d;">Manschappen (4):</label>
+          <input type="text" id="editMs1Input" placeholder="Manschap 1" style="margin-bottom:4px;">
+          <input type="text" id="editMs2Input" placeholder="Manschap 2" style="margin-bottom:4px;">
+          <input type="text" id="editMs3Input" placeholder="Manschap 3" style="margin-bottom:4px;">
+          <input type="text" id="editMs4Input" placeholder="Manschap 4">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal btn-modal-secondary" id="cancelEditDayBtn">Annuleren</button>
+        <button class="btn-modal btn-modal-primary" id="saveEditDayBtn">Opslaan</button>
       </div>
     </div>
   </div>
@@ -669,10 +795,13 @@
       setDoc,
       getDoc,
       updateDoc, 
+      deleteDoc,
       doc, 
       query, 
       where, 
       getDocs,
+      onSnapshot,
+      addDoc,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -696,8 +825,10 @@
 
     let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username') || "Demo Gebruiker";
     let currentUserData = null;
+    let currentRosterData = null;
+    let editingDate = null;
 
-  // Modal Helpers
+    // Modal Helpers
     function showNotification(title, message, icon = '📋') {
       return new Promise((resolve) => {
         const modal = document.getElementById('customModal');
@@ -793,7 +924,8 @@
       window.selectedDays.clear();
       renderDaysGridDirect();
     };
-// Opslaan beschikbaarheid in Firestore
+
+    // Opslaan beschikbaarheid in Firestore
     document.getElementById('btnSaveAvailability').onclick = async () => {
       if (!db) {
         showNotification('Info', 'Gegevens opgeslagen in lokaal geheugen.', 'ℹ️');
@@ -917,9 +1049,9 @@
           manschappen.forEach(m => m.count++);
 
           rosterDays[dateStr] = {
-            bevelvoerder: bv ? `${bv.voornaam} ${bv.achternaam}` : '⚠ Geen Bevelvoerder',
-            chauffeur: ch ? `${ch.voornaam} ${ch.achternaam}` : '⚠️ Geen Chauffeur',
-            manschappen: manschappen.map(m => `${m.voornaam} ${m.achternaam}`)
+            bevelvoerder: bv ? `${bv.voornaam || ''} ${bv.achternaam || ''}`.trim() : '⚠ Geen Bevelvoerder',
+            chauffeur: ch ? `${ch.voornaam || ''} ${ch.achternaam || ''}`.trim() : '⚠️️ Geen Chauffeur',
+            manschappen: manschappen.map(m => `${m.voornaam || ''} ${m.achternaam || ''}`.trim())
           };
         }
 
@@ -958,56 +1090,334 @@
         const snap = await getDoc(doc(db, "permanentie_roosters", monthStr));
         if (!snap.exists()) {
           container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Nog geen definitief schema gegenereerd voor deze maand.</div>';
+          currentRosterData = null;
           return;
         }
 
         const data = snap.data();
-        const schema = data.schema || {};
-        const sortedDates = Object.keys(schema).sort();
+        currentRosterData = data.schema || {};
+        const sortedDates = Object.keys(currentRosterData).sort();
 
         if (sortedDates.length === 0) {
           container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Geen werkdagen gevonden in het schema.</div>';
           return;
         }
 
+        const cleanUser = currentUser.toLowerCase().trim();
+
         sortedDates.forEach(dateStr => {
-          const dayData = schema[dateStr];
+          const dayData = currentRosterData[dateStr];
           const dObj = new Date(dateStr);
           const formattedDate = dObj.toLocaleDateString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long' });
 
           const div = document.createElement('div');
           div.className = 'roster-card';
 
+          const isAdmin = currentUserData && currentUserData.rol === 'admin';
+          const isUserInDay = (dayData.bevelvoerder || '').toLowerCase().includes(cleanUser) ||
+                             (dayData.chauffeur || '').toLowerCase().includes(cleanUser) ||
+                             (dayData.manschappen || []).some(m => (m || '').toLowerCase().includes(cleanUser));
+
+          let editBtnHTML = isAdmin ? `<button class="btn-edit-day" data-date="${dateStr}">✏️ Bewerken</button>` : '';
+          let swapBtnHTML = isUserInDay ? `<button class="btn-swap" data-date="${dateStr}">🔄 Shift te Ruil Aanbieden</button>` : '';
+
           const manschappenHTML = (dayData.manschappen || []).map(m => `<span style="display:block;">• ${m}</span>`).join('') || '<span style="color:#888;">Geen manschappen</span>';
 
           div.innerHTML = `
             <div class="roster-date-header">
               <div class="roster-date-title">📅 ${formattedDate}</div>
-              <span class="badge-role badge-ms">6 Pers. Permanentie</span>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <span class="badge-role badge-ms">6 Pers. Permanentie</span>
+                ${editBtnHTML}
+              </div>
             </div>
             <div class="staff-grid">
               <div class="staff-role-box">
                 <div class="staff-role-title"><span class="badge-role badge-bv">Bevelvoerder</span></div>
-                <div class="staff-role-name">${dayData.bevelvoerder}</div>
+                <div class="staff-role-name">${dayData.bevelvoerder || '-'}</div>
               </div>
               <div class="staff-role-box">
                 <div class="staff-role-title"><span class="badge-role badge-ch">Chauffeur</span></div>
-                <div class="staff-role-name">${dayData.chauffeur}</div>
+                <div class="staff-role-name">${dayData.chauffeur || '-'}</div>
               </div>
               <div class="staff-role-box">
                 <div class="staff-role-title"><span class="badge-role badge-ms">Manschappen (4)</span></div>
                 <div class="staff-role-name">${manschappenHTML}</div>
               </div>
             </div>
+            ${swapBtnHTML ? `<div style="text-align:right;">${swapBtnHTML}</div>` : ''}
           `;
 
           container.appendChild(div);
         });
 
+        attachRosterEvents();
+
       } catch (err) {
         console.error("Fout bij laden schema:", err);
       }
     }
+
+    function attachRosterEvents() {
+      // Event listeners voor dag bewerken (Admin)
+      document.querySelectorAll('.btn-edit-day').forEach(btn => {
+        btn.onclick = () => {
+          const dateStr = btn.getAttribute('data-date');
+          openEditDayModal(dateStr);
+        };
+      });
+
+      // Event listeners voor shift ruilen (Leden)
+      document.querySelectorAll('.btn-swap').forEach(btn => {
+        btn.onclick = async () => {
+          const dateStr = btn.getAttribute('data-date');
+          const dayData = currentRosterData[dateStr];
+          if (!dayData) return;
+
+          const cleanUser = currentUser.toLowerCase().trim();
+          let userRole = 'Manschap';
+
+          if ((dayData.bevelvoerder || '').toLowerCase().includes(cleanUser)) userRole = 'Bevelvoerder';
+          else if ((dayData.chauffeur || '').toLowerCase().includes(cleanUser)) userRole = 'Chauffeur';
+
+          const confirmed = await showConfirm(
+            'Shift Te Ruil Aanbieden',
+            `Wil je jouw shift als ${userRole} op ${dateStr} te ruil aanbieden op het bord? Je collega's kunnen zich dan inschrijven om de shift over te nemen.`,
+            '🔄'
+          );
+
+          if (confirmed) {
+            try {
+              await addDoc(collection(db, "permanentie_ruilingen"), {
+                datum: dateStr,
+                maand: document.getElementById('selectRosterMonth').value,
+                rol: userRole,
+                vanGebruiker: currentUser,
+                status: 'open',
+                biedingen: [],
+                createdAt: serverTimestamp()
+              });
+
+              showNotification('Aangeboden', 'Je shift is op het ruilbord geplaatst!', '✅');
+            } catch (err) {
+              console.error("Fout bij aanbieden ruil:", err);
+            }
+          }
+        };
+      });
+    }
+
+    // BEWERKEN VAN EEN DAG SCHEMAMANUEEL (ADMIN)
+    function openEditDayModal(dateStr) {
+      if (!currentRosterData || !currentRosterData[dateStr]) return;
+      editingDate = dateStr;
+
+      const dayData = currentRosterData[dateStr];
+      document.getElementById('editDaySubtitle').textContent = `Bewerken voor ${dateStr}`;
+
+      document.getElementById('editBvInput').value = dayData.bevelvoerder || '';
+      document.getElementById('editChInput').value = dayData.chauffeur || '';
+
+      const ms = dayData.manschappen || [];
+      document.getElementById('editMs1Input').value = ms[0] || '';
+      document.getElementById('editMs2Input').value = ms[1] || '';
+      document.getElementById('editMs3Input').value = ms[2] || '';
+      document.getElementById('editMs4Input').value = ms[3] || '';
+
+      document.getElementById('editDayModal').style.display = 'flex';
+    }
+
+    document.getElementById('cancelEditDayBtn').onclick = () => {
+      document.getElementById('editDayModal').style.display = 'none';
+      editingDate = null;
+    };
+
+    document.getElementById('saveEditDayBtn').onclick = async () => {
+      if (!editingDate || !db) return;
+
+      const monthStr = document.getElementById('selectRosterMonth').value;
+
+      const updatedDayData = {
+        bevelvoerder: document.getElementById('editBvInput').value.trim() || '⚠ Geen Bevelvoerder',
+        chauffeur: document.getElementById('editChInput').value.trim() || '⚠️ Geen Chauffeur',
+        manschappen: [
+          document.getElementById('editMs1Input').value.trim(),
+          document.getElementById('editMs2Input').value.trim(),
+          document.getElementById('editMs3Input').value.trim(),
+          document.getElementById('editMs4Input').value.trim()
+        ].filter(n => n.length > 0)
+      };
+
+      try {
+        currentRosterData[editingDate] = updatedDayData;
+
+        await updateDoc(doc(db, "permanentie_roosters", monthStr), {
+          schema: currentRosterData,
+          updatedAt: serverTimestamp()
+        });
+
+        document.getElementById('editDayModal').style.display = 'none';
+        showNotification('Aangepast', `Het schema voor ${editingDate} is handmatig bijgewerkt.`, '✅');
+        loadRoster();
+      } catch (err) {
+        console.error("Fout bij opslaan aangepast schema:", err);
+        showNotification('Fout', 'Er is een fout opgetreden bij het opslaan.', '⚠️');
+      }
+    };
+
+    // OPENSTAANDE SHIFTEN & RUILVERZOEKEN LUISTERAR
+    function listenOpenShifts() {
+      if (!db) return;
+      const container = document.getElementById('openShiftsContainer');
+
+      const q = query(collection(db, "permanentie_ruilingen"), where("status", "==", "open"));
+
+      onSnapshot(q, async (snap) => {
+        container.innerHTML = '';
+
+        if (snap.empty) {
+          container.innerHTML = '<div style="color:#888; text-align:center; padding:15px;">Er zijn momenteel geen openstaande ruilverzoeken.</div>';
+          return;
+        }
+
+        const isAdmin = currentUserData && currentUserData.rol === 'admin';
+
+        snap.forEach(docSnap => {
+          const item = docSnap.data();
+          const swapId = docSnap.id;
+
+          const div = document.createElement('div');
+          div.className = 'open-shift-item';
+
+          const biedingen = item.biedingen || [];
+          const heeftAlGebooden = biedingen.some(b => (b.gebruiker || '').toLowerCase() === currentUser.toLowerCase());
+
+          let biddersHTML = '';
+          if (biedingen.length > 0) {
+            biddersHTML = `
+              <div class="bidders-list">
+                <span style="font-size:11px; color:#ffb74d; font-weight:bold;">Kandidaten die willen overnemen (${biedingen.length}):</span>
+                ${biedingen.map(b => `
+                  <div class="bidder-row">
+                    <span>👤 ${b.gebruiker} (${b.teller || 0} permanenties)</span>
+                    ${isAdmin ? `<button class="btn-secondary" style="padding:2px 6px; font-size:10px; background:#2e7d32; border:none;" onclick="window.assignSwap('${swapId}', '${item.datum}', '${item.rol}', '${item.vanGebruiker}', '${b.gebruiker}')">✅ Toewijzen</button>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else {
+            biddersHTML = '<div style="font-size:11px; color:#888; margin-top:4px;">Nog geen kandidaten ingeschreven.</div>';
+          }
+
+          let actionBtnHTML = '';
+          if (item.vanGebruiker.toLowerCase() !== currentUser.toLowerCase()) {
+            if (heeftAlGebooden) {
+              actionBtnHTML = '<span style="font-size:11px; color:#81c784; font-weight:bold;">✅ Je staat kandidaat voor deze shift</span>';
+            } else {
+              actionBtnHTML = `<button class="btn-action-main" style="padding:6px 12px; font-size:12px; min-height:36px; background:#ff9800; color:#000;" onclick="window.bidOnSwap('${swapId}')">🙋‍♂️ Aanmelden voor deze shift</button>`;
+            }
+          } else {
+            actionBtnHTML = '<span style="font-size:11px; color:#aaa; italic;">(Dit is jouw eigen ruilverzoek)</span>';
+          }
+
+          div.innerHTML = `
+            <div class="open-shift-header">
+              <div>
+                <strong style="color:#ff4d4d;">📅 ${item.datum}</strong> - 
+                <span class="badge-role badge-open">${item.rol}</span>
+                <span style="font-size:12px; color:#ccc; display:block; margin-top:2px;">Aangeboden door: <strong>${item.vanGebruiker}</strong></span>
+              </div>
+              <div>${actionBtnHTML}</div>
+            </div>
+            ${biddersHTML}
+          `;
+
+          container.appendChild(div);
+        });
+      });
+    }
+
+    // Bieden op een ruilshift
+    window.bidOnSwap = async function(swapId) {
+      if (!db) return;
+      try {
+        const swapRef = doc(db, "permanentie_ruilingen", swapId);
+        const swapSnap = await getDoc(swapRef);
+        if (!swapSnap.exists()) return;
+
+        const data = swapSnap.data();
+        const biedingen = data.biedingen || [];
+
+        const teller = currentUserData?.permanentieTeller || 0;
+
+        biedingen.push({
+          gebruiker: currentUser,
+          teller: teller,
+          timestamp: new Date().toISOString()
+        });
+
+        // Sorteer kandidaten op minste aantal permanenties
+        biedingen.sort((a, b) => a.teller - b.teller);
+
+        await updateDoc(swapRef, { biedingen });
+        showNotification('Kandidaat Gesteld!', 'Je hebt je aangemeld voor deze shift. De admin kiest de vervanger op basis van de tellers.', '✅');
+
+      } catch (e) {
+        console.error("Fout bij bieden:", e);
+      }
+    };
+
+    // Toewijzen van een ruilshift door Admin
+    window.assignSwap = async function(swapId, datum, rol, vanGebruiker, naarGebruiker) {
+      if (!db) return;
+
+      const confirmed = await showConfirm(
+        'Shift Toewijzen',
+        `Wil je de shift op ${datum} (${rol}) definitief overdragen van ${vanGebruiker} naar ${naarGebruiker}? Het schema wordt automatisch bijgewerkt.`,
+        '🔄'
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // 1. Update de ruilstatus
+        await updateDoc(doc(db, "permanentie_ruilingen", swapId), {
+          status: 'ingevuld',
+          toegewezenAan: naarGebruiker
+        });
+
+        // 2. Update het roosterschema in Firestore
+        const monthStr = datum.substring(0, 7);
+        const rosterRef = doc(db, "permanentie_roosters", monthStr);
+        const rosterSnap = await getDoc(rosterRef);
+
+        if (rosterSnap.exists()) {
+          const schema = rosterSnap.data().schema || {};
+          if (schema[datum]) {
+            const cleanVan = vanGebruiker.toLowerCase();
+
+            if (rol === 'Bevelvoerder') {
+              schema[datum].bevelvoerder = naarGebruiker;
+            } else if (rol === 'Chauffeur') {
+              schema[datum].chauffeur = naarGebruiker;
+            } else {
+              // Manschappen vervangen
+              schema[datum].manschappen = schema[datum].manschappen.map(m => 
+                m.toLowerCase().includes(cleanVan) ? naarGebruiker : m
+              );
+            }
+
+            await updateDoc(rosterRef, { schema });
+          }
+        }
+
+        showNotification('Toegewezen!', `De shift is overgedragen aan ${naarGebruiker} en het schema is bijgewerkt.`, '✅');
+        loadRoster();
+
+      } catch (e) {
+        console.error("Fout bij toewijzen ruilshift:", e);
+      }
+    };
 
     // STATS TABEL OPHALEN UIT FIRESTORE
     async function loadStatsTable() {
@@ -1053,6 +1463,7 @@
     window.fetchSavedAvailability();
     loadRoster();
     loadUserData();
+    listenOpenShifts();
   </script>
 </body>
 </html>
