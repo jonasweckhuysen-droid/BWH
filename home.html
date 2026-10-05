@@ -160,12 +160,13 @@
       gap: 20px;
     }
 
+    /* BELANGRIJK: Standaard verborgen via CSS om knipperen of ongeoorloofde weergave te voorkomen! */
     .app-card {
       background: #1e1e1e;
       border: 1px solid #2d2d2d;
       border-radius: 12px;
       padding: 22px 15px;
-      display: flex;
+      display: none; /* Wordt door JS op 'flex' gezet indien geautoriseerd */
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -341,7 +342,7 @@
   <!-- FIREBASE & SCRIPT LOGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Config
     const firebaseConfig = {
@@ -369,31 +370,38 @@
 
     // Gebruikersgegevens & Functionaliteitenfilter ophalen uit Firestore
     async function fetchUserData(name) {
+      const cleanTargetName = name.trim().toLowerCase();
+      
       try {
-        const q = query(collection(db, "leden"), where("volledigeNaam", "==", name.toLowerCase()));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(collection(db, "leden"));
+        let matchedUserData = null;
 
-        if (!querySnapshot.empty) {
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            
-            // Toon Rechten / Badges in header
-            const badgeContainer = document.getElementById('userInfoBadge');
-            badgeContainer.innerHTML = `
-              ${data.graad ? `<span>${data.graad}</span>` : ''}
-              ${data.ploeg ? `<span>Ploeg: ${data.ploeg}</span>` : ''}
-            `;
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const full = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim().toLowerCase();
+          
+          if (full === cleanTargetName) {
+            matchedUserData = data;
+          }
+        });
 
-            // Als admin, toon de beheerknop
-            if (data.rol === 'admin') {
-              document.getElementById('adminBtn').style.display = 'inline-flex';
-            }
+        if (matchedUserData) {
+          // Toon Rechten / Badges in header
+          const badgeContainer = document.getElementById('userInfoBadge');
+          badgeContainer.innerHTML = `
+            ${matchedUserData.graad ? `<span>${matchedUserData.graad}</span>` : ''}
+            ${matchedUserData.ploeg ? `<span>Ploeg: ${matchedUserData.ploeg}</span>` : ''}
+          `;
 
-            // Filter de moduleknoppen op basis van de functies/specialisaties
-            applyModulePermissions(data);
-          });
+          // Als admin, toon de beheerknop
+          if (matchedUserData.rol === 'admin') {
+            document.getElementById('adminBtn').style.display = 'inline-flex';
+          }
+
+          // Filter de moduleknoppen op basis van de functies/specialisaties
+          applyModulePermissions(matchedUserData);
         } else {
-          // Fallback indien gebruiker niet gevonden is in de ledenlijst
+          // Fallback indien gebruiker niet gevonden is in de ledenlijst (standaard brandweerman)
           applyModulePermissions({});
         }
       } catch (err) {
@@ -411,14 +419,16 @@
         return;
       }
 
-      const specs = (userData.specialisaties || []).map(s => String(s).toLowerCase());
+      const specs = (userData.specialisaties || []).map(s => String(s).toLowerCase().trim());
+      const rol = String(userData.rol || '').toLowerCase().trim();
+      const graad = String(userData.graad || '').toLowerCase().trim();
 
       // 2. Controleer op Ambulancier Niet-Brandweerman
       const isNietBrandweerman = specs.some(s => 
         s.includes('niet-brandweerman') || 
         s.includes('dgh_burger') || 
         s.includes('ambulancier (niet-brandweerman)')
-      );
+      ) || rol.includes('niet-brandweerman') || graad.includes('niet-brandweerman');
 
       let allowedModules = new Set();
 
@@ -447,7 +457,7 @@
           "wegenwerken"
         ]);
 
-        // Uitbreiding op basis van specifieke functies
+        // Uitbreiding op basis van specifieke functies/specialisaties
         if (specs.some(s => s.includes('ambulancier'))) {
           allowedModules.add("ambulance");
         }
@@ -461,7 +471,7 @@
         }
       }
 
-      // Toon/verberg de kaarten in het raster
+      // Toon enkel geautoriseerde kaarten
       allCards.forEach(card => {
         const modKey = card.getAttribute('data-module');
         if (allowedModules.has(modKey)) {
