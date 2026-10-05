@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Chauffeurs Opleidingen</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #d32f2f;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.3s;
+    }
+
+    .btn-nav:hover { background: #444; }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 16px;
+      border: 1px solid #333;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      width: 100%;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      color: #ff4d4d;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* USER PROFILE BANNER */
+    .user-info-banner {
+      background: linear-gradient(135deg, #2b1111 0%, #1f1f1f 100%);
+      border: 2px solid #d32f2f;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .user-details h3 {
+      font-size: 16px;
+      color: #ff4d4d;
+      margin-bottom: 4px;
+    }
+
+    .user-details p {
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .period-badge {
+      background: #332200;
+      border: 1px solid #ff9800;
+      color: #ffb74d;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* PERIOD SWITCHER */
+    .period-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .btn-period {
+      flex: 1;
+      padding: 10px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      color: #aaa;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .btn-period.active {
+      background: #d32f2f;
+      color: white;
+      border-color: #ff4d4d;
+    }
+
+    /* VEHICLES GRID */
+    .vehicles-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .vehicle-card {
+      background: #252525;
+      border: 1px solid #383838;
+      border-left: 5px solid #d32f2f;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .vehicle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .vehicle-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ff4d4d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background: #1a1a1a;
+      border-radius: 10px;
+      height: 12px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f57c00, #4caf50);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* EXERCISE MOMENTS (OM) GRID */
+    .om-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .om-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .om-item {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .om-item.completed {
+      border-color: #388e3c;
+      background: #142416;
+    }
+
+    .om-info-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .om-checkbox {
+      width: 22px;
+      height: 22px;
+      accent-color: #4caf50;
+      cursor: pointer;
+    }
+
+    .om-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .om-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .om-date {
+      font-size: 11px;
+      color: #81c784;
+    }
+
+    .btn-om-info {
+      background: #333;
+      border: 1px solid #555;
+      color: #ffb74d;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .btn-om-info:hover {
+      background: #444;
+      border-color: #ff9800;
+    }
+
+    /* REFRESHER / HERSCHOLING BANNER FOR L549 */
+    .refresher-alert {
+      background: #2b1b0a;
+      border: 1px solid #ff9800;
+      color: #ffb74d;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .refresher-alert.due {
+      background: #2b1111;
+      border-color: #f44336;
+      color: #e57373;
+    }
+
+    /* ADMIN PANEL */
+    .admin-card {
+      border: 2px solid #ff9800;
+      background: linear-gradient(135deg, #241c12 0%, #1e1e1e 100%);
+      display: none;
+    }
+
+    .admin-card h2 { color: #ffb74d; }
+
+    .drivers-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+    }
+
+    th {
+      background: #252525;
+      color: #ff4d4d;
+    }
+
+    /* MOBILE CARDS FOR ADMIN TABLE */
+    @media (max-width: 650px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead { display: none; }
+
+      tr {
+        background: #262626;
+        border: 1px solid #383838;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid #333;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      td:last-child { border-bottom: none; }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #ff4d4d;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+    }
+
+    .btn-detail {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-detail:hover { background: #2196f3; }
+
+    /* CUSTOM POP-UP MODALS */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .custom-modal {
+      background: #1e1e1e;
+      border: 2px solid #d32f2f;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ff4d4d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-close-btn:hover { color: #fff; }
+
+    .modal-body {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-modal {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-modal-primary { background: #d32f2f; color: white; }
+    .btn-modal-primary:hover { background: #ff4d4d; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🚒 Chauffeurs Opleidingen</h1>
+      <a href="home.html" class="btn-nav">← Home</a>
+    </header>
+
+    <!-- INLOG EN GROEPSINFO BANNER -->
+    <div class="user-info-banner">
+      <div class="user-details">
+        <h3 id="driverName">👤 Laden van profiel...</h3>
+        <p id="driverGroupText">Groepstoewijzing berekenen...</p>
+      </div>
+      <div class="period-badge" id="currentPeriodBadge">
+        📅 Periode: Voorjaar (Jan - Jun)
+      </div>
+    </div>
+
+    <!-- SECTIE 1: MIJN OEFENMOMENTEN (CHAUFFEURS) -->
+    <div class="card" id="driverSection">
+      <h2>
+        <span>🚛 Mijn Voertuigen & Oefenmomenten</span>
+      </h2>
+
+      <!-- SCHAKELEN TUSSEN VOORJAAR EN NAJAAR -->
+      <div class="period-selector">
+        <button class="btn-period active" id="btnVoorjaar" onclick="switchPeriod('voorjaar')">🌸 Voorjaar (Jan - Jun)</button>
+        <button class="btn-period" id="btnNajaar" onclick="switchPeriod('najaar')">🍂 Najaar (Jul - Dec)</button>
+      </div>
+
+      <div class="vehicles-list" id="vehiclesContainer">
+        <div style="color:#888; text-align:center; padding:20px;">Oefenmomenten worden geladen...</div>
+      </div>
+    </div>
+
+    <!-- SECTIE 2: ADMIN OVERZICHT (VOOR BEHEERDERS) -->
+    <div class="card admin-card" id="adminPanel">
+      <h2>⚙ Beheer: Voortgang Alle Chauffeurs</h2>
+      <p style="font-size:12px; color:#ccc; margin-bottom:12px;">
+        ℹ️ Admins die chauffeur zijn, zijn vrijgesteld van de verplichte jaarlijkse opleidingen. Hieronder vind je het overzicht van alle actieve niet-admin chauffeurs.
+      </p>
+
+      <div class="drivers-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Chauffeur</th>
+              <th>Groep</th>
+              <th>Voorjaar Voortgang</th>
+              <th>Najaar Voortgang</th>
+              <th>L549 Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="adminDriversTableBody">
+            <tr><td colspan="6" style="text-align:center; color:#888;">Laden van chauffeurs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- POP-UP MODAL VOOR OEFENMOMENT DETAILS -->
+  <div class="custom-modal-overlay" id="omDetailModal">
+    <div class="custom-modal">
+      <div class="modal-header">
+        <div class="modal-title" id="omModalTitle">🔍 OM Details</div>
+        <button class="modal-close-btn" onclick="closeOmModal()">✕</button>
+      </div>
+      <div class="modal-body" id="omModalBody">
+        Laden...
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal btn-modal-primary" onclick="closeOmModal()">Begrepen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL VOOR ADMIN CHAUFFEUR DETAILS -->
+  <div class="custom-modal-overlay" id="adminDriverModal">
+    <div class="custom-modal" style="max-width:600px;">
+      <div class="modal-header">
+        <div class="modal-title" id="adminDriverModalTitle">👤 Details Chauffeur</div>
+        <button class="modal-close-btn" onclick="closeAdminDriverModal()">✕</button>
+      </div>
+      <div class="modal-body" id="adminDriverModalBody">
+        Laden...
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal btn-modal-primary" onclick="closeAdminDriverModal()">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      setDoc, 
+      getDoc, 
+      doc, 
+      getDocs, 
+      query, 
+      where, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (e) {
+      console.warn("Firebase niet geïnitieerd:", e);
+    }
+
+    // DEFINITIE VAN ALLE OEFENMOMENTEN PER WAGEN
+    const VEHICLE_DATA = {
+      "L544": {
+        name: "L544 - Signalisatiewagen",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking",
+          "OM4": "Juiste plaatsing en gebruik van het voertuig / Juist gebruik van het signalisatiebord / Juist gebruik van kegels, lampen, ed"
+        }
+      },
+      "M541": {
+        name: "M541 - Materieelwagen klein",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking"
+        }
+      },
+      "L549": {
+        name: "L549 - Scania Haakarmvoertuig (Verplicht voor iedereen in voorjaar)",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking",
+          "OM4": "Werking met containersysteem",
+          "OM5": "Werken met de kraan / Werken met takel"
+        }
+      },
+      "H541": {
+        name: "H541 - Ladderwagen",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking",
+          "OM4": "Juist afstempelen / Werken met ladderpakket met knikarm incl. al zijn mogelijkheden",
+          "OM5": "Procedure evacuatie",
+          "OM6": "Blussen vanuit de korf met monitor en met slang met lans"
+        }
+      },
+      "D541": {
+        name: "D541 - Duikerswagen",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden en koppelen van aanhangwagen",
+          "OM3": "Kennis bepakking"
+        }
+      },
+      "M545": {
+        name: "M545 - Materiaalwagen Grote Ontzetting",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking / Gebruik laadklep + rolkarren / Gebruik laadplatform voor ladder",
+          "OM4": "Werken met winch + stroomgroep"
+        }
+      },
+      "T545": {
+        name: "T545 - Tankwagen",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking / Gebruik stroomgroep + lichtmast",
+          "OM4": "Werken met de pomp / Water geven via de verschillende armaturen / Werken met de sproeibalk + schuim",
+          "OM5": "Gebruik van de verschillende wateraanvoeren",
+          "OM6": "Aanzuigen op open water"
+        }
+      },
+      "A545": {
+        name: "A545 - IAP",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking / Bediening laadplatform op het dak",
+          "OM4": "Werken met de pomp / Water geven via de verschillende armaturen / Gebruik van schuim",
+          "OM5": "Gebruik van de verschillende wateraanvoeren",
+          "OM6": "Aanzuigen op open water"
+        }
+      },
+      "A541": {
+        name: "A541 - MFAP",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking / Bediening laadplatform op het dak",
+          "OM4": "Werken met de pomp / Water geven via de verschillende armaturen",
+          "OM5": "Werken met de lichtmast en stroomgroep / Werken met winch",
+          "OM6": "Gebruik van de verschillende wateraanvoeren / Aanzuigen op open water"
+        }
+      },
+      "B541": {
+        name: "B541 - Bosbrandwagen",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking",
+          "OM4": "Werken met de pomp / Water geven via de verschillende armaturen / Gebruik van schuim",
+          "OM5": "Werken met de winch",
+          "OM6": "Juist gebruik van de materialen en toepassen van de procedures bij grootschalige inzet natuurbrand bestrijding"
+        }
+      },
+      "L545": {
+        name: "L545 - Actros",
+        oms: {
+          "OM1": "Kennis van schakelaars + instrumenten voertuig en opbouw",
+          "OM2": "Rijden",
+          "OM3": "Kennis bepakking voertuig + watercontainer / Werken met het containersysteem / Werken met de sproeibalk",
+          "OM4": "Werking van de stroomgroepcontainer"
+        }
+      }
+    };
+
+    // INDELING VAN DE WAGENS PER GROEP & PERIODE
+    const GROUP_ASSIGNMENTS = {
+      "groep1": {
+        "voorjaar": ["B541", "L544", "M541", "L549", "A545", "D541", "M545"],
+        "najaar": ["L545", "T545", "H541", "A541", "L549"]
+      },
+      "groep2": {
+        "voorjaar": ["L545", "T545", "H541", "A541", "L549"],
+        "najaar": ["B541", "L544", "M541", "L549", "A545", "D541", "M545"]
+      }
+    };
+
+    let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username') || "Demo Chauffeur";
+    let currentUserData = null;
+    let userGroup = "groep1";
+    let selectedPeriod = "voorjaar";
+    let userProgressData = {};
+    let allDriversList = [];
+
+    // BEPALEN VAN HUIDIGE PERIODE (Voorjaar: Jan-Jun, Najaar: Jul-Dec)
+    const currentMonth = new Date().getMonth(); // 0-indexed (0=Jan, 6=Jul)
+    const isNajaarNow = currentMonth >= 6;
+    selectedPeriod = isNajaarNow ? "najaar" : "voorjaar";
+
+    window.switchPeriod = function(period) {
+      selectedPeriod = period;
+      document.getElementById('btnVoorjaar').classList.toggle('active', period === 'voorjaar');
+      document.getElementById('btnNajaar').classList.toggle('active', period === 'najaar');
+      renderDriverVehicles();
+    };
+
+    window.openOmModal = function(vehicleCode, omKey) {
+      const modal = document.getElementById('omDetailModal');
+      const vInfo = VEHICLE_DATA[vehicleCode];
+      if (!vInfo || !vInfo.oms[omKey]) return;
+
+      document.getElementById('omModalTitle').textContent = `🔍 ${vehicleCode} - ${omKey}`;
+      document.getElementById('omModalBody').innerHTML = `
+        <p style="font-size:14px; font-weight:bold; color:#ffb74d; margin-bottom:8px;">${vInfo.name}</p>
+        <div style="background:#2b2b2b; padding:12px; border-radius:6px; border-left:4px solid #ff4d4d; font-size:13px;">
+          ${vInfo.oms[omKey]}
+        </div>
+      `;
+      modal.style.display = 'flex';
+    };
+
+    window.closeOmModal = function() {
+      document.getElementById('omDetailModal').style.display = 'none';
+    };
+
+    window.closeAdminDriverModal = function() {
+      document.getElementById('adminDriverModal').style.display = 'none';
+    };
+
+    // DATA INITIALISEREN
+    async function initApp() {
+      document.getElementById('driverName').textContent = `👤 ${currentUser}`;
+      
+      const periodText = isNajaarNow ? "🍂 Periode: Najaar (Jul - Dec)" : "🌸 Periode: Voorjaar (Jan - Jun)";
+      document.getElementById('currentPeriodBadge').textContent = periodText;
+
+      // Knop actief zetten volgens huidige datum
+      document.getElementById('btnVoorjaar').classList.toggle('active', !isNajaarNow);
+      document.getElementById('btnNajaar').classList.toggle('active', isNajaarNow);
+
+      if (db) {
+        await loadUserDataAndGroup();
+        await loadUserProgress();
+      } else {
+        renderDriverVehicles();
+      }
+    }
+
+    // GEBRUIKER & ALFABETISCHE GROEPSINDELING BEREKENEN
+    async function loadUserDataAndGroup() {
+      try {
+        const cleanUser = currentUser.toLowerCase().trim();
+        const snap = await getDocs(collection(db, "leden"));
+        
+        const drivers = [];
+        let loggedInMemberDoc = null;
+
+        snap.forEach(d => {
+          const data = d.data();
+          const fullName = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).toLowerCase().trim();
+          
+          if (fullName === cleanUser) {
+            loggedInMemberDoc = { id: d.id, ...data };
+          }
+
+          // Filtreer: Enkel Chauffeurs die GEEN ADMIN zijn!
+          const isChauffeur = (data.specialisaties || []).some(s => s.toLowerCase().includes('chauffeur'));
+          const isAdmin = data.rol === 'admin';
+
+          if (isChauffeur && !isAdmin) {
+            drivers.push({
+              id: d.id,
+              name: `${data.voornaam || ''} ${data.achternaam || ''}`.trim() || data.volledigeNaam,
+              lastName: data.achternaam || data.voornaam || data.volledigeNaam
+            });
+          }
+        });
+
+        currentUserData = loggedInMemberDoc;
+
+        // Als ingelogde gebruiker admin is: toon Admin Panel
+        if (currentUserData && currentUserData.rol === 'admin') {
+          document.getElementById('adminPanel').style.display = 'block';
+          document.getElementById('driverGroupText').textContent = "🛡️ Beheerder (Vrijgesteld van opleidingen)";
+          loadAdminDriversProgress(drivers);
+        }
+
+        // Sorteer niet-admin chauffeurs alfabetisch
+        drivers.sort((a, b) => a.lastName.localeCompare(b.lastName));
+        allDriversList = drivers;
+
+        // Bepaal de helft voor Groep 1 en Groep 2
+        const halfIndex = Math.ceil(drivers.length / 2);
+        const myIndex = drivers.findIndex(m => (m.name || '').toLowerCase() === cleanUser);
+
+        if (myIndex !== -1 && myIndex < halfIndex) {
+          userGroup = "groep1";
+        } else {
+          userGroup = "groep2";
+        }
+
+        if (!currentUserData || currentUserData.rol !== 'admin') {
+          const groupLabel = userGroup === 'groep1' ? 'Groep 1 (Alfabetisch Deel 1)' : 'Groep 2 (Alfabetisch Deel 2)';
+          document.getElementById('driverGroupText').textContent = `📋 Toegewezen aan: ${groupLabel}`;
+        }
+
+      } catch (err) {
+        console.error("Fout bij berekenen groepsindeling:", err);
+      }
+    }
+
+    // VOORTGANG VAN INGELOGDE CHAUFFEUR OPHALEN
+    async function loadUserProgress() {
+      try {
+        const cleanUser = currentUser.toLowerCase().trim().replace(/\s+/g, '_');
+        const docSnap = await getDoc(doc(db, "chauffeur_voortgang", cleanUser));
+        
+        if (docSnap.exists()) {
+          userProgressData = docSnap.data().voortgang || {};
+        }
+        renderDriverVehicles();
+      } catch (err) {
+        console.error("Fout bij laden voortgang:", err);
+        renderDriverVehicles();
+      }
+    }
+
+    // OEFENMOMENTEN PER VOERTUIG RENDERING
+    function renderDriverVehicles() {
+      const container = document.getElementById('vehiclesContainer');
+      container.innerHTML = '';
+
+      const assignedVehicles = GROUP_ASSIGNMENTS[userGroup][selectedPeriod] || [];
+
+      if (assignedVehicles.length === 0) {
+        container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Geen voertuigen toegewezen voor deze periode.</div>';
+        return;
+      }
+
+      assignedVehicles.forEach(vCode => {
+        const vInfo = VEHICLE_DATA[vCode];
+        if (!vInfo) return;
+
+        const vCard = document.createElement('div');
+        vCard.className = 'vehicle-card';
+
+        const omKeys = Object.keys(vInfo.oms);
+        let completedCount = 0;
+
+        const omGrid = document.createElement('div');
+        omGrid.className = 'om-grid';
+
+        omKeys.forEach(omKey => {
+          const progressKey = `${vCode}_${omKey}`;
+          const isDone = !!userProgressData[progressKey];
+          const doneDate = userProgressData[progressKey]?.date || '';
+
+          if (isDone) completedCount++;
+
+          const omItem = document.createElement('div');
+          omItem.className = `om-item ${isDone ? 'completed' : ''}`;
+
+          omItem.innerHTML = `
+            <div class="om-info-left">
+              <input type="checkbox" class="om-checkbox" ${isDone ? 'checked' : ''} onchange="toggleOM('${vCode}', '${omKey}', this.checked)">
+              <div class="om-text">
+                <span class="om-name">${omKey}</span>
+                ${isDone ? `<span class="om-date">✓ ${doneDate}</span>` : '<span style="font-size:10px; color:#666;">Nog niet uitgevoerd</span>'}
+              </div>
+            </div>
+            <button class="btn-om-info" onclick="openOmModal('${vCode}', '${omKey}')" title="Bekijk details">ℹ️</button>
+          `;
+
+          omGrid.appendChild(omItem);
+        });
+
+        const progressPercent = Math.round((completedCount / omKeys.length) * 100);
+
+        // HERSCHOLING MELDING VOOR L549 (6 MAANDEN VERSTREKEN)
+        let refresherHTML = '';
+        if (vCode === 'L549') {
+          const allL549Done = omKeys.every(k => userProgressData[`L549_${k}`]);
+          if (allL549Done) {
+            // Haal nieuwste datum op
+            const dates = omKeys.map(k => userProgressData[`L549_${k}`]?.rawDate).filter(Boolean);
+            if (dates.length > 0) {
+              const latestDate = new Date(Math.max(...dates.map(d => new Date(d))));
+              const sixMonthsAgo = new Date();
+              sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+              if (latestDate < sixMonthsAgo) {
+                refresherHTML = `
+                  <div class="refresher-alert due">
+                    <span>⚠️ <strong>Herscholing Vereist:</strong> Laatste opleiding voor L549 was op ${latestDate.toLocaleDateString('nl-BE')}. De termijn van 6 maanden is verstreken.</span>
+                  </div>
+                `;
+              } else {
+                refresherHTML = `
+                  <div class="refresher-alert">
+                    <span>✅ <strong>L549 In Orde:</strong> Volgende herscholing vereist rond ${new Date(latestDate.setMonth(latestDate.getMonth() + 6)).toLocaleDateString('nl-BE')}.</span>
+                  </div>
+                `;
+              }
+            }
+          }
+        }
+
+        vCard.innerHTML = `
+          <div class="vehicle-header">
+            <div class="vehicle-title">🚛 ${vInfo.name}</div>
+            <div style="font-size:12px; font-weight:bold; color:#ffb74d;">${completedCount} / ${omKeys.length} Voltooid (${progressPercent}%)</div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${progressPercent}%;"></div>
+          </div>
+          ${refresherHTML}
+        `;
+
+        vCard.appendChild(omGrid);
+        container.appendChild(vCard);
+      });
+    }
+
+    // AFVINKEN VAN EEN OEFENMOMENT
+    window.toggleOM = async function(vehicleCode, omKey, isChecked) {
+      const progressKey = `${vehicleCode}_${omKey}`;
+      const now = new Date();
+      const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+      if (isChecked) {
+        userProgressData[progressKey] = {
+          date: formattedDate,
+          rawDate: now.toISOString()
+        };
+      } else {
+        delete userProgressData[progressKey];
+      }
+
+      renderDriverVehicles();
+
+      if (db) {
+        try {
+          const cleanUser = currentUser.toLowerCase().trim().replace(/\s+/g, '_');
+          await setDoc(doc(db, "chauffeur_voortgang", cleanUser), {
+            gebruiker: currentUser,
+            voortgang: userProgressData,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        } catch (err) {
+          console.error("Fout bij opslaan voortgang:", err);
+        }
+      }
+    };
+
+    // ADMIN OVERZICHT: ALLE CHAUFFEURS EN HUN VOORTGANG
+    async function loadAdminDriversProgress(drivers) {
+      const tbody = document.getElementById('adminDriversTableBody');
+      tbody.innerHTML = '';
+
+      if (drivers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#888;">Geen niet-admin chauffeurs gevonden.</td></tr>';
+        return;
+      }
+
+      const halfIndex = Math.ceil(drivers.length / 2);
+
+      for (let i = 0; i < drivers.length; i++) {
+        const driver = drivers[i];
+        const groupKey = i < halfIndex ? "groep1" : "groep2";
+        const groupLabel = groupKey === "groep1" ? "Groep 1" : "Groep 2";
+
+        // Voortgang ophalen uit Firestore
+        let driverProgress = {};
+        try {
+          const cleanName = driver.name.toLowerCase().trim().replace(/\s+/g, '_');
+          const snap = await getDoc(doc(db, "chauffeur_voortgang", cleanName));
+          if (snap.exists()) {
+            driverProgress = snap.data().voortgang || {};
+          }
+        } catch (e) {
+          console.error(e);
+        }
+
+        // Bereken Voorjaar %
+        const voorjaarVehicles = GROUP_ASSIGNMENTS[groupKey]["voorjaar"];
+        let vDone = 0, vTotal = 0;
+        voorjaarVehicles.forEach(v => {
+          const oms = Object.keys(VEHICLE_DATA[v]?.oms || {});
+          vTotal += oms.length;
+          oms.forEach(k => { if (driverProgress[`${v}_${k}`]) vDone++; });
+        });
+        const voorjaarPercent = vTotal > 0 ? Math.round((vDone / vTotal) * 100) : 0;
+
+        // Bereken Najaar %
+        const najaarVehicles = GROUP_ASSIGNMENTS[groupKey]["najaar"];
+        let nDone = 0, nTotal = 0;
+        najaarVehicles.forEach(v => {
+          const oms = Object.keys(VEHICLE_DATA[v]?.oms || {});
+          nTotal += oms.length;
+          oms.forEach(k => { if (driverProgress[`${v}_${k}`]) nDone++; });
+        });
+        const najaarPercent = nTotal > 0 ? Math.round((nDone / nTotal) * 100) : 0;
+
+        // L549 status
+        const l549Oms = Object.keys(VEHICLE_DATA["L549"].oms);
+        const l549DoneCount = l549Oms.filter(k => driverProgress[`L549_${k}`]).length;
+        let l549Badge = `<span style="color:#ff9800;">${l549DoneCount}/${l549Oms.length} OM's</span>`;
+        if (l549DoneCount === l549Oms.length) {
+          l549Badge = `<span style="color:#81c784; font-weight:bold;">✓ Voltooid</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td data-label="Chauffeur"><strong>👤 ${driver.name}</strong></td>
+          <td data-label="Groep"><span class="period-badge" style="padding:2px 8px; font-size:10px;">${groupLabel}</span></td>
+          <td data-label="Voorjaar Voortgang">${voorjaarPercent}% (${vDone}/${vTotal})</td>
+          <td data-label="Najaar Voortgang">${najaarPercent}% (${nDone}/${nTotal})</td>
+          <td data-label="L549 Status">${l549Badge}</td>
+          <td data-label="Details"><button class="btn-detail" onclick="openAdminDriverModal('${driver.name}', '${groupKey}')">👁️ Details</button></td>
+        `;
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    // ADMIN POP-UP DETAILED VIEW PER CHAUFFEUR
+    window.openAdminDriverModal = async function(driverName, groupKey) {
+      const modal = document.getElementById('adminDriverModal');
+      document.getElementById('adminDriverModalTitle').textContent = `👤 Details: ${driverName}`;
+
+      let driverProgress = {};
+      try {
+        const cleanName = driverName.toLowerCase().trim().replace(/\s+/g, '_');
+        const snap = await getDoc(doc(db, "chauffeur_voortgang", cleanName));
+        if (snap.exists()) {
+          driverProgress = snap.data().voortgang || {};
+        }
+      } catch (e) {}
+
+      let html = `<p style="font-size:12px; color:#aaa; margin-bottom:12px;">Overzicht van alle afgevinkte oefenmomenten per voertuig.</p>`;
+
+      const allVehicles = ["voorjaar", "najaar"];
+      allVehicles.forEach(period => {
+        const vehicles = GROUP_ASSIGNMENTS[groupKey][period];
+        html += `<h4 style="color:#ffb74d; border-bottom:1px solid #444; padding-bottom:4px; margin-top:10px; font-size:13px; text-transform:uppercase;">${period} Voertuigen:</h4>`;
+        
+        vehicles.forEach(vCode => {
+          const vInfo = VEHICLE_DATA[vCode];
+          if (!vInfo) return;
+
+          html += `<div style="margin-top:8px; background:#282828; padding:8px; border-radius:6px;">`;
+          html += `<strong style="color:#ff4d4d; font-size:12px;">🚛 ${vInfo.name}</strong>`;
+          html += `<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:6px;">`;
+
+          Object.keys(vInfo.oms).forEach(omKey => {
+            const key = `${vCode}_${omKey}`;
+            const isDone = !!driverProgress[key];
+            const dateStr = driverProgress[key]?.date || '';
+
+            if (isDone) {
+              html += `<div style="font-size:11px; color:#81c784;">✓ ${omKey}: ${dateStr}</div>`;
+            } else {
+              html += `<div style="font-size:11px; color:#888;">✗ ${omKey}: Niet gedaan</div>`;
+            }
+          });
+
+          html += `</div></div>`;
+        });
+      });
+
+      document.getElementById('adminDriverModalBody').innerHTML = html;
+      modal.style.display = 'flex';
+    };
+
+    // INITIATIE
+    initApp();
+  </script>
+</body>
+</html>
