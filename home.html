@@ -236,6 +236,16 @@
 </head>
 <body>
 
+  <!-- Notificatie Toestemming Banner -->
+  <div id="notificationBanner" style="display: none; position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 480px; background: #222; border: 2px solid #ff9800; color: white; padding: 14px 18px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.8); z-index: 10000; text-align: center;">
+    <div style="font-weight: bold; font-size: 15px; color: #ffb74d; margin-bottom: 4px;">🔔 Push-notificaties inschakelen</div>
+    <div style="font-size: 12px; color: #ddd; margin-bottom: 12px; line-height: 1.4;">Ontvang direct belangrijke berichten, voertuigaanvragen en dienst-ruilingen op het vergrendelscherm van je gsm.</div>
+    <div style="display: flex; gap: 8px; justify-content: center;">
+      <button id="btnEnableHomeNotifications" style="background: #ff9800; color: #000; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;">Inschakelen</button>
+      <button onclick="document.getElementById('notificationBanner').style.display='none'" style="background: #333; color: white; border: 1px solid #555; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Laten wezen</button>
+    </div>
+  </div>
+
   <!-- HEADER -->
   <header>
     <div class="header-container">
@@ -342,7 +352,7 @@
   <!-- FIREBASE & SCRIPT LOGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // Firebase Config
     const firebaseConfig = {
@@ -358,6 +368,84 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    async function triggerSystemNotification(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            reg.showNotification(title, {
+              body: body,
+              icon: 'icon-192.png',
+              badge: 'icon-192.png',
+              vibrate: [200, 100, 200],
+              tag: 'brandweer-home-notif',
+              renotify: true
+            });
+          } else {
+            new Notification(title, { body: body, icon: 'icon-192.png' });
+          }
+        } catch (e) {
+          console.warn("Systeemnotificatie mislukt:", e);
+        }
+      }
+    }
+
+    async function initHomepageNotifications() {
+      if (!('Notification' in window)) return;
+
+      const banner = document.getElementById('notificationBanner');
+      const btn = document.getElementById('btnEnableHomeNotifications');
+
+      const requestPermission = async () => {
+        try {
+          const perm = await Notification.requestPermission();
+          if (perm === 'granted') {
+            if (banner) banner.style.display = 'none';
+            triggerSystemNotification("🔔 Notificaties Geactiveerd", "Je bent nu aangemeld voor belangrijke updates op je gsm.");
+          } else {
+            if (banner) banner.style.display = 'block';
+          }
+        } catch (err) {
+          if (banner) banner.style.display = 'block';
+        }
+      };
+
+      if (Notification.permission === 'default') {
+        // Vraag direct toestemming
+        await requestPermission();
+      } else if (Notification.permission === 'granted') {
+        if (banner) banner.style.display = 'none';
+      } else if (Notification.permission === 'denied') {
+        if (banner) banner.style.display = 'block';
+      }
+
+      if (btn) {
+        btn.onclick = requestPermission;
+      }
+    }
+
+    function listenToNotifications(currentUser) {
+      let initialLoad = true;
+      const q = collection(db, "notificaties");
+      onSnapshot(q, (snapshot) => {
+        if (initialLoad) {
+          initialLoad = false;
+          return;
+        }
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const data = change.doc.data();
+            const isForMe = !data.voor || data.voor.toLowerCase() === currentUser.toLowerCase();
+            const isNotFromMe = !data.van || data.van.toLowerCase() !== currentUser.toLowerCase();
+
+            if (isForMe && isNotFromMe) {
+              triggerSystemNotification(data.titel || "Nieuwe Melding", data.bericht || "");
+            }
+          }
+        });
+      });
+    }
+
     // 1. INGLOGIN / GEBRUIKER CONTROLEREN
     const username = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
 
@@ -366,6 +454,8 @@
     } else {
       document.getElementById('displayUser').textContent = username;
       fetchUserData(username);
+      initHomepageNotifications();
+      listenToNotifications(username);
     }
 
     // Gebruikersgegevens & Functionaliteitenfilter ophalen uit Firestore
