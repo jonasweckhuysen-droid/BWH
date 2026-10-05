@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brandweer App - Duikers Oefeningen</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d32f2f">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #d32f2f;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .btn-nav:hover { background: #444; }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid #333;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      width: 100%;
+    }
+
+    .card h2 {
+      font-size: 16px;
+      color: #ff4d4d;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* USER BANNER & PROGRESS */
+    .user-info-banner {
+      background: linear-gradient(135deg, #102a38 0%, #1f1f1f 100%);
+      border: 2px solid #0288d1;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .banner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .user-details h3 {
+      font-size: 16px;
+      color: #29b6f6;
+      margin-bottom: 4px;
+    }
+
+    .user-details p {
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .goal-badge {
+      background: #002f43;
+      border: 1px solid #0288d1;
+      color: #81d4fa;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background: #121212;
+      border-radius: 10px;
+      height: 14px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9800, #4caf50);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ADMIN FORM CARD */
+    .admin-card {
+      border: 2px solid #ff9800;
+      background: linear-gradient(135deg, #241c12 0%, #1e1e1e 100%);
+      display: none;
+    }
+
+    .admin-card h2 { color: #ffb74d; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select, textarea {
+      padding: 10px 12px;
+      background: #2b2b2b;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      width: 100%;
+      min-height: 44px;
+      color-scheme: dark;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #ff4d4d;
+    }
+
+    .btn-submit {
+      margin-top: 10px;
+      padding: 12px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.3s;
+      min-height: 46px;
+      width: 100%;
+    }
+
+    .btn-submit:hover { background: #ff4d4d; }
+
+    /* EXERCISES LIST */
+    .exercises-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .exercise-card {
+      background: #252525;
+      border: 1px solid #383838;
+      border-left: 5px solid #0288d1;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .exercise-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .exercise-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #81d4fa;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      background: #112733;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #0288d1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .exercise-objective {
+      font-size: 13px;
+      color: #ddd;
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 6px;
+      border-left: 3px solid #ff9800;
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+
+    .attendance-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #1c1c1c;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #333;
+    }
+
+    .status-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-status {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2b2b2b;
+      color: #aaa;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-status.active-present {
+      background: #2e7d32;
+      color: white;
+      border-color: #4caf50;
+    }
+
+    .btn-status.active-absent {
+      background: #c62828;
+      color: white;
+      border-color: #ef5350;
+    }
+
+    .attendees-summary {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .btn-delete-exercise {
+      background: #b71c1c;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-delete-exercise:hover { background: #d32f2f; }
+
+    /* ADMIN STATS TABLE */
+    .drivers-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+    }
+
+    th {
+      background: #252525;
+      color: #ff4d4d;
+    }
+
+    @media (max-width: 650px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+      }
+
+      thead { display: none; }
+
+      tr {
+        background: #262626;
+        border: 1px solid #383838;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid #333;
+        padding: 6px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      td:last-child { border-bottom: none; }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #ff4d4d;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+    }
+
+    .badge-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .badge-success { background: #2e7d32; color: white; }
+    .badge-warning { background: #ef6c00; color: white; }
+
+    .btn-detail {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-detail:hover { background: #2196f3; }
+
+    /* CUSTOM MODALS */
+    .custom-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .custom-modal {
+      background: #1e1e1e;
+      border: 2px solid #d32f2f;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(211, 47, 47, 0.4);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-icon { font-size: 36px; margin-bottom: 8px; }
+    .modal-title { font-size: 16px; font-weight: bold; color: #ff4d4d; margin-bottom: 8px; }
+    .modal-text { font-size: 13px; color: #ddd; margin-bottom: 16px; line-height: 1.4; text-align: left; }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-modal {
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn-modal-primary { background: #d32f2f; color: white; }
+    .btn-modal-secondary { background: #444; color: white; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🤿 Duikers & Assistenten</h1>
+      <a href="home.html" class="btn-nav">← Home</a>
+    </header>
+
+    <!-- USER BANNER & ANNUAL PROGRESS -->
+    <div class="user-info-banner">
+      <div class="banner-header">
+        <div class="user-details">
+          <h3 id="userName">👤 Laden van profiel...</h3>
+          <p id="userRole">Duiker / Assistent</p>
+        </div>
+        <div class="goal-badge" id="annualBadge">
+          🤿 Jaardoel: 0 / 6 Oefeningen
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 11px; color: #aaa; margin-bottom: 4px; display:flex; justify-content:space-between;">
+          <span>Voortgang Oefeningen <span id="currentYearText">2026</span></span>
+          <span id="progressPercentageText">0%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="annualProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN FORM: OEFENING TOEVOEGEN -->
+    <div class="card admin-card" id="adminFormCard">
+      <h2>⚙ Beheer: Duikoefening Plannen</h2>
+      <form id="exerciseForm">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="datum">Datum Oefening</label>
+            <input type="date" id="datum" required>
+          </div>
+
+          <div class="form-group">
+            <label for="tijd">Aanvangsuur</label>
+            <input type="time" id="tijd" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="locatie">Locatie / Duikplek</label>
+            <input type="text" id="locatie" placeholder="bijv. Zilvermeer Mol, Put van Ekeren, Kazerne Herentals, ..." required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="oefendoel">Oefendoel & Programma</label>
+            <textarea id="oefendoel" placeholder="Geef een omschrijving van de oefening (bijv. Noodprocedures, Zoekpatronen, Nachtduik, ...)" required></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">➕ Duikoefening Opslaan & Publiceren</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- SECTIE: GEPLANDE DUIKOEFENINGEN -->
+    <div class="card">
+      <h2>📋 Geplande Duikoefeningen</h2>
+      <div id="exercisesContainer" class="exercises-list">
+        <div style="color:#888; text-align:center; padding:20px;">Laden van oefeningen...</div>
+      </div>
+    </div>
+
+    <!-- SECTIE: ADMIN OVERZICHT ALLE DUIKERS -->
+    <div class="card admin-card" id="adminPanel">
+      <h2>📊 Beheer: Jaarvoortgang Alle Duikers & Assistenten</h2>
+      <p style="font-size:12px; color:#ccc; margin-bottom:12px;">
+        ℹ️️ Iedere duiker en assistent moet minstens <strong>6 oefeningen per kalenderjaar</strong> bijwonen.
+      </p>
+
+      <div class="drivers-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Functie</th>
+              <th>Bijgewoond (<span class="currentYearLabel">2026</span>)</th>
+              <th>Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="adminDiverTableBody">
+            <tr><td colspan="5" style="text-align:center; color:#888;">Laden van duikers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CUSTOM POP-UP MODAL -->
+  <div class="custom-modal-overlay" id="customModal">
+    <div class="custom-modal">
+      <div class="modal-icon" id="modalIcon">🤿</div>
+      <div class="modal-title" id="modalTitle">Melding</div>
+      <div class="modal-text" id="modalText">Berichtinhoud...</div>
+      <div class="modal-actions" id="modalActions">
+        <button class="btn-modal btn-modal-primary" id="modalOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE APPLICATION SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      onSnapshot, 
+      updateDoc,
+      deleteDoc, 
+      doc, 
+      query, 
+      where, 
+      getDocs,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
+      authDomain: "bwhnew.firebaseapp.com",
+      projectId: "bwhnew",
+      storageBucket: "bwhnew.firebasestorage.app",
+      messagingSenderId: "822224776722",
+      appId: "1:822224776722:web:ad39bec266c20a6622b2cb",
+      measurementId: "G-5CRMVYSQ7W"
+    };
+
+    let db = null;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    } catch (e) {
+      console.warn("Firebase niet geïnitieerd:", e);
+    }
+
+    let currentUser = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username') || "Demo Duiker";
+    let currentUserData = null;
+    let isAdmin = false;
+
+    const currentYear = new Date().getFullYear();
+    document.querySelectorAll('.currentYearLabel').forEach(el => el.textContent = currentYear);
+    document.getElementById('currentYearText').textContent = currentYear;
+
+    // Custom Modal Helpers
+    function showNotification(title, message, icon = '🤿') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+        
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `<button class="btn-modal btn-modal-primary" id="modalOkBtn">Begrepen</button>`;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalOkBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+      });
+    }
+
+    function showConfirm(title, message, icon = '❓') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('customModal');
+        document.getElementById('modalIcon').textContent = icon;
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = message;
+
+        const actions = document.getElementById('modalActions');
+        actions.innerHTML = `
+          <button class="btn-modal btn-modal-secondary" id="modalCancelBtn">Annuleren</button>
+          <button class="btn-modal btn-modal-primary" id="modalConfirmBtn">Bevestigen</button>
+        `;
+
+        modal.style.display = 'flex';
+
+        document.getElementById('modalConfirmBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(true);
+        };
+
+        document.getElementById('modalCancelBtn').onclick = () => {
+          modal.style.display = 'none';
+          resolve(false);
+        };
+      });
+    }
+
+    async function initUser() {
+      document.getElementById('userName').textContent = `👤 ${currentUser}`;
+
+      if (!db) return;
+
+      try {
+        const cleanUser = currentUser.toLowerCase().trim();
+        const snap = await getDocs(collection(db, "leden"));
+
+        snap.forEach(d => {
+          const data = d.data();
+          const fullName = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim();
+          
+          if (fullName.toLowerCase() === cleanUser) {
+            currentUserData = { id: d.id, ...data };
+            if (data.rol === 'admin') {
+              isAdmin = true;
+              document.querySelectorAll('.admin-card').forEach(card => card.style.display = 'block');
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Fout bij laden gebruiker:", err);
+      }
+    }
+
+    const exerciseForm = document.getElementById('exerciseForm');
+    exerciseForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!db) {
+        showNotification('Fout', 'Geen verbinding met de database.', '⚠️');
+        return;
+      }
+
+      const datum = document.getElementById('datum').value;
+      const tijd = document.getElementById('tijd').value;
+      const locatie = document.getElementById('locatie').value.trim();
+      const oefendoel = document.getElementById('oefendoel').value.trim();
+
+      try {
+        await addDoc(collection(db, "duiker_oefeningen"), {
+          datum,
+          tijd,
+          locatie,
+          oefendoel,
+          toegevoegdDoor: currentUser,
+          aanwezigheid: {},
+          created: serverTimestamp()
+        });
+
+        await showNotification('Duikoefening Opgeslagen', 'De oefening is succesvol toegevoegd en gepubliceerd op de kalender.', '✅');
+        exerciseForm.reset();
+      } catch (err) {
+        console.error("Fout bij toevoegen oefening:", err);
+        showNotification('Fout', 'Er is een fout opgetreden bij het opslaan.', '⚠️');
+      }
+    });
+
+    function listenExercises() {
+      if (!db) return;
+
+      onSnapshot(collection(db, "duiker_oefeningen"), async (snapshot) => {
+        const container = document.getElementById('exercisesContainer');
+        container.innerHTML = '';
+
+        const exercises = [];
+        snapshot.forEach(docSnap => {
+          exercises.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // Sorteer op datum
+        exercises.sort((a, b) => (a.datum || '').localeCompare(b.datum || ''));
+
+        if (exercises.length === 0) {
+          container.innerHTML = '<div style="color:#888; text-align:center; padding:20px;">Er zijn momenteel geen geplande duikoefeningen.</div>';
+        } else {
+          renderExercisesList(exercises);
+        }
+
+        // Calculate progress for current user and all divers
+        calculateAnnualProgress(exercises);
+        if (isAdmin) {
+          loadAdminDiverStats(exercises);
+        }
+      });
+    }
+
+    function renderExercisesList(exercises) {
+      const container = document.getElementById('exercisesContainer');
+      container.innerHTML = '';
+
+      const cleanUser = currentUser.toLowerCase().trim().replace(/\s+/g, '_');
+
+      exercises.forEach(ex => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+
+        const dObj = new Date(ex.datum);
+        const formattedDate = dObj.toLocaleDateString('nl-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+        const userStatusObj = ex.aanwezigheid?.[cleanUser];
+        const currentStatus = userStatusObj?.status || 'none';
+
+        // Count totals
+        let presentCount = 0;
+        let absentCount = 0;
+        if (ex.aanwezigheid) {
+          Object.values(ex.aanwezigheid).forEach(v => {
+            if (v.status === 'aanwezig') presentCount++;
+            if (v.status === 'afwezig') absentCount++;
+          });
+        }
+
+        const deleteBtnHTML = isAdmin 
+          ? `<button class="btn-delete-exercise" onclick="deleteExercise('${ex.id}')">🗑️ Verwijderen</button>` 
+          : '';
+
+        card.innerHTML = `
+          <div class="exercise-header">
+            <div class="exercise-title">🤿 ${ex.locatie}</div>
+            ${deleteBtnHTML}
+          </div>
+          
+          <div class="exercise-meta">
+            <div class="meta-item">📅 ${formattedDate}</div>
+            <div class="meta-item">⏰ ${ex.tijd} uur</div>
+          </div>
+
+          <div class="exercise-objective">
+            <strong>Oefendoel:</strong><br>
+            ${ex.oefendoel}
+          </div>
+
+          <div class="attendance-section">
+            <div style="font-size:12px; color:#aaa;">Jouw status:</div>
+            <div class="status-buttons">
+              <button class="btn-status ${currentStatus === 'aanwezig' ? 'active-present' : ''}" 
+                      onclick="updateAttendance('${ex.id}', 'aanwezig')">
+                ✅ Aanwezig
+              </button>
+              <button class="btn-status ${currentStatus === 'afwezig' ? 'active-absent' : ''}" 
+                      onclick="updateAttendance('${ex.id}', 'afwezig')">
+                ❌ Afwezig
+              </button>
+            </div>
+          </div>
+
+          <div class="attendees-summary">
+            👥 <strong>Aanwezig:</strong> ${presentCount} | <strong>Afwezig:</strong> ${absentCount}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    window.updateAttendance = async function(exerciseId, newStatus) {
+      if (!db) return;
+
+      try {
+        const cleanUser = currentUser.toLowerCase().trim().replace(/\s+/g, '_');
+        const exRef = doc(db, "duiker_oefeningen", exerciseId);
+
+        await updateDoc(exRef, {
+          [`aanwezigheid.${cleanUser}`]: {
+            status: newStatus,
+            naam: currentUser,
+            updatedAt: new Date().toISOString()
+          }
+        });
+      } catch (err) {
+        console.error("Fout bij bijwerken aanwezigheid:", err);
+      }
+    };
+
+    window.deleteExercise = async function(exerciseId) {
+      if (!db) return;
+
+      const confirmed = await showConfirm('Oefening Verwijderen', 'Weet je zeker dat je deze duikoefening wilt verwijderen?', '❓');
+      if (confirmed) {
+        try {
+          await deleteDoc(doc(db, "duiker_oefeningen", exerciseId));
+          showNotification('Verwijderd', 'De oefening is verwijderd.', '🗑️');
+        } catch (err) {
+          console.error("Fout bij verwijderen:", err);
+        }
+      }
+    };
+
+    function calculateAnnualProgress(exercises) {
+      const cleanUser = currentUser.toLowerCase().trim().replace(/\s+/g, '_');
+      let attendedCount = 0;
+
+      exercises.forEach(ex => {
+        const exYear = new Date(ex.datum).getFullYear();
+        if (exYear === currentYear) {
+          if (ex.aanwezigheid?.[cleanUser]?.status === 'aanwezig') {
+            attendedCount++;
+          }
+        }
+      });
+
+      const target = 6;
+      const percent = Math.min(Math.round((attendedCount / target) * 100), 100);
+
+      document.getElementById('annualBadge').textContent = `🤿 Jaardoel ${currentYear}: ${attendedCount} / ${target} Oefeningen`;
+      document.getElementById('progressPercentageText').textContent = `${percent}%`;
+      document.getElementById('annualProgressBar').style.width = `${percent}%`;
+    }
+
+    async function loadAdminDiverStats(exercises) {
+      const tbody = document.getElementById('adminDiverTableBody');
+      if (!tbody) return;
+
+      try {
+        const snap = await getDocs(collection(db, "leden"));
+        const divers = [];
+
+        snap.forEach(d => {
+          const data = d.data();
+          const specs = (data.specialisaties || []).map(s => s.toLowerCase());
+          const isDuiker = specs.some(s => s.includes('duiker') || s.includes('assistent'));
+
+          if (isDuiker) {
+            const firstName = (data.voornaam || '').trim();
+            const lastName = (data.achternaam || '').trim();
+            const fullName = (data.volledigeNaam || `${firstName} ${lastName}`).trim();
+
+            divers.push({
+              id: d.id,
+              name: fullName,
+              role: specs.some(s => s.includes('assistent')) ? 'Duikersassistent' : 'Duiker'
+            });
+          }
+        });
+
+        // Sorteer alfabetisch op achternaam
+        divers.sort((a, b) => a.name.localeCompare(b.name, 'nl'));
+
+        tbody.innerHTML = '';
+
+        if (divers.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Geen duikers of assistenten gevonden in de ledenlijst.</td></tr>';
+          return;
+        }
+
+        divers.forEach(diver => {
+          const cleanName = diver.name.toLowerCase().trim().replace(/\s+/g, '_');
+          let attendedCount = 0;
+
+          exercises.forEach(ex => {
+            const exYear = new Date(ex.datum).getFullYear();
+            if (exYear === currentYear && ex.aanwezigheid?.[cleanName]?.status === 'aanwezig') {
+              attendedCount++;
+            }
+          });
+
+          const isGoalReached = attendedCount >= 6;
+          const statusBadge = isGoalReached 
+            ? `<span class="badge-status badge-success">✓ Doel Behaald (${attendedCount}/6)</span>`
+            : `<span class="badge-status badge-warning">⚠️ ${attendedCount}/6 Oefeningen</span>`;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td data-label="Naam"><strong>👤 ${diver.name}</strong></td>
+            <td data-label="Functie">${diver.role}</td>
+            <td data-label="Bijgewoond"><strong>${attendedCount}x</strong></td>
+            <td data-label="Status">${statusBadge}</td>
+            <td data-label="Details"><button class="btn-detail" onclick="openDiverDetailModal('${diver.name}')">👁️ Details</button></td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error("Fout bij laden admin duikersoverzicht:", err);
+      }
+    }
+
+    window.openDiverDetailModal = async function(diverName) {
+      const cleanName = diverName.toLowerCase().trim().replace(/\s+/g, '_');
+      
+      const snap = await getDocs(collection(db, "duiker_oefeningen"));
+      const exercises = [];
+      snap.forEach(d => exercises.push({ id: d.id, ...d.data() }));
+
+      exercises.sort((a, b) => (a.datum || '').localeCompare(b.datum || ''));
+
+      let html = `<h3 style="color:#29b6f6; margin-bottom:8px; font-size:15px;">Overzicht oefeningen voor ${diverName}</h3>`;
+      html += `<div style="display:flex; flex-direction:column; gap:8px;">`;
+
+      let attendedTotal = 0;
+
+      exercises.forEach(ex => {
+        const status = ex.aanwezigheid?.[cleanName]?.status || 'geen_reactie';
+        const dObj = new Date(ex.datum);
+        const formattedDate = dObj.toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' });
+
+        let statusText = '<span style="color:#888;">Geen reactie</span>';
+        if (status === 'aanwezig') {
+          attendedTotal++;
+          statusText = '<span style="color:#81c784; font-weight:bold;">✓ Aanwezig</span>';
+        } else if (status === 'afwezig') {
+          statusText = '<span style="color:#e57373;">✗ Afwezig</span>';
+        }
+
+        html += `
+          <div style="background:#262626; padding:8px 10px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+            <div>
+              <strong>${formattedDate}</strong> - ${ex.locatie}
+            </div>
+            <div>${statusText}</div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      html += `<p style="margin-top:12px; font-weight:bold; color:#ffb74d;">Totaal bijgewoond in ${currentYear}: ${attendedTotal} / 6 oefeningen.</p>`;
+
+      showNotification(`🔍 Details Duiker`, html, '🤿');
+    };
+
+    async function init() {
+      await initUser();
+      listenExercises();
+    }
+
+    init();
+  </script>
+</body>
+</html>
