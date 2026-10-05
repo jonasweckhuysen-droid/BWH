@@ -642,6 +642,58 @@
       "2026-07-21", "2026-08-15", "2026-11-01", "2026-11-11", "2026-12-25"
     ];
 
+    // BEREKENING BELGISCHE SCHOOLVAKANTIES
+    function getEasterDate(year) {
+      const f = Math.floor,
+        G = year % 19,
+        C = f(year / 100),
+        H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+        I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)),
+        J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+        L = I - J,
+        m = 3 + f((L + 40) / 44),
+        d = L + 28 - 31 * f(m / 4);
+      return new Date(year, m - 1, d);
+    }
+
+    function isBelgianSchoolHoliday(dateObj) {
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth(); // 0-indexed
+      const day = dateObj.getDate();
+
+      // 1. Zomervakantie: 1 juli t.m. 31 augustus
+      if (month === 6 || month === 7) return true;
+
+      // 2. Kerstvakantie: ca. 24 dec t.m. eerste week jan
+      if ((month === 11 && day >= 24) || (month === 0 && day <= 8)) return true;
+
+      const easter = getEasterDate(year);
+
+      // 3. Krokusvakantie: 7 weken voor Pasen (ma t.m. zo)
+      const krokusStart = new Date(easter);
+      krokusStart.setDate(easter.getDate() - 48);
+      const krokusEnd = new Date(krokusStart);
+      krokusEnd.setDate(krokusStart.getDate() + 6);
+      if (dateObj >= krokusStart && dateObj <= krokusEnd) return true;
+
+      // 4. Paasvakantie: 2 weken rond Pasen
+      const paasStart = new Date(easter);
+      paasStart.setDate(easter.getDate() - 6);
+      const paasEnd = new Date(paasStart);
+      paasEnd.setDate(paasStart.getDate() + 13);
+      if (dateObj >= paasStart && dateObj <= paasEnd) return true;
+
+      // 5. Herfstvakantie: week van 1 november
+      const nov1 = new Date(year, 10, 1);
+      const nov1Day = nov1.getDay() === 0 ? 7 : nov1.getDay();
+      const herfstStart = new Date(year, 10, 1 - (nov1Day - 1));
+      const herfstEnd = new Date(herfstStart);
+      herfstEnd.setDate(herfstStart.getDate() + 6);
+      if (dateObj >= herfstStart && dateObj <= herfstEnd) return true;
+
+      return false;
+    }
+
     function setupMonthSelectorsDirect() {
       const targetMonthSelect = document.getElementById('selectTargetMonth');
       const rosterMonthSelect = document.getElementById('selectRosterMonth');
@@ -734,21 +786,34 @@
 
         const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isHoliday = window.holidays.includes(dateStr);
+        const isVacation = isBelgianSchoolHoliday(dateObj);
+
+        // Tijdens schoolvakantie is er ENKEL op donderdag (dayOfWeek === 4) permanentie
+        const isNoServiceVacationDay = isVacation && dayOfWeek !== 4;
 
         const div = document.createElement('div');
         div.className = 'day-box';
-        if (isHoliday) div.classList.add('holiday');
+        if (isHoliday || isNoServiceVacationDay) div.classList.add('holiday');
         if (window.selectedDays.has(dateStr)) div.classList.add('selected');
 
         const dayName = dateObj.toLocaleDateString('nl-BE', { weekday: 'short' });
 
+        let statusText = window.selectedDays.has(dateStr) ? 'Beschikbaar' : 'Niet beschikbaar';
+        if (isHoliday) {
+          statusText = 'Feestdag';
+        } else if (isNoServiceVacationDay) {
+          statusText = 'Vakantie (Geen Dienst)';
+        } else if (isVacation && dayOfWeek === 4) {
+          statusText = window.selectedDays.has(dateStr) ? 'Beschikbaar' : 'Vakantiedienst (Do)';
+        }
+
         div.innerHTML = `
-          <div class="day-name">${dayName}</div>
+          <div class="day-name">${dayName} ${isVacation ? '🏖️' : ''}</div>
           <div class="day-date">${day} ${dateObj.toLocaleDateString('nl-BE', { month: 'short' })}</div>
-          <div class="day-status">${isHoliday ? 'Feestdag' : (window.selectedDays.has(dateStr) ? 'Beschikbaar' : 'Niet beschikbaar')}</div>
+          <div class="day-status">${statusText}</div>
         `;
 
-        if (!isHoliday) {
+        if (!isHoliday && !isNoServiceVacationDay) {
           div.onclick = () => {
             if (window.selectedDays.has(dateStr)) {
               window.selectedDays.delete(dateStr);
@@ -1091,7 +1156,11 @@
           const dayOfWeek = dateObj.getDay();
           const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-          if (dayOfWeek === 0 || dayOfWeek === 6 || window.holidays.includes(dateStr)) continue;
+          const isHoliday = window.holidays.includes(dateStr);
+          const isVacation = isBelgianSchoolHoliday(dateObj);
+
+          // Geen permanentie op weekenden, feestdagen, en vakantiedagen behalve donderdag (dayOfWeek === 4)
+          if (dayOfWeek === 0 || dayOfWeek === 6 || isHoliday || (isVacation && dayOfWeek !== 4)) continue;
 
           let candidates = availMap[dateStr] || [];
           candidates.sort((a, b) => a.count - b.count);
