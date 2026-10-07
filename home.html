@@ -7,7 +7,7 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#d32f2f">
-  <link rel="apple-touch-icon" href="Designer.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
   <style>
     * {
@@ -346,6 +346,11 @@
         <div class="app-icon">🚧</div>
         <div class="app-title">Wegenwerken</div>
       </a>
+
+      <a href="https://wespen.brandweerzonekempen.be/planning" target="_self" class="app-card" data-module="wespen">
+        <div class="app-icon">🐝</div>
+        <div class="app-title">Wespen</div>
+      </a>
     </div>
   </main>
 
@@ -375,14 +380,14 @@
             const reg = await navigator.serviceWorker.ready;
             reg.showNotification(title, {
               body: body,
-              icon: 'Designer.png',
-              badge: 'Designer.png',
+              icon: 'icon-192.png',
+              badge: 'icon-192.png',
               vibrate: [200, 100, 200],
               tag: 'brandweer-home-notif',
               renotify: true
             });
           } else {
-            new Notification(title, { body: body, icon: 'Designer.png' });
+            new Notification(title, { body: body, icon: 'icon-192.png' });
           }
         } catch (e) {
           console.warn("Systeemnotificatie mislukt:", e);
@@ -534,7 +539,7 @@
           "wegenwerken"
         ]);
       } else {
-        // Standaard Brandweerman ("Geen functie")
+        // Standaard Brandweerman ("Geen functie") - inclusief Wespen
         allowedModules = new Set([
           "abiweb",
           "defectmelding",
@@ -544,7 +549,8 @@
           "verdi",
           "vlam",
           "voertuigreservatie",
-          "wegenwerken"
+          "wegenwerken",
+          "wespen"
         ]);
 
         // Uitbreiding op basis van specifieke functies/specialisaties
