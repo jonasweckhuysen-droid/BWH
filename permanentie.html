@@ -912,34 +912,56 @@
       try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
+          // 1. Zorg dat de Service Worker actief geregistreerd is
+          let swReg = null;
+          if ('serviceWorker' in navigator) {
+            swReg = await navigator.serviceWorker.register('./firebase-messaging-sw.js').catch(err => {
+              console.warn("[FCM] Service Worker registratie mislukt:", err);
+            });
+          }
+
+          // 2. Ophalen van het unieke FCM Push Token
+          // LET OP: Vervang de onderstaande VAPID Key door jouw echte sleutel uit Firebase Console!
+          const myVapidKey = "BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg;
+
           userFcmToken = await getToken(messaging, { 
-            vapidKey: "BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg"
+            vapidKey: myVapidKey,
+            serviceWorkerRegistration: swReg || undefined
           }).catch(err => {
-            console.warn("[FCM] getToken mislukt op permanentie.html:", err);
+            console.error("[FCM] getToken mislukt. Controleer je VAPID Key en firebase-messaging-sw.js:", err);
             return null;
           });
 
           if (userFcmToken) {
-            console.log("[FCM] Token gegenereerd:", userFcmToken);
+            console.log("[FCM] Token succesvol gegenereerd:", userFcmToken);
             const cleanTarget = currentUser.trim().toLowerCase();
             const querySnap = await getDocs(collection(db, "leden"));
 
-            querySnap.forEach(async (docSnap) => {
+            let foundMatch = false;
+            for (const docSnap of querySnap.docs) {
               const data = docSnap.data();
               const full = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim().toLowerCase();
+              const usernameField = (data.gebruikersnaam || data.username || '').trim().toLowerCase();
 
-              if (full === cleanTarget) {
+              if (full === cleanTarget || usernameField === cleanTarget || docSnap.id.toLowerCase() === cleanTarget) {
+                foundMatch = true;
                 await updateDoc(doc(db, "leden", docSnap.id), {
                   fcmToken: userFcmToken,
                   fcmTokenUpdatedAt: serverTimestamp()
                 });
-                console.log(`[FCM] Token opgeslagen in Firestore bij lid '${docSnap.id}'!`);
+                console.log(`[FCM] Token succesvol opgeslagen in Firestore bij lid '${docSnap.id}'!`);
               }
-            });
+            }
+
+            if (!foundMatch) {
+              console.warn(`[FCM] Waarschuwing: Geen lid gevonden in de 'leden' collectie met naam '${currentUser}'. Het token kon niet worden gekoppeld.`);
+            }
           }
+        } else {
+          console.log("[FCM] Notificatietoestemming geweigerd door de gebruiker.");
         }
       } catch (err) {
-        console.log("Geen notificatierechten verkregen:", err);
+        console.error("Geen notificatierechten verkregen of fout bij FCM:", err);
       }
     }
 
@@ -1118,8 +1140,15 @@
         const snapshot = await getDocs(q);
 
         if (!snapshot.empty) {
-          snapshot.forEach(docSnap => {
+          snapshot.forEach(async (docSnap) => {
             currentUserData = { id: docSnap.id, ...docSnap.data() };
+
+            // Automatisch ontbrekende permanentieTeller op 0 instellen in Firestore
+            if (currentUserData.permanentieTeller === undefined) {
+              currentUserData.permanentieTeller = 0;
+              await updateDoc(doc(db, "leden", docSnap.id), { permanentieTeller: 0 });
+            }
+
             if (currentUserData.rol === 'admin') {
               document.getElementById('adminPanel').style.display = 'block';
               loadStatsTable();
