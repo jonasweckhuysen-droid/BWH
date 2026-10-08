@@ -458,8 +458,9 @@
       getDocs,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
-    // Veilig navigeren helperfunctie om URL syntaxfouten te voorkomen in sandboxed iframes
+    // Veilig navigeren helperfunctie
     window.safeNavigate = function(targetUrl) {
       try {
         if (window.location && window.location.href) {
@@ -497,6 +498,41 @@
 
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('datum').min = todayStr;
+
+    // --- Sla het unieke FCM Push Token op in Firestore onder 'leden' ---
+    async function saveFcmToken(userName) {
+      if (!('Notification' in window)) return;
+
+      try {
+        if (Notification.permission === 'granted') {
+          const messaging = getMessaging(app);
+          
+          // Vraag FCM token aan bij Firebase
+          const token = await getToken(messaging, { 
+            vapidKey: 'BD8x_JOUW_VAPID_PUBLIC_KEY_HIER' 
+          }).catch(err => {
+            console.warn("FCM getToken zonder vapidKey of mislukt:", err);
+            return null;
+          });
+
+          if (token) {
+            console.log("FCM Token gegenereerd:", token);
+            // Zoek de gebruiker in Firestore en sla het FCM Token op
+            const q = query(collection(db, "leden"), where("volledigeNaam", "==", userName.toLowerCase()));
+            const querySnap = await getDocs(q);
+
+            querySnap.forEach(async (docSnap) => {
+              await updateDoc(doc(db, "leden", docSnap.id), {
+                fcmToken: token,
+                fcmTokenUpdatedAt: serverTimestamp()
+              });
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Fout bij ophalen/opslaan FCM Token:", err);
+      }
+    }
 
     // --- SYSTEEM NOTIFICATIES LOGICA (WERKT OOK IN BACKGROUND / VERGRENDELSCHERM) ---
     async function triggerSystemNotification(title, body) {
@@ -552,7 +588,7 @@
           if (change.type === "added") {
             const data = change.doc.data();
             const isForMe = !data.voor || data.voor.toLowerCase() === currentUser.toLowerCase();
-            const isNotFromMe = data.van.toLowerCase() !== currentUser.toLowerCase();
+            const isNotFromMe = !data.van || data.van.toLowerCase() !== currentUser.toLowerCase();
 
             if (isForMe && isNotFromMe) {
               triggerSystemNotification(data.titel || "Nieuwe Melding", data.bericht || "");
@@ -573,14 +609,16 @@
             const perm = await Notification.requestPermission();
             if (perm === 'granted') {
               btn.style.display = 'none';
+              await saveFcmToken(currentUser);
               triggerSystemNotification("🔔 Notificaties Geactiveerd", "Je ontvangt nu meldingen voor voertuigreservaties op je gsm.");
             }
           };
         } else if (Notification.permission === 'granted') {
           btn.style.display = 'none';
+          await saveFcmToken(currentUser);
         } else {
           btn.style.display = 'block';
-          btn.textContent = "⚠️️ Notificaties zijn geblokkeerd in je browserinstellingen";
+          btn.textContent = "⚠ Notificaties zijn geblokkeerd in je browserinstellingen";
         }
       }
     }
