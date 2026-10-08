@@ -394,7 +394,7 @@
           }
 
           // Strip eventuele onbedoelde spaties/regeleinden uit de VAPID Key
-          const rawVapidKey = 'BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg';
+          const rawVapidKey = 'BD8x_JOUW_VAPID_PUBLIC_KEY_HIER';
           const cleanVapidKey = rawVapidKey.trim();
 
           if (cleanVapidKey.includes('JOUW_VAPID_PUBLIC_KEY') || cleanVapidKey.length < 50) {
@@ -542,8 +542,10 @@
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
           const full = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim().toLowerCase();
+          const usernameField = (data.gebruikersnaam || data.username || '').trim().toLowerCase();
+          const docId = docSnap.id.trim().toLowerCase();
           
-          if (full === cleanTargetName) {
+          if (full === cleanTargetName || usernameField === cleanTargetName || docId === cleanTargetName) {
             matchedUserData = data;
           }
         });
@@ -564,12 +566,15 @@
           // Filter de moduleknoppen op basis van de functies/specialisaties
           applyModulePermissions(matchedUserData);
         } else {
-          // Fallback indien gebruiker niet gevonden is in de ledenlijst (standaard brandweerman)
-          applyModulePermissions({});
+          // GEBRUIKER NIET GEVONDEN IN DATABASE: Toegang weigeren & uitloggen
+          console.warn(`[Toegang Geweigerd] '${name}' staat niet in de 'leden' collectie.`);
+          localStorage.removeItem('bw_username');
+          sessionStorage.removeItem('bw_username');
+          sessionStorage.setItem('bw_login_error', `Toegang geweigerd: '${name}' staat niet geregistreerd in de ledenlijst.`);
+          window.location.href = 'index.html';
         }
       } catch (err) {
         console.error("Fout bij ophalen gebruikersrechten:", err);
-        applyModulePermissions({});
       }
     }
 
