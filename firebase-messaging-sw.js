@@ -1,6 +1,7 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
+// Vul hier je eigen Firebase-configuratie in
 firebase.initializeApp({
   apiKey: "AIzaSyD-whPB4HLBA_FZkYr5OtmJRR7ofXs_s_0",
   authDomain: "bwhnew.firebaseapp.com",
@@ -12,13 +13,16 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Berichten opvangen op de achtergrond (wanneer de app gesloten is)
+// Vang berichten op wanneer de app VOLLEDIG op de achtergrond of gesloten is
 messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification ? payload.notification.title : "Brandweer App";
+  console.log('[firebase-messaging-sw.js] Achtergrondbericht ontvangen: ', payload);
+
+  const notificationTitle = payload.notification?.title || "🚒 Brandweer App";
   const notificationOptions = {
-    body: payload.notification ? payload.notification.body : "Er is een nieuwe melding.",
-    icon: './icon-192.png',
-    badge: './icon-192.png'
+    body: payload.notification?.body || "Je hebt een nieuwe melding ontvangen.",
+    icon: 'Designer.png',
+    badge: 'Designer.png',
+    vibrate: [200, 100, 200]
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
