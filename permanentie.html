@@ -906,15 +906,37 @@
     let editingDate = null;
     let userFcmToken = null;
 
-    // NOTIFICATIES INITIALISEREN
+    // NOTIFICATIES INITIALISEREN EN TOKEN OPSAAN IN FIRESTORE
     async function initNotifications() {
-      if (!messaging) return;
+      if (!messaging || !db) return;
       try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           userFcmToken = await getToken(messaging, { 
-            vapidKey: "JOUW_VAPID_KEY_HIER_PLAKKEN"
+            vapidKey: "BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg"
+          }).catch(err => {
+            console.warn("[FCM] getToken mislukt op permanentie.html:", err);
+            return null;
           });
+
+          if (userFcmToken) {
+            console.log("[FCM] Token gegenereerd:", userFcmToken);
+            const cleanTarget = currentUser.trim().toLowerCase();
+            const querySnap = await getDocs(collection(db, "leden"));
+
+            querySnap.forEach(async (docSnap) => {
+              const data = docSnap.data();
+              const full = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim().toLowerCase();
+
+              if (full === cleanTarget) {
+                await updateDoc(doc(db, "leden", docSnap.id), {
+                  fcmToken: userFcmToken,
+                  fcmTokenUpdatedAt: serverTimestamp()
+                });
+                console.log(`[FCM] Token opgeslagen in Firestore bij lid '${docSnap.id}'!`);
+              }
+            });
+          }
         }
       } catch (err) {
         console.log("Geen notificatierechten verkregen:", err);
