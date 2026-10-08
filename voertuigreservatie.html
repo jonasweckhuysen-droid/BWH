@@ -501,36 +501,46 @@
 
     // --- Sla het unieke FCM Push Token op in Firestore onder 'leden' ---
     async function saveFcmToken(userName) {
-      if (!('Notification' in window)) return;
+      if (!('Notification' in window) || !db) return;
 
       try {
         if (Notification.permission === 'granted') {
           const messaging = getMessaging(app);
           
-          // Vraag FCM token aan bij Firebase
           const token = await getToken(messaging, { 
-            vapidKey: 'BD8x_JOUW_VAPID_PUBLIC_KEY_HIER' 
+            vapidKey: 'BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg' 
           }).catch(err => {
-            console.warn("FCM getToken zonder vapidKey of mislukt:", err);
+            console.warn("[FCM] getToken mislukt. Controleer je Public VAPID Key:", err);
             return null;
           });
 
           if (token) {
-            console.log("FCM Token gegenereerd:", token);
-            // Zoek de gebruiker in Firestore en sla het FCM Token op
-            const q = query(collection(db, "leden"), where("volledigeNaam", "==", userName.toLowerCase()));
-            const querySnap = await getDocs(q);
+            console.log("[FCM] Token gegenereerd:", token);
+            const cleanTarget = userName.trim().toLowerCase();
+            const querySnap = await getDocs(collection(db, "leden"));
 
+            let updated = false;
             querySnap.forEach(async (docSnap) => {
-              await updateDoc(doc(db, "leden", docSnap.id), {
-                fcmToken: token,
-                fcmTokenUpdatedAt: serverTimestamp()
-              });
+              const data = docSnap.data();
+              const full = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim().toLowerCase();
+
+              if (full === cleanTarget) {
+                updated = true;
+                await updateDoc(doc(db, "leden", docSnap.id), {
+                  fcmToken: token,
+                  fcmTokenUpdatedAt: serverTimestamp()
+                });
+                console.log(`[FCM] Token opgeslagen onder lid '${docSnap.id}'!`);
+              }
             });
+
+            if (!updated) {
+              console.warn(`[FCM] Geen match gevonden voor '${userName}' in de verzameling 'leden'.`);
+            }
           }
         }
       } catch (err) {
-        console.error("Fout bij ophalen/opslaan FCM Token:", err);
+        console.error("[FCM] Fout bij ophalen/opslaan FCM Token:", err);
       }
     }
 
