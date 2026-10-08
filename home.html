@@ -393,8 +393,17 @@
             });
           }
 
+          // Strip eventuele onbedoelde spaties/regeleinden uit de VAPID Key
+          const rawVapidKey = 'BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg';
+          const cleanVapidKey = rawVapidKey.trim();
+
+          if (cleanVapidKey.includes('JOUW_VAPID_PUBLIC_KEY') || cleanVapidKey.length < 50) {
+            console.error("[FCM Error] De VAPID Key is nog de placeholder of is te kort! Kopieer de juiste Public Key uit Firebase Console.");
+            return;
+          }
+
           const token = await getToken(messaging, { 
-            vapidKey: 'BD8x_JOUW_VAPID_PUBLIC_KEY_HIER',
+            vapidKey: cleanVapidKey,
             serviceWorkerRegistration: swReg || undefined
           }).catch(err => {
             console.warn("[FCM] getToken mislukt. Zorg dat je VAPID Key correct is ingesteld:", err);
