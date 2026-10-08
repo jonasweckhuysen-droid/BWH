@@ -236,6 +236,13 @@
 </head>
 <body>
 
+  <!-- Toegangscontrole Lader / Afscherming -->
+  <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #121212; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+    <div style="font-size: 42px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out;">🚒</div>
+    <div style="font-size: 16px; font-weight: bold; color: #ff4d4d;">Toegang Controleren...</div>
+    <div style="font-size: 12px; color: #888; margin-top: 6px;">Ledenlijst verifiëren in de database</div>
+  </div>
+
   <!-- Notificatie Toestemming Banner -->
   <div id="notificationBanner" style="display: none; position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 480px; background: #222; border: 2px solid #ff9800; color: white; padding: 14px 18px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.8); z-index: 10000; text-align: center;">
     <div style="font-weight: bold; font-size: 15px; color: #ffb74d; margin-bottom: 4px;">🔔 Push-notificaties inschakelen</div>
@@ -522,7 +529,9 @@
     // 1. INGLOGIN / GEBRUIKER CONTROLEREN
     const username = localStorage.getItem('bw_username') || sessionStorage.getItem('bw_username');
 
-    if (!username) {
+    if (!username || !username.trim()) {
+      localStorage.removeItem('bw_username');
+      sessionStorage.removeItem('bw_username');
       window.location.href = 'index.html';
     } else {
       document.getElementById('displayUser').textContent = username;
@@ -535,6 +544,13 @@
     async function fetchUserData(name) {
       const cleanTargetName = name.trim().toLowerCase();
       
+      if (!cleanTargetName) {
+        localStorage.removeItem('bw_username');
+        sessionStorage.removeItem('bw_username');
+        window.location.href = 'index.html';
+        return;
+      }
+
       try {
         const querySnapshot = await getDocs(collection(db, "leden"));
         let matchedUserData = null;
@@ -545,7 +561,12 @@
           const usernameField = (data.gebruikersnaam || data.username || '').trim().toLowerCase();
           const docId = docSnap.id.trim().toLowerCase();
           
-          if (full === cleanTargetName || usernameField === cleanTargetName || docId === cleanTargetName) {
+          // Strikte check: voorkom dat lege velden matchen met lege zoekopdrachten ("" === "")
+          const matchFull = full.length > 0 && full === cleanTargetName;
+          const matchUser = usernameField.length > 0 && usernameField === cleanTargetName;
+          const matchDoc = docId.length > 0 && docId === cleanTargetName;
+
+          if (matchFull || matchUser || matchDoc) {
             matchedUserData = data;
           }
         });
@@ -565,8 +586,12 @@
 
           // Filter de moduleknoppen op basis van de functies/specialisaties
           applyModulePermissions(matchedUserData);
+
+          // Verberg het beveiligingsscherm nadat de gebruiker succesvol is geverifieerd
+          const loader = document.getElementById('authLoader');
+          if (loader) loader.style.display = 'none';
         } else {
-          // GEBRUIKER NIET GEVONDEN IN DATABASE: Toegang weigeren & uitloggen
+          // GEBRUIKER NIET GEVONDEN IN DATABASE: Toegang weigeren & direct uitloggen
           console.warn(`[Toegang Geweigerd] '${name}' staat niet in de 'leden' collectie.`);
           localStorage.removeItem('bw_username');
           sessionStorage.removeItem('bw_username');
