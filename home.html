@@ -394,7 +394,7 @@
           }
 
           // Strip eventuele onbedoelde spaties/regeleinden uit de VAPID Key
-          const rawVapidKey = 'BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg';
+          const rawVapidKey = 'BD8x_JOUW_VAPID_PUBLIC_KEY_HIER';
           const cleanVapidKey = rawVapidKey.trim();
 
           if (cleanVapidKey.includes('JOUW_VAPID_PUBLIC_KEY') || cleanVapidKey.length < 50) {
@@ -710,30 +710,12 @@
   <script>
     let deferredPrompt;
 
-    // 1. Service Worker Registratie met Automatische Verversing
+    // 1. Service Worker Registratie (veilig zonder auto-refresh loop)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then((reg) => {
           console.log('Service Worker geregistreerd:', reg.scope);
-
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('Nieuwe versie gedetecteerd, pagina wordt vernieuwd...');
-                window.location.reload();
-              }
-            });
-          });
-        }).catch(err => console.error('Service Worker fout:', err));
-      });
-
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
+        }).catch(err => console.warn('Service Worker SW.js registratie niet actief:', err));
       });
     }
 
