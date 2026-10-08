@@ -385,15 +385,24 @@
 
       try {
         if (Notification.permission === 'granted') {
+          // Registreer expliciet met relatief pad voor GitHub Pages submappen (/BWH/)
+          let swReg = null;
+          if ('serviceWorker' in navigator) {
+            swReg = await navigator.serviceWorker.register('./firebase-messaging-sw.js').catch(err => {
+              console.warn("[FCM] Service Worker registratie mislukt:", err);
+            });
+          }
+
           const token = await getToken(messaging, { 
-            vapidKey: 'BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg' 
+            vapidKey: 'BD8x_JOUW_VAPID_PUBLIC_KEY_HIER',
+            serviceWorkerRegistration: swReg || undefined
           }).catch(err => {
             console.warn("[FCM] getToken mislukt. Zorg dat je VAPID Key correct is ingesteld:", err);
             return null;
           });
 
           if (token) {
-            console.log("[FCM] Token gegeneerd:", token);
+            console.log("[FCM] Token gegenereerd:", token);
             const cleanTarget = userName.trim().toLowerCase();
             const querySnap = await getDocs(collection(db, "leden"));
 
@@ -408,7 +417,7 @@
                   fcmToken: token,
                   fcmTokenUpdatedAt: serverTimestamp()
                 });
-                console.log(`[FCM] Token succesvol opgeslagen in Firestore onder lid '${docSnap.id}'!`);
+                console.log(`[FCM] Token opgeslagen in Firestore onder lid '${docSnap.id}'!`);
               }
             });
 
