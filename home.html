@@ -357,7 +357,8 @@
   <!-- FIREBASE & SCRIPT LOGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
     // Firebase Config
     const firebaseConfig = {
@@ -372,6 +373,54 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    let messaging = null;
+    try {
+      messaging = getMessaging(app);
+    } catch (e) {
+      console.warn("Messaging niet ondersteund in deze omgeving:", e);
+    }
+
+    async function saveFcmTokenToMember(userName) {
+      if (!('Notification' in window) || !db || !messaging) return;
+
+      try {
+        if (Notification.permission === 'granted') {
+          const token = await getToken(messaging, { 
+            vapidKey: 'BI-El5Gxt97aepAxNwDr7IxgE7mcSDW5FuPTj7NrUTGWYtHgQtwejZr5xWmOaYOIP-f9BDscDCuQlfMsUiUt2qg' 
+          }).catch(err => {
+            console.warn("[FCM] getToken mislukt. Zorg dat je VAPID Key correct is ingesteld:", err);
+            return null;
+          });
+
+          if (token) {
+            console.log("[FCM] Token gegeneerd:", token);
+            const cleanTarget = userName.trim().toLowerCase();
+            const querySnap = await getDocs(collection(db, "leden"));
+
+            let updated = false;
+            querySnap.forEach(async (docSnap) => {
+              const data = docSnap.data();
+              const full = (data.volledigeNaam || `${data.voornaam || ''} ${data.achternaam || ''}`).trim().toLowerCase();
+
+              if (full === cleanTarget) {
+                updated = true;
+                await updateDoc(doc(db, "leden", docSnap.id), {
+                  fcmToken: token,
+                  fcmTokenUpdatedAt: serverTimestamp()
+                });
+                console.log(`[FCM] Token succesvol opgeslagen in Firestore onder lid '${docSnap.id}'!`);
+              }
+            });
+
+            if (!updated) {
+              console.warn(`[FCM] Kan geen lid vinden met naam '${userName}' in de verzameling 'leden'.`);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("[FCM] Fout bij opslaan FCM Token:", err);
+      }
+    }
 
     async function triggerSystemNotification(title, body) {
       if ('Notification' in window && Notification.permission === 'granted') {
@@ -395,7 +444,7 @@
       }
     }
 
-    async function initHomepageNotifications() {
+    async function initHomepageNotifications(userName) {
       if (!('Notification' in window)) return;
 
       const banner = document.getElementById('notificationBanner');
@@ -406,6 +455,7 @@
           const perm = await Notification.requestPermission();
           if (perm === 'granted') {
             if (banner) banner.style.display = 'none';
+            await saveFcmTokenToMember(userName);
             triggerSystemNotification("🔔 Notificaties Geactiveerd", "Je bent nu aangemeld voor belangrijke updates op je gsm.");
           } else {
             if (banner) banner.style.display = 'block';
@@ -416,10 +466,10 @@
       };
 
       if (Notification.permission === 'default') {
-        // Vraag direct toestemming
         await requestPermission();
       } else if (Notification.permission === 'granted') {
         if (banner) banner.style.display = 'none';
+        await saveFcmTokenToMember(userName);
       } else if (Notification.permission === 'denied') {
         if (banner) banner.style.display = 'block';
       }
@@ -459,7 +509,7 @@
     } else {
       document.getElementById('displayUser').textContent = username;
       fetchUserData(username);
-      initHomepageNotifications();
+      initHomepageNotifications(username);
       listenToNotifications(username);
     }
 
